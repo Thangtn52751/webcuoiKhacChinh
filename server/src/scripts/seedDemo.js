@@ -46,7 +46,6 @@ async function seedDemo() {
         ],
         giftAccounts: [],
         theme: { name: 'Minimalism Nâu', primaryColor: '#755C49', backgroundColor: '#F5F0E8' },
-        guestbookRequiresApproval: true,
       },
     },
     { upsert: true, new: true, runValidators: true, setDefaultsOnInsert: true },

@@ -84,7 +84,6 @@ const weddingInvitationSchema = new Schema({
     primaryColor: { type: String, match: /^#[0-9a-fA-F]{6}$/, default: '#755C49' },
     backgroundColor: { type: String, match: /^#[0-9a-fA-F]{6}$/, default: '#F5F0E8' },
   },
-  guestbookRequiresApproval: { type: Boolean, default: true },
 }, { timestamps: true, strict: 'throw' });
 
 module.exports = mongoose.model('WeddingInvitation', weddingInvitationSchema);
