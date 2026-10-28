@@ -1,7 +1,11 @@
 import 'dart:async';
+import 'dart:math' as math;
 
 import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/material.dart';
+
+import '../sections/ceremony_info/ceremony_info_section.dart';
+import '../sections/cover/cover_header_section.dart';
 
 class WeddingInvitationPage extends StatefulWidget {
   const WeddingInvitationPage({super.key, required this.musicPlayer});
@@ -86,12 +90,27 @@ class _WeddingInvitationPageState extends State<WeddingInvitationPage> {
             excludeFromSemantics: true,
           ),
           SafeArea(
-            child: SingleChildScrollView(
-              child: Column(
-                children: const [
-                  // Invitation sections will be added here.
-                ],
-              ),
+            child: LayoutBuilder(
+              builder: (context, constraints) {
+                // Scale nội dung theo chiều rộng, giới hạn như một trang thiệp dọc.
+                final contentWidth = math.min(constraints.maxWidth, 440.0);
+                final scale = (contentWidth / 440.0).clamp(0.72, 1.0);
+
+                return SingleChildScrollView(
+                  child: Center(
+                    child: SizedBox(
+                      width: contentWidth,
+                      child: Column(
+                        children: [
+                          CoverHeaderSection(scale: scale),
+                          CeremonyInfoSection(scale: scale),
+                          SizedBox(height: 40 * scale),
+                        ],
+                      ),
+                    ),
+                  ),
+                );
+              },
             ),
           ),
         ],

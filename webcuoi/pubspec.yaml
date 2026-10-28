@@ -65,6 +65,10 @@ flutter:
     - assets/images/decorations/starterCard.png
     - assets/images/decorations/flower1_left.png
     - assets/images/decorations/flower2_right.png
+    - assets/images/decorations/dried_flower.png
+    - assets/images/decorations/heart_badge.png
+    - assets/images/decorations/divider_fleuron.png
+    - assets/images/decorations/hero_couple_photo.png
     - assets/images/backgrounds/leaf_fall1.png
     - assets/images/backgrounds/leaf_fall2.png
     - assets/images/backgrounds/mainBG.png
