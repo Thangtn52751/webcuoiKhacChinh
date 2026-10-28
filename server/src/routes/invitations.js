@@ -3,6 +3,7 @@ const WeddingInvitation = require('../models/WeddingInvitation');
 const RSVP = require('../models/RSVP');
 const GuestbookEntry = require('../models/GuestbookEntry');
 const { requireAdmin } = require('../middleware/adminAuth');
+const { sendRsvpNotification } = require('../services/mailer');
 
 const router = express.Router();
 
@@ -42,7 +43,22 @@ router.post('/:slug/rsvps', async (req, res) => {
     phone: cleanText(phone ?? ''),
     note: cleanText(note ?? ''),
   });
-  return res.status(201).json({ message: 'Đã ghi nhận xác nhận tham dự.', data: rsvp });
+
+  let notificationSent = true;
+  try {
+    await sendRsvpNotification({ invitation, rsvp });
+  } catch (error) {
+    notificationSent = false;
+    console.error('Không gửi được email thông báo RSVP:', error.message);
+  }
+
+  return res.status(201).json({
+    message: notificationSent
+      ? 'Đã ghi nhận xác nhận tham dự và gửi email thông báo.'
+      : 'Đã lưu xác nhận tham dự nhưng email chưa gửi được; hãy kiểm tra cấu hình SMTP.',
+    notificationSent,
+    data: rsvp,
+  });
 });
 
 router.get('/:slug/guestbook', async (req, res) => {
@@ -53,7 +69,7 @@ router.get('/:slug/guestbook', async (req, res) => {
   const requestedLimit = Number.parseInt(req.query.limit, 10) || 20;
   const page = Math.max(1, requestedPage);
   const limit = Math.min(50, Math.max(1, requestedLimit));
-  const filter = { invitation: invitation._id, approved: true };
+  const filter = { invitation: invitation._id };
   const [entries, total] = await Promise.all([
     GuestbookEntry.find(filter).sort({ createdAt: -1 }).skip((page - 1) * limit).limit(limit).lean(),
     GuestbookEntry.countDocuments(filter),
@@ -70,10 +86,9 @@ router.post('/:slug/guestbook', async (req, res) => {
     invitation: invitation._id,
     name: cleanText(req.body.name),
     message: cleanText(req.body.message),
-    approved: !invitation.guestbookRequiresApproval,
   });
   return res.status(201).json({
-    message: entry.approved ? 'Đã gửi lời chúc.' : 'Lời chúc đang chờ duyệt.',
+    message: 'Đã gửi lời chúc.',
     data: entry,
   });
 });
@@ -98,29 +113,6 @@ router.get('/:slug/rsvps', requireAdmin, async (req, res) => {
   if (!invitation) return res.status(404).json({ message: 'Không tìm thấy thiệp cưới.' });
   const data = await RSVP.find({ invitation: invitation._id }).sort({ createdAt: -1 }).lean();
   return res.json({ data });
-});
-
-router.get('/:slug/guestbook/pending', requireAdmin, async (req, res) => {
-  const invitation = await findInvitation(req.params.slug);
-  if (!invitation) return res.status(404).json({ message: 'Không tìm thấy thiệp cưới.' });
-  const data = await GuestbookEntry.find({ invitation: invitation._id, approved: false })
-    .sort({ createdAt: -1 }).lean();
-  return res.json({ data });
-});
-
-router.patch('/:slug/guestbook/:entryId', requireAdmin, async (req, res) => {
-  if (typeof req.body.approved !== 'boolean') {
-    return res.status(400).json({ message: 'approved phải là true hoặc false.' });
-  }
-  const invitation = await findInvitation(req.params.slug);
-  if (!invitation) return res.status(404).json({ message: 'Không tìm thấy thiệp cưới.' });
-  const entry = await GuestbookEntry.findOneAndUpdate(
-    { _id: req.params.entryId, invitation: invitation._id },
-    { approved: req.body.approved },
-    { new: true, runValidators: true },
-  );
-  if (!entry) return res.status(404).json({ message: 'Không tìm thấy lời chúc.' });
-  return res.json({ data: entry });
 });
 
 module.exports = router;

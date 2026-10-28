@@ -9,9 +9,8 @@ const guestbookEntrySchema = new mongoose.Schema({
   },
   name: { type: String, required: true, trim: true, maxlength: 100 },
   message: { type: String, required: true, trim: true, maxlength: 1000 },
-  approved: { type: Boolean, default: false, index: true },
 }, { timestamps: true });
 
-guestbookEntrySchema.index({ invitation: 1, approved: 1, createdAt: -1 });
+guestbookEntrySchema.index({ invitation: 1, createdAt: -1 });
 
 module.exports = mongoose.model('GuestbookEntry', guestbookEntrySchema);
