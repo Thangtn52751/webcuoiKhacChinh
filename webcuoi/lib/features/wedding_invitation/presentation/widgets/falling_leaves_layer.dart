@@ -3,7 +3,9 @@ import 'dart:math' as math;
 import 'package:flutter/material.dart';
 
 class FallingLeavesLayer extends StatefulWidget {
-  const FallingLeavesLayer({super.key});
+  const FallingLeavesLayer({super.key, this.count = 8});
+
+  final int count;
 
   @override
   State<FallingLeavesLayer> createState() => _FallingLeavesLayerState();
@@ -18,7 +20,7 @@ class _FallingLeavesLayerState extends State<FallingLeavesLayer>
   void initState() {
     super.initState();
     final random = math.Random();
-    _leaves = List.generate(8, (_) => _LeafParticle.random(random));
+    _leaves = List.generate(widget.count, (_) => _LeafParticle.random(random));
     _animation = AnimationController(
       vsync: this,
       duration: const Duration(seconds: 36),
