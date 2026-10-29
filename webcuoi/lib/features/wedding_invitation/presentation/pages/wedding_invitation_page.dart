@@ -1,7 +1,12 @@
 import 'dart:async';
+import 'dart:math' as math;
 
 import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/material.dart';
+
+import '../sections/ceremony_info/ceremony_info_section.dart';
+import '../sections/cover/cover_header_section.dart';
+import '../widgets/falling_leaves_layer.dart';
 
 class WeddingInvitationPage extends StatefulWidget {
   const WeddingInvitationPage({super.key, required this.musicPlayer});
@@ -64,12 +69,10 @@ class _WeddingInvitationPageState extends State<WeddingInvitationPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF7F1EB),
+      backgroundColor: const Color(0xFFE8D3BC),
       floatingActionButton: FloatingActionButton(
         onPressed: _isChangingPlayback ? null : _toggleMusic,
-        tooltip: _isPlaying
-            ? 'T\u{1EA1}m d\u{1EEB}ng nh\u{1EA1}c'
-            : 'Ph\u{00E1}t nh\u{1EA1}c',
+        tooltip: _isPlaying ? 'Tạm dừng nhạc' : 'Phát nhạc',
         backgroundColor: const Color(0xFF806D61),
         foregroundColor: Colors.white,
         child: Icon(
@@ -79,19 +82,46 @@ class _WeddingInvitationPageState extends State<WeddingInvitationPage> {
       body: Stack(
         fit: StackFit.expand,
         children: [
-          Image.asset(
-            'assets/images/backgrounds/mainBG.png',
-            fit: BoxFit.cover,
-            alignment: Alignment.topCenter,
-            excludeFromSemantics: true,
+          const Positioned.fill(
+            child: IgnorePointer(child: FallingLeavesLayer(count: 16)),
           ),
           SafeArea(
-            child: SingleChildScrollView(
-              child: Column(
-                children: const [
-                  // Invitation sections will be added here.
-                ],
-              ),
+            child: LayoutBuilder(
+              builder: (context, constraints) {
+                final viewportWidth = constraints.maxWidth;
+                final canvasWidth = math.min(viewportWidth, 900.0).toDouble();
+                final scale = (canvasWidth / 900.0).clamp(0.72, 1.0);
+
+                return SingleChildScrollView(
+                  child: Center(
+                    child: SizedBox(
+                      width: canvasWidth,
+                      child: Stack(
+                        alignment: Alignment.topCenter,
+                        children: [
+                          Image.asset(
+                            'assets/images/backgrounds/mainBG.png',
+                            width: canvasWidth,
+                            fit: BoxFit.fitWidth,
+                            alignment: Alignment.topCenter,
+                            excludeFromSemantics: true,
+                          ),
+                          SizedBox(
+                            width: canvasWidth,
+                            child: Column(
+                              children: [
+                                CoverHeaderSection(scale: scale),
+                                CeremonyInfoSection(scale: scale),
+                                SizedBox(height: 80 * scale),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                );
+              },
             ),
           ),
         ],
