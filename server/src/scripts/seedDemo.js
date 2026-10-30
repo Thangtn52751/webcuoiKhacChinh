@@ -32,7 +32,7 @@ async function seedDemo() {
           place: {
             name: 'Trung Tâm Hội Nghị White Palace',
             address: '194 Hoàng Văn Thụ, Phường 9, Quận Phú Nhuận, TP. Hồ Chí Minh',
-            mapUrl: 'https://maps.google.com/',
+            mapUrl: '',
           },
         },
         gallery: [],

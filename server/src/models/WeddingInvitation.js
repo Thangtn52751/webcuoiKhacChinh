@@ -16,6 +16,7 @@ const familySchema = new Schema({
 const placeSchema = new Schema({
   name: { type: String, trim: true, maxlength: 160, default: '' },
   address: { type: String, trim: true, maxlength: 400, default: '' },
+  placeId: { type: String, trim: true, maxlength: 256, default: '' },
   mapUrl: { type: String, trim: true, maxlength: 1000, default: '' },
   latitude: { type: Number, min: -90, max: 90 },
   longitude: { type: Number, min: -180, max: 180 },

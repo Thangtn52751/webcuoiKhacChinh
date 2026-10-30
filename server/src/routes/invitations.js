@@ -4,6 +4,7 @@ const RSVP = require('../models/RSVP');
 const GuestbookEntry = require('../models/GuestbookEntry');
 const { requireAdmin } = require('../middleware/adminAuth');
 const { sendRsvpNotification } = require('../services/mailer');
+const { buildGoogleMapsLinks } = require('../services/googleMaps');
 
 const router = express.Router();
 
@@ -14,6 +15,70 @@ function cleanText(value) {
 async function findInvitation(slug) {
   return WeddingInvitation.findOne({ slug: slug.toLowerCase() });
 }
+
+function hasPlaceDetails(place) {
+  return Boolean(
+    place && (
+      place.name
+      || place.address
+      || (Number.isFinite(place.latitude) && Number.isFinite(place.longitude))
+      || place.placeId
+    ),
+  );
+}
+
+router.get('/:slug/map', async (req, res) => {
+  const invitation = await findInvitation(req.params.slug);
+  if (!invitation) {
+    return res.status(404).json({ message: 'Không tìm thấy thiệp cưới.' });
+  }
+
+  const requestedEvent = req.query.event;
+  if (
+    requestedEvent !== undefined
+    && (typeof requestedEvent !== 'string'
+      || !['ceremony', 'reception'].includes(requestedEvent))
+  ) {
+    return res.status(400).json({
+      message: 'event chỉ nhận ceremony hoặc reception.',
+    });
+  }
+
+  let event = requestedEvent || 'reception';
+  let place = invitation[event]?.place;
+  if (!requestedEvent && !hasPlaceDetails(place)) {
+    event = 'ceremony';
+    place = invitation.ceremony?.place;
+  }
+
+  if (!hasPlaceDetails(place)) {
+    return res.status(404).json({
+      message: 'Thiệp chưa có địa điểm cho sự kiện này.',
+    });
+  }
+
+  const maps = buildGoogleMapsLinks(place);
+  if (!maps) {
+    return res.status(404).json({
+      message: 'Chưa đủ thông tin để tạo bản đồ cho địa điểm này.',
+    });
+  }
+
+  return res.json({
+    data: {
+      event,
+      title: 'Bản đồ tương tác',
+      venue: {
+        name: place.name,
+        address: place.address,
+        placeId: place.placeId,
+        latitude: place.latitude,
+        longitude: place.longitude,
+      },
+      maps,
+    },
+  });
+});
 
 router.get('/:slug', async (req, res) => {
   const invitation = await findInvitation(req.params.slug);
