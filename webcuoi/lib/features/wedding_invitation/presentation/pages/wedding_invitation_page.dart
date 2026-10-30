@@ -100,10 +100,27 @@ class _WeddingInvitationPageState extends State<WeddingInvitationPage> {
                       child: Stack(
                         alignment: Alignment.topCenter,
                         children: [
-                          CoverHeaderSection(scale: scale),
-                          CeremonyInfoSection(scale: scale),
-                          PhotoGallerySection(scale: scale),
-                          SizedBox(height: 40 * scale),
+                          // Keep the invitation artwork attached to the narrow
+                          // invitation canvas so it scrolls with the sections.
+                          // The source artwork is 900px wide and intentionally
+                          // tall, matching the full-page invitation layout.
+                          Image.asset(
+                            'assets/images/backgrounds/mainBG.png',
+                            width: canvasWidth,
+                            fit: BoxFit.fitWidth,
+                            alignment: Alignment.topCenter,
+                            excludeFromSemantics: true,
+                          ),
+                          Column(
+                            mainAxisSize: MainAxisSize.min,
+                            crossAxisAlignment: CrossAxisAlignment.stretch,
+                            children: [
+                              CoverHeaderSection(scale: scale),
+                              CeremonyInfoSection(scale: scale),
+                              PhotoGallerySection(scale: scale),
+                              SizedBox(height: 40 * scale),
+                            ],
+                          ),
                         ],
                       ),
                     ),
