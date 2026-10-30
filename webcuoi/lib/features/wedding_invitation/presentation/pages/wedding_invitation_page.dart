@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 
 import '../sections/ceremony_info/ceremony_info_section.dart';
 import '../sections/cover/cover_header_section.dart';
+import '../sections/gift_box/gift_box_section.dart';
 import '../sections/photo_gallery/photo_gallery_section.dart';
 import '../widgets/falling_leaves_layer.dart';
 
@@ -114,6 +115,7 @@ class _WeddingInvitationPageState extends State<WeddingInvitationPage> {
                                 CoverHeaderSection(scale: scale),
                                 CeremonyInfoSection(scale: scale),
                                 PhotoGallerySection(scale: scale),
+                                GiftBoxSection(scale: scale),
                                 SizedBox(height: 80 * scale),
                               ],
                             ),
