@@ -1,16 +1,15 @@
+import 'dart:math' as math;
+
 import 'package:flutter/material.dart';
 
 import '../section_theme.dart';
 
-/// Section 1 — phần mở đầu trang nội dung thiệp (theo Figma):
-/// "THE WEDDING OF" + tên cặp đôi (serif nghiêng) + ảnh cưới polaroid
-/// (ảnh đã gồm sẵn khung nghiêng, washi tape, hoa khô và con dấu sáp).
 class CoverHeaderSection extends StatelessWidget {
   const CoverHeaderSection({
     super.key,
     required this.scale,
     this.overline = 'THE WEDDING OF',
-    this.coupleNames = 'Kh\u{1EAF}c Ch\u{00ED}nh & Th\u{1ECB} Trang',
+    this.coupleNames = 'Khắc Chính & Thị Trang',
   });
 
   final double scale;
@@ -19,27 +18,45 @@ class CoverHeaderSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final screenWidth = MediaQuery.sizeOf(context).width;
+    final singleLineNames = coupleNames.replaceAll(RegExp(r'\s*&\s*'), ' & ');
+    final responsiveNames = screenWidth < 640
+        ? singleLineNames.replaceFirst(' & ', '\n& ')
+        : singleLineNames;
+
     return Padding(
-      padding: EdgeInsets.only(top: 40 * scale, bottom: 24 * scale),
+      padding: EdgeInsets.only(top: 48 * scale, bottom: 38 * scale),
       child: Column(
         children: [
           Text(
             overline.toUpperCase(),
             textAlign: TextAlign.center,
-            style: SectionTheme.overline(scale),
+            style: SectionTheme.overline(scale)
+                .copyWith(fontSize: 14 * scale, fontWeight: FontWeight.w400),
           ),
           SizedBox(height: 14 * scale),
           Text(
-            coupleNames,
+            responsiveNames,
             textAlign: TextAlign.center,
-            style: SectionTheme.displayName(scale),
+            style: SectionTheme.displayName(scale).copyWith(
+              color: SectionTheme.inkSoft,
+              fontFamily: 'CormorantGaramond',
+              fontSize: 42 * scale,
+              fontStyle: FontStyle.italic,
+              fontWeight: FontWeight.w600,
+              letterSpacing: 0.15 * scale,
+              height: 1.05,
+            ),
           ),
-          SizedBox(height: 28 * scale),
-          // Ảnh cưới polaroid (đã gồm khung, hoa khô, con dấu sáp trong ảnh).
+          SizedBox(height: 24 * scale),
           Image.asset(
-            'assets/images/decorations/hero_couple_photo.png',
-            width: 360 * scale,
+            'assets/images/decorations/intro_pic.png',
+            width: math.min(
+              450 * scale,
+              MediaQuery.sizeOf(context).width * 0.56,
+            ),
             fit: BoxFit.contain,
+            excludeFromSemantics: true,
           ),
         ],
       ),
