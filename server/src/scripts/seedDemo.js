@@ -17,8 +17,8 @@ async function seedDemo() {
           bride: { name: 'Thảo Vy', title: 'Út Nữ' },
         },
         families: [
-          { side: 'groom', parents: [], address: 'Quận 1, TP. Hồ Chí Minh' },
-          { side: 'bride', parents: [], address: 'Quận 3, TP. Hồ Chí Minh' },
+          { side: 'groom', parents: [], address: 'Số 300 đường Thân Công Tài, Phường Nếnh, Thành phố Bắc Ninh' },
+          { side: 'bride', parents: [], address: 'Tổ Dân Phố Dĩnh Sơn, Phường Vân Hà, Thành phố Bắc Ninh' },
         ],
         ceremony: {
           startsAt: new Date('2026-01-03T09:00:00+07:00'),

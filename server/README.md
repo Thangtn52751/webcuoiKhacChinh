@@ -64,6 +64,8 @@ Sổ lưu bút chỉ hỗ trợ xem và thêm lời chúc. Không có API sửa 
 
 API `GET /api/invitations/:slug/map` trả dữ liệu để ghép section bản đồ. Mặc định lấy `reception.place` (địa điểm tiệc); nếu địa điểm này chưa được cấu hình thì dùng `ceremony.place`. Có thể chọn rõ bằng `?event=ceremony` hoặc `?event=reception`.
 
+API `GET /api/invitations/:slug/map/families` trả địa chỉ và link bản đồ cho nhà trai (`side: groom`) và nhà gái (`side: bride`). Các trường `placeId`, `latitude`, `longitude` có thể thêm vào từng phần tử `families` để định vị chính xác hơn.
+
 Phản hồi chứa thông tin `venue` cùng `maps.searchUrl`, `maps.directionsUrl` và `maps.embedUrl`. Link chỉ đường dùng Google Maps URLs phổ quát: thiết bị di động sẽ mở ứng dụng Google Maps nếu đã cài; nếu không, hoặc khi mở trên PC, Google Maps chạy trong trình duyệt. Không cần API key để tạo link tìm kiếm/chỉ đường.
 
 `maps.embedUrl` chỉ được trả về khi đã đặt `GOOGLE_MAPS_EMBED_API_KEY` trong `.env`. Hãy bật Maps Embed API và giới hạn key theo API cùng domain frontend. Có thể cấu hình `placeId`, `latitude` và `longitude` trên `ceremony.place` hoặc `reception.place`; tọa độ được ưu tiên tạo URL, còn Place ID giúp ghim đúng địa điểm hơn.

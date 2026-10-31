@@ -88,6 +88,15 @@
           }
         },
         {
+          "name": "Get family home maps (groom and bride)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/invitations/{{slug}}/map/families",
+            "description": "Returns the groom and bride family addresses and Google Maps search/directions links for the house switcher UI."
+          }
+        },
+        {
           "name": "Get map for ceremony",
           "request": {
             "method": "GET",

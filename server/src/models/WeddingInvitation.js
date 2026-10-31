@@ -11,6 +11,9 @@ const familySchema = new Schema({
   side: { type: String, enum: ['groom', 'bride'], required: true },
   parents: { type: [personSchema], default: [] },
   address: { type: String, trim: true, maxlength: 300, default: '' },
+  placeId: { type: String, trim: true, maxlength: 256, default: '' },
+  latitude: { type: Number, min: -90, max: 90 },
+  longitude: { type: Number, min: -180, max: 180 },
 }, { _id: false });
 
 const placeSchema = new Schema({

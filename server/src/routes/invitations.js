@@ -27,6 +27,42 @@ function hasPlaceDetails(place) {
   );
 }
 
+router.get('/:slug/map/families', async (req, res) => {
+  const invitation = await findInvitation(req.params.slug);
+  if (!invitation) {
+    return res.status(404).json({ message: 'Không tìm thấy thiệp cưới.' });
+  }
+
+  const familiesBySide = new Map(
+    invitation.families.map((family) => [family.side, family]),
+  );
+  const locations = ['groom', 'bride'].flatMap((side) => {
+    const family = familiesBySide.get(side);
+    if (!family || !hasPlaceDetails(family)) return [];
+
+    const title = side === 'groom' ? 'Địa chỉ nhà trai' : 'Địa chỉ nhà gái';
+    const place = {
+      name: title,
+      address: family.address,
+      placeId: family.placeId,
+      latitude: family.latitude,
+      longitude: family.longitude,
+    };
+
+    return [{
+      side,
+      title,
+      address: family.address,
+      placeId: family.placeId,
+      latitude: family.latitude,
+      longitude: family.longitude,
+      maps: buildGoogleMapsLinks(place),
+    }];
+  });
+
+  return res.json({ data: { locations } });
+});
+
 router.get('/:slug/map', async (req, res) => {
   const invitation = await findInvitation(req.params.slug);
   if (!invitation) {

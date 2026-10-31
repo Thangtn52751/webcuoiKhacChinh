@@ -11,12 +11,14 @@ class EmbeddedMap extends StatelessWidget {
   const EmbeddedMap({
     super.key,
     required this.query,
+    this.embedUrl,
     this.height = 180,
     this.borderRadius = 12,
   });
 
   /// Chuỗi tìm kiếm địa điểm (địa chỉ) sẽ truyền vào Google Maps.
   final String query;
+  final String? embedUrl;
   final double height;
   final double borderRadius;
 
@@ -27,7 +29,7 @@ class EmbeddedMap extends StatelessWidget {
       child: SizedBox(
         height: height,
         width: double.infinity,
-        child: buildEmbeddedMap(query),
+        child: buildEmbeddedMap(query, embedUrl: embedUrl),
       ),
     );
   }
