@@ -23,9 +23,9 @@ class PartyTimeColumn extends StatelessWidget {
           style: TextStyle(
             fontFamily: PartySectionStyle.serifFont,
             fontFamilyFallback: PartySectionStyle.serifFallback,
-            fontSize: 10.5 * scale,
-            fontWeight: FontWeight.w500,
-            letterSpacing: 1.0 * scale,
+            fontSize: 12 * scale,
+            fontWeight: FontWeight.w400,
+            letterSpacing: 0.7 * scale,
             color: PartySectionStyle.accentColor,
           ),
         ),
@@ -35,8 +35,8 @@ class PartyTimeColumn extends StatelessWidget {
           style: TextStyle(
             fontFamily: PartySectionStyle.serifFont,
             fontFamilyFallback: PartySectionStyle.serifFallback,
-            fontSize: 18 * scale,
-            fontWeight: FontWeight.w500,
+            fontSize: 21 * scale,
+            fontWeight: FontWeight.w400,
             color: PartySectionStyle.primaryColor,
           ),
         ),

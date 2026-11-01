@@ -40,6 +40,7 @@ dependencies:
   audioplayers: 6.8.1
   url_launcher: ^6.3.1
   web: ^1.1.0
+  table_calendar: ^3.3.0
 dev_dependencies:
   flutter_test:
     sdk: flutter
@@ -83,6 +84,10 @@ flutter:
     - assets/images/decorations/Group_5.png
 
   fonts:
+    - family: Allura
+      fonts:
+        - asset: assets/fonts/Allura-Regular.ttf
+          weight: 400
     - family: CormorantGaramond
       fonts:
         - asset: assets/fonts/CormorantGaramond-Variable.ttf

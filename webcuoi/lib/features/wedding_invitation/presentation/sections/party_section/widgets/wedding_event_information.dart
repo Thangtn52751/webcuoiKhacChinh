@@ -23,26 +23,26 @@ class WeddingEventInformation extends StatelessWidget {
           style: TextStyle(
             fontFamily: PartySectionStyle.serifFont,
             fontFamilyFallback: PartySectionStyle.serifFallback,
-            fontSize: 15 * s,
+            fontSize: 19 * s,
             fontWeight: FontWeight.w700,
-            letterSpacing: 1.5 * s,
+            letterSpacing: 1.4 * s,
             color: PartySectionStyle.primaryColor,
           ),
         ),
-        SizedBox(height: 12 * s),
+        SizedBox(height: 18 * s),
         Text(
           'TIỆC CƯỚI SẼ DIỄN RA VÀO LÚC:',
           textAlign: TextAlign.center,
           style: TextStyle(
             fontFamily: PartySectionStyle.serifFont,
             fontFamilyFallback: PartySectionStyle.serifFallback,
-            fontSize: 19 * s,
-            fontWeight: FontWeight.w500,
-            letterSpacing: 1.0 * s,
+            fontSize: 25 * s,
+            fontWeight: FontWeight.w400,
+            letterSpacing: 0.6 * s,
             color: PartySectionStyle.primaryColor,
           ),
         ),
-        SizedBox(height: 22 * s),
+        SizedBox(height: 24 * s),
 
         // --- GIỜ & NGÀY THÁNG NĂM ---
         Text(
@@ -50,13 +50,13 @@ class WeddingEventInformation extends StatelessWidget {
           style: TextStyle(
             fontFamily: PartySectionStyle.serifFont,
             fontFamilyFallback: PartySectionStyle.serifFallback,
-            fontSize: 27 * s,
+            fontSize: 29 * s,
             fontWeight: FontWeight.w400,
             height: 1.0,
             color: PartySectionStyle.primaryColor,
           ),
         ),
-        SizedBox(height: 14 * s),
+        SizedBox(height: 16 * s),
 
         // Hàng CHỦ NHẬT | 13 | THÁNG 12 cân xứng 2 bên số 13
         Row(
@@ -70,9 +70,9 @@ class WeddingEventInformation extends StatelessWidget {
                 style: TextStyle(
                   fontFamily: PartySectionStyle.serifFont,
                   fontFamilyFallback: PartySectionStyle.serifFallback,
-                  fontSize: 13 * s,
-                  fontWeight: FontWeight.w500,
-                  letterSpacing: 1.2 * s,
+                  fontSize: 17 * s,
+                  fontWeight: FontWeight.w400,
+                  letterSpacing: 0.6 * s,
                   color: PartySectionStyle.primaryColor,
                 ),
               ),
@@ -88,8 +88,8 @@ class WeddingEventInformation extends StatelessWidget {
               style: TextStyle(
                 fontFamily: PartySectionStyle.serifFont,
                 fontFamilyFallback: PartySectionStyle.serifFallback,
-                fontSize: 38 * s,
-                fontWeight: FontWeight.w500,
+                fontSize: 42 * s,
+                fontWeight: FontWeight.w400,
                 height: 0.95,
                 color: PartySectionStyle.primaryColor,
               ),
@@ -107,22 +107,22 @@ class WeddingEventInformation extends StatelessWidget {
                 style: TextStyle(
                   fontFamily: PartySectionStyle.serifFont,
                   fontFamilyFallback: PartySectionStyle.serifFallback,
-                  fontSize: 13 * s,
-                  fontWeight: FontWeight.w500,
-                  letterSpacing: 1.2 * s,
+                  fontSize: 17 * s,
+                  fontWeight: FontWeight.w400,
+                  letterSpacing: 0.6 * s,
                   color: PartySectionStyle.primaryColor,
                 ),
               ),
             ),
           ],
         ),
-        SizedBox(height: 14 * s),
+        SizedBox(height: 16 * s),
         Text(
           '2026',
           style: TextStyle(
             fontFamily: PartySectionStyle.serifFont,
             fontFamilyFallback: PartySectionStyle.serifFallback,
-            fontSize: 21 * s,
+            fontSize: 25 * s,
             fontWeight: FontWeight.w400,
             color: PartySectionStyle.primaryColor,
           ),
@@ -134,9 +134,9 @@ class WeddingEventInformation extends StatelessWidget {
           style: TextStyle(
             fontFamily: PartySectionStyle.serifFont,
             fontFamilyFallback: PartySectionStyle.serifFallback,
-            fontSize: 10.5 * s,
+            fontSize: 12 * s,
             fontWeight: FontWeight.w400,
-            letterSpacing: 1.8 * s,
+            letterSpacing: 2.4 * s,
             color: PartySectionStyle.accentColor,
           ),
         ),
@@ -147,7 +147,7 @@ class WeddingEventInformation extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             PartyTimeColumn(label: 'ĐÓN KHÁCH', time: '8:00', scale: s),
-            SizedBox(width: 52 * s),
+            SizedBox(width: 46 * s),
             PartyTimeColumn(label: 'KHAI TIỆC', time: '8:15', scale: s),
           ],
         ),

@@ -31,23 +31,23 @@ class PartySectionActions extends StatelessWidget {
               style: TextStyle(
                 fontFamily: PartySectionStyle.serifFont,
                 fontFamilyFallback: PartySectionStyle.serifFallback,
-                fontSize: 13 * s,
+                fontSize: 14 * s,
                 fontStyle: FontStyle.italic,
                 color: PartySectionStyle.primaryColor,
               ),
             ),
           ),
         ),
-        SizedBox(height: 14 * s),
+        SizedBox(height: 16 * s),
         SizedBox(
-          height: 36 * s,
+          height: 32 * s,
           child: ElevatedButton(
             onPressed: () {},
             style: ElevatedButton.styleFrom(
               backgroundColor: PartySectionStyle.calendarBgColor,
               foregroundColor: Colors.white,
               elevation: 0,
-              padding: EdgeInsets.symmetric(horizontal: 30 * s),
+              padding: EdgeInsets.symmetric(horizontal: 26 * s),
               shape: const StadiumBorder(),
             ),
             child: Text(
@@ -55,9 +55,9 @@ class PartySectionActions extends StatelessWidget {
               style: TextStyle(
                 fontFamily: PartySectionStyle.serifFont,
                 fontFamilyFallback: PartySectionStyle.serifFallback,
-                fontSize: 11.5 * s,
-                fontWeight: FontWeight.w600,
-                letterSpacing: 1.4 * s,
+                fontSize: 12.5 * s,
+                fontWeight: FontWeight.w500,
+                letterSpacing: 1.0 * s,
                 color: const Color(0xFFF3EFEA),
               ),
             ),

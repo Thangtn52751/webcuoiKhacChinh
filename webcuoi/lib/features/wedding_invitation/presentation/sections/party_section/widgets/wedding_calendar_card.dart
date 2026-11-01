@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:table_calendar/table_calendar.dart';
 
 import 'party_section_style.dart';
 
@@ -8,86 +9,102 @@ class WeddingCalendarCard extends StatelessWidget {
   final double scale;
 
   @override
-  Widget build(BuildContext context) => _buildCalendarCard(scale);
-
-  static Widget _buildCalendarCard(double s) {
-    const List<String> headers = ['T2', 'T3', 'T4', 'T5', 'T6', 'T7', 'CN'];
-
-    const List<List<String>> weeks = [
-      ['', '1', '2', '3', '4', '5', '6'],
-      ['7', '8', '9', '10', '11', '12', '13'],
-      ['14', '15', '16', '17', '18', '19', '20'],
-      ['21', '22', '23', '24', '25', '26', '27'],
-      ['28', '29', '30', '31', '', '', ''],
-    ];
+  Widget build(BuildContext context) {
+    final textScale = scale > 1 ? scale * 0.9 : scale;
+    final weddingDay = DateTime(2026, 12, 13);
+    final dowLabels = ['T2', 'T3', 'T4', 'T5', 'T6', 'T7', 'CN'];
+    final bodyStyle = TextStyle(
+      fontFamily: PartySectionStyle.serifFont,
+      fontFamilyFallback: PartySectionStyle.serifFallback,
+      color: PartySectionStyle.calendarTextColor,
+      fontSize: 11 * textScale,
+      fontWeight: FontWeight.w400,
+    );
 
     return Container(
       width: double.infinity,
-      padding: EdgeInsets.symmetric(vertical: 16 * s, horizontal: 22 * s),
+      padding: EdgeInsets.symmetric(
+        vertical: 18 * scale,
+        horizontal: 20 * scale,
+      ),
       decoration: BoxDecoration(
         color: PartySectionStyle.calendarBgColor,
-        borderRadius: BorderRadius.circular(10 * s),
+        borderRadius: BorderRadius.circular(10 * scale),
       ),
       child: Column(
+        mainAxisSize: MainAxisSize.min,
         children: [
           Text(
-            'Tháng 12 / 2026',
+            'Th\u{00E1}ng 12 / 2026',
             style: TextStyle(
-              fontFamily: 'CormorantGaramond',
-              fontFamilyFallback: const ['Georgia', 'serif'],
-              fontSize: 18 * s,
-              fontStyle: FontStyle.italic,
+              fontFamily: 'Allura',
+              fontFamilyFallback: PartySectionStyle.serifFallback,
+              fontSize: 24 * textScale,
               color: PartySectionStyle.calendarTextColor,
             ),
           ),
-          SizedBox(height: 10 * s),
-
-          // Hàng Thứ (T2 -> CN)
-          Row(
-            children: headers
-                .map(
-                  (h) => Expanded(
-                    child: Center(
-                      child: Text(
-                        h,
-                        style: TextStyle(
-                          fontFamily: 'CormorantGaramond',
-                          fontFamilyFallback: const ['Georgia', 'serif'],
-                          color: const Color(0xFFD6CEC6),
-                          fontSize: 10.5 * s,
-                          fontWeight: FontWeight.w500,
-                        ),
-                      ),
-                    ),
+          SizedBox(height: 8 * scale),
+          TableCalendar<DateTime>(
+            firstDay: DateTime(2026, 12, 1),
+            lastDay: DateTime(2026, 12, 31),
+            focusedDay: weddingDay,
+            currentDay: weddingDay,
+            calendarFormat: CalendarFormat.month,
+            startingDayOfWeek: StartingDayOfWeek.monday,
+            headerVisible: false,
+            daysOfWeekVisible: true,
+            sixWeekMonthsEnforced: false,
+            shouldFillViewport: false,
+            pageAnimationEnabled: false,
+            availableGestures: AvailableGestures.none,
+            rowHeight: 30 * scale,
+            daysOfWeekHeight: 18 * scale,
+            selectedDayPredicate: (day) => isSameDay(day, weddingDay),
+            daysOfWeekStyle: DaysOfWeekStyle(
+              decoration: BoxDecoration(
+                border: Border(
+                  bottom: BorderSide(
+                    color: const Color(0xFFEAE3DC).withValues(alpha: 0.72),
+                    width: 1.1 * scale,
                   ),
-                )
-                .toList(),
-          ),
-          SizedBox(height: 6 * s),
-
-          Divider(
-            color: const Color(0xFFEAE3DC).withValues(alpha: 0.72),
-            thickness: 1.1 * s,
-            height: 1 * s,
-          ),
-          SizedBox(height: 8 * s),
-
-          // Các hàng ngày trong tháng
-          ...weeks.map(
-            (week) => Padding(
-              padding: EdgeInsets.symmetric(vertical: 4.5 * s),
-              child: Row(
-                children: week.map((day) {
-                  if (day.isEmpty) {
-                    return const Expanded(child: SizedBox());
-                  }
-                  if (day == '13') {
-                    return Expanded(
-                      child: Center(child: _buildHeartDayCell(day, s)),
-                    );
-                  }
-                  return Expanded(child: Center(child: _buildDayCell(day, s)));
-                }).toList(),
+                ),
+              ),
+            ),
+            calendarStyle: CalendarStyle(
+              outsideDaysVisible: false,
+              isTodayHighlighted: false,
+              cellMargin: EdgeInsets.zero,
+              cellPadding: EdgeInsets.zero,
+              cellAlignment: Alignment.center,
+              tablePadding: EdgeInsets.zero,
+              defaultTextStyle: bodyStyle,
+              weekendTextStyle: bodyStyle,
+              selectedTextStyle: bodyStyle,
+              selectedDecoration: const BoxDecoration(),
+              todayDecoration: const BoxDecoration(),
+              tableBorder: TableBorder.all(color: Colors.transparent, width: 0),
+            ),
+            calendarBuilders: CalendarBuilders<DateTime>(
+              dowBuilder: (context, day) => Center(
+                child: Text(
+                  dowLabels[day.weekday - 1],
+                  style: TextStyle(
+                    fontFamily: PartySectionStyle.serifFont,
+                    fontFamilyFallback: PartySectionStyle.serifFallback,
+                    color: const Color(0xFFD6CEC6),
+                    fontSize: 10 * textScale,
+                    fontWeight: FontWeight.w400,
+                  ),
+                ),
+              ),
+              defaultBuilder: (context, day, focusedDay) =>
+                  Center(child: Text('${day.day}', style: bodyStyle)),
+              selectedBuilder: (context, day, focusedDay) => Center(
+                child: _HeartDayCell(
+                  day: '${day.day}',
+                  scale: scale,
+                  textScale: textScale,
+                ),
               ),
             ),
           ),
@@ -95,35 +112,39 @@ class WeddingCalendarCard extends StatelessWidget {
       ),
     );
   }
+}
 
-  static Widget _buildDayCell(String day, double s) {
-    return Text(
-      day,
-      style: TextStyle(
-        fontFamily: 'CormorantGaramond',
-        fontFamilyFallback: const ['Georgia', 'serif'],
-        color: PartySectionStyle.calendarTextColor,
-        fontSize: 12 * s,
-        fontWeight: FontWeight.w400,
-      ),
-    );
-  }
+class _HeartDayCell extends StatelessWidget {
+  const _HeartDayCell({
+    required this.day,
+    required this.scale,
+    required this.textScale,
+  });
 
-  static Widget _buildHeartDayCell(String day, double s) {
+  final String day;
+  final double scale;
+  final double textScale;
+
+  @override
+  Widget build(BuildContext context) {
     return SizedBox(
-      width: 26 * s,
-      height: 26 * s,
+      width: 30 * scale,
+      height: 30 * scale,
       child: Stack(
         alignment: Alignment.center,
         children: [
-          Icon(Icons.favorite, size: 24 * s, color: const Color(0xFFF3EFEA)),
+          Icon(
+            Icons.favorite,
+            size: 28 * scale,
+            color: const Color(0xFFF3EFEA),
+          ),
           Text(
             day,
             style: TextStyle(
-              fontFamily: 'CormorantGaramond',
-              fontFamilyFallback: const ['Georgia', 'serif'],
-              fontSize: 11 * s,
-              fontWeight: FontWeight.w700,
+              fontFamily: PartySectionStyle.serifFont,
+              fontFamilyFallback: PartySectionStyle.serifFallback,
+              fontSize: 10.5 * textScale,
+              fontWeight: FontWeight.w600,
               color: PartySectionStyle.calendarBgColor,
             ),
           ),
