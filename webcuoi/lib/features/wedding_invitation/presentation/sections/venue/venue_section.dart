@@ -181,7 +181,18 @@ class _VenueSectionState extends State<VenueSection> {
                 textAlign: TextAlign.center,
                 style: SectionTheme.label(widget.scale),
               ),
-              SizedBox(height: 18 * widget.scale),
+              SizedBox(height: 12 * widget.scale),
+              Center(
+                child: ConstrainedBox(
+                  constraints: const BoxConstraints(maxWidth: 360),
+                  child: _FamilyToggle(
+                    selectedSide: _selectedSide,
+                    scale: widget.scale,
+                    onSelected: _selectSide,
+                  ),
+                ),
+              ),
+              SizedBox(height: 14 * widget.scale),
               AnimatedSwitcher(
                 duration: const Duration(milliseconds: 240),
                 switchInCurve: Curves.easeOutCubic,
@@ -192,17 +203,6 @@ class _VenueSectionState extends State<VenueSection> {
                   scale: widget.scale,
                   textScale: textScale,
                   onOpenDirections: () => _openDirections(place),
-                ),
-              ),
-              SizedBox(height: 10 * widget.scale),
-              Center(
-                child: ConstrainedBox(
-                  constraints: const BoxConstraints(maxWidth: 360),
-                  child: _FamilyToggle(
-                    selectedSide: _selectedSide,
-                    scale: widget.scale,
-                    onSelected: _selectSide,
-                  ),
                 ),
               ),
             ],
@@ -229,102 +229,76 @@ class _VenueCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      width: double.infinity,
-      padding: EdgeInsets.symmetric(
-        horizontal: 16 * scale,
-        vertical: 14 * scale,
-      ),
-      decoration: BoxDecoration(
-        color: SectionTheme.paperCard,
-        borderRadius: BorderRadius.circular(12 * scale),
-        border: Border.all(color: SectionTheme.hairline),
-      ),
-      child: Column(
-        children: [
-          Text(
-            place.title,
-            textAlign: TextAlign.center,
-            style: SectionTheme.body(scale).copyWith(
-              fontSize: 15 * textScale,
-              fontWeight: FontWeight.w600,
-              color: SectionTheme.ink,
-              letterSpacing: 0.35 * scale,
-            ),
-          ),
-          SizedBox(height: 8 * scale),
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Icon(
-                Icons.location_on_outlined,
-                size: 19 * textScale,
-                color: SectionTheme.inkSoft,
-              ),
-              SizedBox(width: 7 * scale),
-              Expanded(
-                child: Text(
-                  place.address,
-                  textAlign: TextAlign.center,
-                  style: SectionTheme.body(scale).copyWith(
-                    fontSize: 14 * textScale,
-                    color: SectionTheme.inkSoft,
-                    height: 1.4,
-                  ),
-                ),
-              ),
-            ],
-          ),
-          SizedBox(height: 12 * scale),
-          LayoutBuilder(
-            builder: (context, constraints) {
-              // Match the broad map frame from the reference and fill it edge to edge.
-              final mapHeight = constraints.maxWidth / 1.48;
-              return EmbeddedMap(
-                key: ValueKey('map-${place.side}-${place.mapQuery}'),
-                query: place.mapQuery,
-                embedUrl: place.embedUrl,
-                height: mapHeight,
-                borderRadius: 10 * scale,
-              );
-            },
-          ),
-          SizedBox(height: 12 * scale),
-          Material(
+    return Column(
+      children: [
+        Text(
+          place.title,
+          textAlign: TextAlign.center,
+          style: SectionTheme.body(scale).copyWith(
+            fontSize: 15 * textScale,
+            fontWeight: FontWeight.w600,
             color: SectionTheme.ink,
+            letterSpacing: 0.35 * scale,
+          ),
+        ),
+        SizedBox(height: 6 * scale),
+        Text(
+          place.address,
+          textAlign: TextAlign.center,
+          style: SectionTheme.body(scale).copyWith(
+            fontSize: 14 * textScale,
+            color: SectionTheme.inkSoft,
+            height: 1.4,
+          ),
+        ),
+        SizedBox(height: 16 * scale),
+        LayoutBuilder(
+          builder: (context, constraints) {
+            final mapHeight = constraints.maxWidth / 1.48;
+            return EmbeddedMap(
+              key: ValueKey('map-${place.side}-${place.mapQuery}'),
+              query: place.mapQuery,
+              embedUrl: place.embedUrl,
+              height: mapHeight,
+              borderRadius: 2 * scale,
+            );
+          },
+        ),
+        SizedBox(height: 14 * scale),
+        Material(
+          color: Colors.transparent,
+          child: InkWell(
             borderRadius: BorderRadius.circular(24 * scale),
-            child: InkWell(
-              borderRadius: BorderRadius.circular(24 * scale),
-              onTap: onOpenDirections,
-              child: Padding(
-                padding: EdgeInsets.symmetric(
-                  horizontal: 20 * scale,
-                  vertical: 9 * scale,
-                ),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Icon(
-                      Icons.directions_outlined,
-                      size: 19 * textScale,
-                      color: Colors.white,
+            onTap: onOpenDirections,
+            child: Padding(
+              padding: EdgeInsets.symmetric(
+                horizontal: 16 * scale,
+                vertical: 7 * scale,
+              ),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(
+                    Icons.directions_outlined,
+                    size: 19 * textScale,
+                    color: SectionTheme.inkSoft,
+                  ),
+                  SizedBox(width: 8 * scale),
+                  Text(
+                    'Ch\u{1EC9} \u{0111}\u{01B0}\u{1EDD}ng',
+                    style: SectionTheme.body(scale).copyWith(
+                      color: SectionTheme.inkSoft,
+                      fontSize: 15 * textScale,
+                      fontWeight: FontWeight.w600,
+                      letterSpacing: 0.3 * scale,
                     ),
-                    SizedBox(width: 8 * scale),
-                    Text(
-                      'Chỉ đường',
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 15 * textScale,
-                        letterSpacing: 0.3 * scale,
-                      ),
-                    ),
-                  ],
-                ),
+                  ),
+                ],
               ),
             ),
           ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 }
