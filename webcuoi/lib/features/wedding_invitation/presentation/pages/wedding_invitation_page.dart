@@ -10,6 +10,7 @@ import '../sections/gift_box/gift_box_section.dart';
 import '../sections/photo_gallery/photo_gallery_section.dart';
 import '../sections/venue/venue_section.dart';
 import '../widgets/falling_leaves_layer.dart';
+import '../sections/party_section/wedding_party_section.dart';
 
 class WeddingInvitationPage extends StatefulWidget {
   const WeddingInvitationPage({super.key, required this.musicPlayer});
@@ -120,6 +121,7 @@ class _WeddingInvitationPageState extends State<WeddingInvitationPage> {
                                 CoverHeaderSection(scale: scale),
                                 CeremonyInfoSection(scale: scale),
                                 PhotoGallerySection(scale: scale),
+                                WeddingPartySection(scale: scale),
                                 VenueSection(scale: scale),
                                 GiftBoxSection(scale: scale),
                                 SizedBox(height: 80 * scale),

@@ -80,6 +80,7 @@ flutter:
     - assets/images/decorations/intro_pic.png
     - assets/icons/ic_heart.png
     - assets/icons/ic_split.png
+    - assets/images/decorations/Group_5.png
 
   fonts:
     - family: CormorantGaramond
