@@ -49,6 +49,20 @@ class InvitationApi {
         .toList();
   }
 
+  static Future<List<Map<String, dynamic>>> loadFamilyMaps() async {
+    final response = await _client
+        .get(_uri('/map/families'))
+        .timeout(const Duration(seconds: 10));
+    final result = _decodeResponse(response);
+    final data = result['data'];
+    final locations = data is Map ? data['locations'] : null;
+    if (locations is! List) return const [];
+    return locations
+        .whereType<Map>()
+        .map((location) => Map<String, dynamic>.from(location))
+        .toList();
+  }
+
   static Future<Map<String, dynamic>> addGuestbookEntry({
     required String name,
     required String message,

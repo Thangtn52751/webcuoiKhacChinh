@@ -38,6 +38,8 @@ dependencies:
   animate_do: ^5.1.0
   http: 1.6.0
   audioplayers: 6.8.1
+  url_launcher: ^6.3.1
+  web: ^1.1.0
 dev_dependencies:
   flutter_test:
     sdk: flutter
@@ -69,7 +71,9 @@ flutter:
     - assets/images/decorations/heart_badge.png
     - assets/images/decorations/divider_fleuron.png
     - assets/images/decorations/hero_couple_photo.png
+    - assets/images/couple/
     - assets/images/decorations/info_Card1.png
+    - assets/images/couple/
     - assets/images/backgrounds/leaf_fall1.png
     - assets/images/backgrounds/leaf_fall2.png
     - assets/images/backgrounds/mainBG.png

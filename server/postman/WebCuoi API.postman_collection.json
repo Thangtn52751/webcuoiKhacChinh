@@ -1,0 +1,185 @@
+{
+  "info": {
+    "_postman_id": "7d23fc64-61a7-4c6f-9a66-9b28d3e9d021",
+    "name": "WebCuoi API",
+    "description": "Full API collection for the WebCuoi wedding invitation server. Select the WebCuoi Local environment, start the Node.js server, and configure adminApiKey for admin requests.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "baseUrl", "value": "http://localhost:3000/api", "type": "string" },
+    { "key": "slug", "value": "minimalism-nau-demo", "type": "string" },
+    { "key": "adminApiKey", "value": "", "type": "string" }
+  ],
+  "item": [
+    {
+      "name": "System",
+      "item": [
+        {
+          "name": "Health check",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/health",
+            "description": "Checks that the API process and MongoDB connection are ready."
+          }
+        }
+      ]
+    },
+    {
+      "name": "Invitations",
+      "item": [
+        {
+          "name": "Get invitation by slug",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/invitations/{{slug}}",
+            "description": "Returns the public invitation document, including couple, event locations, gallery, dress code, schedule, gift accounts, and theme."
+          }
+        },
+        {
+          "name": "Create invitation (admin)",
+          "request": {
+            "method": "POST",
+            "auth": {
+              "type": "bearer",
+              "bearer": [{ "key": "token", "value": "{{adminApiKey}}", "type": "string" }]
+            },
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"slug\": \"minimalism-nau-demo\",\n  \"title\": \"The Wedding Of\",\n  \"cover\": {\n    \"subtitle\": \"Thân mời bạn đến dự lễ cưới\",\n    \"imageUrl\": \"\"\n  },\n  \"couple\": {\n    \"groom\": { \"name\": \"Nguyễn Khắc Chính\", \"title\": \"Chú rể\" },\n    \"bride\": { \"name\": \"Nguyễn Thị Trang\", \"title\": \"Cô dâu\" }\n  },\n  \"families\": [\n    { \"side\": \"groom\", \"parents\": [], \"address\": \"\" },\n    { \"side\": \"bride\", \"parents\": [], \"address\": \"\" }\n  ],\n  \"ceremony\": {\n    \"startsAt\": \"2026-12-13T08:15:00+07:00\",\n    \"doorsOpenAt\": \"2026-12-13T08:00:00+07:00\",\n    \"lunarDate\": \"Tức ngày 5 tháng 11 năm Bính Ngọ\",\n    \"place\": {\n      \"name\": \"Tư gia\",\n      \"address\": \"\",\n      \"placeId\": \"\",\n      \"latitude\": null,\n      \"longitude\": null\n    }\n  },\n  \"reception\": {\n    \"startsAt\": \"2026-12-13T08:15:00+07:00\",\n    \"doorsOpenAt\": \"2026-12-13T08:00:00+07:00\",\n    \"lunarDate\": \"Tức ngày 5 tháng 11 năm Bính Ngọ\",\n    \"place\": {\n      \"name\": \"White Palace\",\n      \"address\": \"194 Hoàng Văn Thụ, Phường 9, Quận Phú Nhuận, TP. Hồ Chí Minh\",\n      \"placeId\": \"\",\n      \"latitude\": null,\n      \"longitude\": null\n    }\n  },\n  \"gallery\": [],\n  \"dressCode\": {\n    \"title\": \"Dress code\",\n    \"description\": \"Trang phục dự tiệc\",\n    \"colors\": [\"#173D2B\", \"#D9B469\", \"#385D43\", \"#F0E2BF\"]\n  },\n  \"schedule\": [\n    { \"time\": \"08:00\", \"title\": \"Đón khách\", \"order\": 0 },\n    { \"time\": \"08:15\", \"title\": \"Khai tiệc\", \"order\": 1 }\n  ],\n  \"giftAccounts\": [],\n  \"theme\": {\n    \"name\": \"Minimalism Nâu\",\n    \"primaryColor\": \"#755C49\",\n    \"backgroundColor\": \"#F5F0E8\"\n  }\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": "{{baseUrl}}/invitations",
+            "description": "Creates a complete invitation document. Change slug before sending if that slug already exists. Requires ADMIN_API_KEY as a Bearer token."
+          }
+        },
+        {
+          "name": "Update reception venue (admin)",
+          "request": {
+            "method": "PATCH",
+            "auth": {
+              "type": "bearer",
+              "bearer": [{ "key": "token", "value": "{{adminApiKey}}", "type": "string" }]
+            },
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"$set\": {\n    \"reception.place.name\": \"White Palace\",\n    \"reception.place.address\": \"194 Hoàng Văn Thụ, Phường 9, Quận Phú Nhuận, TP. Hồ Chí Minh\",\n    \"reception.place.placeId\": \"\",\n    \"reception.place.mapUrl\": \"\"\n  }\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": "{{baseUrl}}/invitations/{{slug}}",
+            "description": "Updates the venue fields used by the map endpoint. Add a Google Place ID or latitude/longitude for more exact map targeting. Requires ADMIN_API_KEY as a Bearer token."
+          }
+        }
+      ]
+    },
+    {
+      "name": "Map",
+      "item": [
+        {
+          "name": "Get map for reception (default)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/invitations/{{slug}}/map",
+            "description": "Returns venue data plus maps.searchUrl, maps.directionsUrl, and maps.embedUrl when GOOGLE_MAPS_EMBED_API_KEY is configured. The directions link opens Google Maps on desktop and mobile."
+          }
+        },
+        {
+          "name": "Get family home maps (groom and bride)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/invitations/{{slug}}/map/families",
+            "description": "Returns the groom and bride family addresses and Google Maps search/directions links for the house switcher UI."
+          }
+        },
+        {
+          "name": "Get map for ceremony",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/invitations/{{slug}}/map?event=ceremony",
+            "description": "Returns the ceremony venue map links."
+          }
+        }
+      ]
+    },
+    {
+      "name": "RSVP",
+      "item": [
+        {
+          "name": "Submit attending RSVP",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"guestName\": \"Nguyễn An\",\n  \"phone\": \"0900000000\",\n  \"attendance\": \"attending\",\n  \"guestCount\": 2,\n  \"note\": \"Mình sẽ đến đúng giờ.\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": "{{baseUrl}}/invitations/{{slug}}/rsvps",
+            "description": "Stores an attending response and attempts to email the RSVP notification address configured on the server. This request creates a database record."
+          }
+        },
+        {
+          "name": "Submit not-attending RSVP",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"guestName\": \"Nguyễn Bình\",\n  \"phone\": \"\",\n  \"attendance\": \"not-attending\",\n  \"guestCount\": 0,\n  \"note\": \"Rất tiếc, mình không thể đến.\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": "{{baseUrl}}/invitations/{{slug}}/rsvps",
+            "description": "Stores a decline response and attempts to email the RSVP notification address configured on the server. This request creates a database record."
+          }
+        },
+        {
+          "name": "List RSVPs (admin)",
+          "request": {
+            "method": "GET",
+            "auth": {
+              "type": "bearer",
+              "bearer": [{ "key": "token", "value": "{{adminApiKey}}", "type": "string" }]
+            },
+            "header": [],
+            "url": "{{baseUrl}}/invitations/{{slug}}/rsvps",
+            "description": "Returns all RSVP entries for this invitation. Requires ADMIN_API_KEY as a Bearer token."
+          }
+        }
+      ]
+    },
+    {
+      "name": "Guestbook",
+      "item": [
+        {
+          "name": "List guestbook entries",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/invitations/{{slug}}/guestbook?page=1&limit=20",
+            "description": "Lists guestbook entries newest first. page starts at 1; limit is capped at 50."
+          }
+        },
+        {
+          "name": "Add guestbook entry",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Nguyễn An\",\n  \"message\": \"Chúc hai bạn trăm năm hạnh phúc!\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": "{{baseUrl}}/invitations/{{slug}}/guestbook",
+            "description": "Adds a guestbook message. This request creates a database record."
+          }
+        }
+      ]
+    }
+  ]
+}
