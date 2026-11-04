@@ -7,6 +7,7 @@ import 'package:flutter/material.dart';
 import '../sections/ceremony_info/ceremony_info_section.dart';
 import '../sections/cover/cover_header_section.dart';
 import '../sections/gift_box/gift_box_section.dart';
+import '../sections/guestbook/guestbook_section.dart';
 import '../sections/photo_gallery/photo_gallery_section.dart';
 import '../sections/venue/venue_section.dart';
 import '../widgets/falling_leaves_layer.dart';
@@ -103,16 +104,16 @@ class _WeddingInvitationPageState extends State<WeddingInvitationPage> {
                       child: Stack(
                         alignment: Alignment.topCenter,
                         children: [
-                          // Keep the invitation artwork attached to the narrow
-                          // invitation canvas so it scrolls with the sections.
-                          // The source artwork is 900px wide and intentionally
-                          // tall, matching the full-page invitation layout.
-                          Image.asset(
-                            'assets/images/backgrounds/mainBG.png',
-                            width: canvasWidth,
-                            fit: BoxFit.fitWidth,
-                            alignment: Alignment.topCenter,
-                            excludeFromSemantics: true,
+                          Positioned.fill(
+                            child: ClipRect(
+                              child: Image.asset(
+                                'assets/images/backgrounds/mainBG.png',
+                                width: canvasWidth,
+                                fit: BoxFit.fitWidth,
+                                alignment: Alignment.topCenter,
+                                excludeFromSemantics: true,
+                              ),
+                            ),
                           ),
                           SizedBox(
                             width: canvasWidth,
@@ -123,8 +124,8 @@ class _WeddingInvitationPageState extends State<WeddingInvitationPage> {
                                 PhotoGallerySection(scale: scale),
                                 WeddingPartySection(scale: scale),
                                 VenueSection(scale: scale),
+                                GuestbookSection(scale: scale),
                                 GiftBoxSection(scale: scale),
-                                SizedBox(height: 80 * scale),
                               ],
                             ),
                           ),

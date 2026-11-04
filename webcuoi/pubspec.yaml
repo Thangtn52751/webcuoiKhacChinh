@@ -74,6 +74,7 @@ flutter:
     - assets/images/decorations/hero_couple_photo.png
     - assets/images/couple/
     - assets/images/decorations/info_Card1.png
+    - assets/images/decorations/checknote_BG.png
     - assets/images/couple/
     - assets/images/backgrounds/leaf_fall1.png
     - assets/images/backgrounds/leaf_fall2.png
@@ -82,6 +83,15 @@ flutter:
     - assets/icons/ic_heart.png
     - assets/icons/ic_split.png
     - assets/images/decorations/Group_5.png
+    - assets/images/decorations/big_Present.png
+    - assets/images/decorations/present1.png
+    - assets/images/decorations/present2.png
+    - assets/images/decorations/present3.png
+    - assets/images/decorations/present4.png
+    - assets/images/decorations/present5.png
+    - assets/images/decorations/present6.png
+    - assets/images/gallery/qr_hus.jpeg
+    - assets/images/gallery/qr_Wife.jpeg
 
   fonts:
     - family: Allura
