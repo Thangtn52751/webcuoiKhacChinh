@@ -13,6 +13,10 @@ if [[ ! -x "${FLUTTER_DIR}/bin/flutter" ]]; then
   rm -f "${FLUTTER_ARCHIVE}"
 fi
 
+# Vercel's build container can report the extracted SDK as owned by another
+# user. Flutter runs Git inside its SDK, so explicitly trust this one directory.
+git config --global --add safe.directory "${FLUTTER_DIR}"
+
 export PATH="${FLUTTER_DIR}/bin:${PATH}"
 flutter config --no-analytics
 flutter precache --web
