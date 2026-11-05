@@ -4,8 +4,11 @@ const helmet = require('helmet');
 const { rateLimit } = require('express-rate-limit');
 const invitationRoutes = require('./routes/invitations');
 const { notFound, errorHandler } = require('./middleware/errorHandler');
+const mongoose = require('mongoose');
+const { connectDatabase } = require('./config/database');
 
 const app = express();
+let databaseConnection;
 const configuredOrigins = (process.env.CORS_ORIGINS || '*')
   .split(',').map((origin) => origin.trim()).filter(Boolean);
 
@@ -29,6 +32,27 @@ app.use(rateLimit({
   standardHeaders: 'draft-8',
   legacyHeaders: false,
 }));
+
+async function ensureDatabaseConnected() {
+  if (mongoose.connection.readyState === 1) return;
+  if (!databaseConnection) {
+    databaseConnection = connectDatabase().catch((error) => {
+      databaseConnection = undefined;
+      throw error;
+    });
+  }
+  await databaseConnection;
+}
+
+app.use(async (req, res, next) => {
+  try {
+    await ensureDatabaseConnected();
+    next();
+  } catch (error) {
+    console.error('Không thể kết nối MongoDB:', error.message);
+    res.status(503).json({ message: 'Máy chủ chưa sẵn sàng. Vui lòng thử lại.' });
+  }
+});
 
 app.get('/api/health', (req, res) => {
   const mongoose = require('mongoose');
