@@ -5,10 +5,20 @@ import 'package:http/http.dart' as http;
 class InvitationApi {
   InvitationApi._();
 
-  static const _baseUrl = String.fromEnvironment(
-    'API_BASE_URL',
-    defaultValue: 'http://localhost:3000/api',
-  );
+static String get _baseUrl {
+  const configuredUrl = String.fromEnvironment('API_BASE_URL');
+
+  if (configuredUrl.isNotEmpty) {
+    return configuredUrl;
+  }
+
+  if (Uri.base.host == 'localhost' ||
+      Uri.base.host == '127.0.0.1') {
+    return 'http://localhost:3000/api';
+  }
+
+  return '${Uri.base.origin}/api';
+}
   static const slug = 'minimalism-nau-demo';
   static final _client = http.Client();
 
