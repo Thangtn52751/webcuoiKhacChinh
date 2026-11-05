@@ -37,7 +37,7 @@ class WeddingCalendarCard extends StatelessWidget {
           Text(
             'Th\u{00E1}ng 12 / 2026',
             style: TextStyle(
-              fontFamily: 'Allura',
+              fontFamily: PartySectionStyle.serifFont,
               fontFamilyFallback: PartySectionStyle.serifFallback,
               fontSize: 24 * textScale,
               color: PartySectionStyle.calendarTextColor,
@@ -145,7 +145,7 @@ class _HeartDayCell extends StatelessWidget {
               fontFamilyFallback: PartySectionStyle.serifFallback,
               fontSize: 10.5 * textScale,
               fontWeight: FontWeight.w600,
-              color: PartySectionStyle.calendarBgColor,
+              color: PartySectionStyle.primaryColor,
             ),
           ),
         ],

@@ -1,3 +1,6 @@
 # Figma design exports (không đưa vào repo)
 Figma export.zip
 _figma_export/
+.firebase/
+.firebaserc
+firebase-debug.log*

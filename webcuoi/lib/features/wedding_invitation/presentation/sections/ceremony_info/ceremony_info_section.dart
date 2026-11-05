@@ -35,6 +35,25 @@ class CeremonyInfoSection extends StatelessWidget {
           child: Stack(
             fit: StackFit.expand,
             children: [
+              Positioned(
+                left: imageWidth * 0.155,
+                right: imageWidth * 0.10,
+                top: imageHeight * 0.008,
+                bottom: imageHeight * 0.008,
+                child: DecoratedBox(
+                  decoration: BoxDecoration(
+                    color: const Color(0x01FFFFFF),
+                    borderRadius: BorderRadius.circular(15 * textScale),
+                    boxShadow: [
+                      BoxShadow(
+                        color: const Color(0x285A473B),
+                        blurRadius: 20 * textScale,
+                        offset: Offset(0, 8 * textScale),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
               Image.asset(
                 'assets/images/decorations/info_Card1.png',
                 fit: BoxFit.fill,
@@ -106,7 +125,7 @@ class CeremonyInfoSection extends StatelessWidget {
                 imageWidth: imageWidth,
                 imageHeight: imageHeight,
                 top: 0.468,
-                text: 'Nguyễn Thị Trang',
+                text: 'Nguyễn Trang',
                 fontSize: 24,
                 scale: textScale,
               ),
@@ -213,7 +232,7 @@ class CeremonyInfoSection extends StatelessWidget {
 
   TextStyle _smallStyle(double fontSize, double scale) => TextStyle(
     color: SectionTheme.inkSoft,
-    fontFamily: 'Georgia',
+    fontFamily: SectionTheme.fontFamily,
     fontSize: fontSize * scale * 1.25,
   );
 }

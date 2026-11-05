@@ -44,7 +44,7 @@ class GiftBoxSection extends StatefulWidget {
     ),
     GiftAccount(
       side: 'C\u{00F4} D\u{00E2}u',
-      owner: 'Nguyễn Thị Trang',
+      owner: 'Nguyễn Trang',
       bankName: 'Vietcombank',
       accountNumber: '0731000806651',
     ),
@@ -483,7 +483,7 @@ class _GiftQrDialog extends StatelessWidget {
                         'HỘP QUÀ MỪNG',
                         style: TextStyle(
                           color: Colors.white,
-                          fontFamily: 'Georgia',
+                          fontFamily: SectionTheme.fontFamily,
                           fontSize: 18 * uiScale,
                           fontWeight: FontWeight.w700,
                           letterSpacing: 0.3 * uiScale,
@@ -574,7 +574,7 @@ class _QrGiftCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final ink = const Color(0xFF806D62);
+    final ink = SectionTheme.inkSoft;
     final imageSize = math.min(size, 150 * scale).toDouble();
     return Column(
       mainAxisSize: MainAxisSize.min,
@@ -623,17 +623,14 @@ class _QrGiftCard extends StatelessWidget {
         Text(
           account.bankName,
           textAlign: TextAlign.center,
-          style: TextStyle(
-            color: const Color(0xFF9A8A80),
-            fontSize: 9.5 * scale,
-          ),
+          style: TextStyle(color: SectionTheme.inkSoft, fontSize: 9.5 * scale),
         ),
         SizedBox(height: 2 * scale),
         Text(
           account.accountNumber,
           textAlign: TextAlign.center,
           style: TextStyle(
-            color: const Color(0xFF78665A),
+            color: SectionTheme.inkSoft,
             fontSize: 10 * scale,
             letterSpacing: 0.4 * scale,
           ),

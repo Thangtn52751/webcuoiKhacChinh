@@ -12,12 +12,17 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Thiệp cưới Khắc Chính & Thị Trang',
+      title: 'Thiệp cưới Khắc Chính & Nguyễn Trang',
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
         useMaterial3: false,
         scaffoldBackgroundColor: const Color(0xFFE8D3BC),
-        fontFamily: 'Georgia',
+        fontFamily: 'CormorantGaramond',
+        textTheme: Typography.material2018().black.apply(
+          fontFamily: 'CormorantGaramond',
+          bodyColor: const Color(0xFF8A7868),
+          displayColor: const Color(0xFF8A7868),
+        ),
       ),
       home: const WeddingCoverPage(),
     );

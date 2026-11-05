@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../../section_theme.dart';
+
 typedef WishMessageSend = Future<bool> Function(String message);
 
 class WishMessageInput extends StatefulWidget {
@@ -55,8 +57,8 @@ class _WishMessageInputState extends State<WishMessageInput> {
                 maxLength: 1000,
                 textAlignVertical: TextAlignVertical.top,
                 style: TextStyle(
-                  color: const Color(0xFF6D5B50),
-                  fontFamily: 'CormorantGaramond',
+                  color: SectionTheme.inkSoft,
+                  fontFamily: SectionTheme.fontFamily,
                   fontSize: 14 * fieldScale,
                   height: 1.25,
                 ),
@@ -65,8 +67,8 @@ class _WishMessageInputState extends State<WishMessageInput> {
                   hintText: 'Nhập lời chúc*',
                   counterText: '',
                   hintStyle: TextStyle(
-                    color: const Color(0xFF8B796D),
-                    fontFamily: 'CormorantGaramond',
+                    color: SectionTheme.inkSoft,
+                    fontFamily: SectionTheme.fontFamily,
                     fontSize: 14 * fieldScale,
                   ),
                   filled: true,
@@ -130,7 +132,7 @@ class _WishMessageInputState extends State<WishMessageInput> {
                           : Text(
                               'GỬI LỜI CHÚC',
                               style: TextStyle(
-                                fontFamily: 'CormorantGaramond',
+                                fontFamily: SectionTheme.fontFamily,
                                 fontSize: 13 * buttonScale,
                                 fontWeight: FontWeight.w700,
                                 letterSpacing: 0.25 * buttonScale,

@@ -36,61 +36,76 @@ class _FallingLeavesLayerState extends State<FallingLeavesLayer>
   @override
   Widget build(BuildContext context) {
     return RepaintBoundary(
-      child: AnimatedBuilder(
-        animation: _animation,
-        builder: (context, child) {
-          return LayoutBuilder(
-            builder: (context, constraints) {
-              return Stack(
-                clipBehavior: Clip.hardEdge,
-                children: [
-                  for (final leaf in _leaves)
-                    _buildLeaf(
-                      leaf,
-                      constraints.maxWidth,
-                      constraints.maxHeight,
-                      _animation.value,
-                    ),
-                ],
-              );
-            },
-          );
-        },
+      child: LayoutBuilder(
+        builder: (context, constraints) => Stack(
+          clipBehavior: Clip.hardEdge,
+          children: [
+            for (final leaf in _leaves)
+              _AnimatedLeaf(
+                animation: _animation,
+                leaf: leaf,
+                width: constraints.maxWidth,
+                height: constraints.maxHeight,
+              ),
+          ],
+        ),
       ),
     );
   }
+}
 
-  Widget _buildLeaf(
-    _LeafParticle leaf,
-    double width,
-    double height,
-    double progress,
-  ) {
-    final y =
-        (leaf.startY * height + progress * height * leaf.fallCycles) % height;
-    final swayPhase = progress * leaf.swayCycles * math.pi * 2 + leaf.phase;
-    final x = leaf.x * width + math.sin(swayPhase) * leaf.sway;
-    final flutter = math.sin(swayPhase) * 0.28;
+class _AnimatedLeaf extends StatelessWidget {
+  const _AnimatedLeaf({
+    required this.animation,
+    required this.leaf,
+    required this.width,
+    required this.height,
+  });
 
-    return Positioned(
-      left: x - leaf.size / 2,
-      top: y - leaf.size / 2,
-      width: leaf.size,
-      height: leaf.size,
-      child: Transform.rotate(
-        angle: leaf.angle + flutter,
-        child: Opacity(
-          opacity: leaf.opacity,
-          child: ColorFiltered(
-            colorFilter: ColorFilter.mode(leaf.tint, BlendMode.srcIn),
-            child: Image.asset(
-              leaf.assetPath,
-              fit: BoxFit.contain,
-              filterQuality: FilterQuality.medium,
+  final Animation<double> animation;
+  final _LeafParticle leaf;
+  final double width;
+  final double height;
+
+  @override
+  Widget build(BuildContext context) {
+    return AnimatedBuilder(
+      animation: animation,
+      child: SizedBox(
+        width: leaf.size,
+        height: leaf.size,
+        child: RepaintBoundary(
+          child: Opacity(
+            opacity: leaf.opacity,
+            child: ColorFiltered(
+              colorFilter: ColorFilter.mode(leaf.tint, BlendMode.srcIn),
+              child: Image.asset(
+                leaf.assetPath,
+                fit: BoxFit.contain,
+                filterQuality: FilterQuality.low,
+                excludeFromSemantics: true,
+              ),
             ),
           ),
         ),
       ),
+      builder: (context, child) {
+        final progress = animation.value;
+        final y =
+            (leaf.startY * height + progress * height * leaf.fallCycles) %
+            height;
+        final swayPhase = progress * leaf.swayCycles * math.pi * 2 + leaf.phase;
+        final x = leaf.x * width + math.sin(swayPhase) * leaf.sway;
+        final flutter = math.sin(swayPhase) * 0.28;
+
+        return Positioned(
+          left: x - leaf.size / 2,
+          top: y - leaf.size / 2,
+          width: leaf.size,
+          height: leaf.size,
+          child: Transform.rotate(angle: leaf.angle + flutter, child: child),
+        );
+      },
     );
   }
 }

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../../data/invitation_api.dart';
+import '../section_theme.dart';
 
 class RsvpDialog extends StatefulWidget {
   const RsvpDialog({super.key});
@@ -10,8 +11,8 @@ class RsvpDialog extends StatefulWidget {
 }
 
 class _RsvpDialogState extends State<RsvpDialog> {
-  static const _ink = Color(0xFF78665A);
-  static const _muted = Color(0xFF9B8F86);
+  static const _ink = SectionTheme.inkSoft;
+  static const _muted = SectionTheme.inkSoft;
   static const _line = Color(0xFFE7E3E0);
   final _nameController = TextEditingController();
   bool? _attending;
@@ -88,6 +89,7 @@ class _RsvpDialogState extends State<RsvpDialog> {
                         'Xác nhận tham dự',
                         style: TextStyle(
                           color: _ink,
+                          fontFamily: SectionTheme.fontFamily,
                           fontSize: 17,
                           fontWeight: FontWeight.w700,
                         ),
@@ -117,13 +119,19 @@ class _RsvpDialogState extends State<RsvpDialog> {
                 const SizedBox(height: 5),
                 const Text(
                   'Sự hiện diện của bạn là niềm vinh hạnh cho gia đình chúng tôi. Xin xác nhận để chúng tôi chuẩn bị chu đáo hơn.',
-                  style: TextStyle(color: _muted, fontSize: 10.5, height: 1.45),
+                  style: TextStyle(
+                    color: _muted,
+                    fontFamily: SectionTheme.fontFamily,
+                    fontSize: 10.5,
+                    height: 1.45,
+                  ),
                 ),
                 const SizedBox(height: 14),
                 const Text(
                   'Tên của bạn',
                   style: TextStyle(
                     color: _ink,
+                    fontFamily: SectionTheme.fontFamily,
                     fontSize: 10.5,
                     fontWeight: FontWeight.w600,
                   ),
@@ -136,7 +144,10 @@ class _RsvpDialogState extends State<RsvpDialog> {
                   onChanged: (_) => setState(() {}),
                   decoration: InputDecoration(
                     hintText: 'Nhập tên của bạn',
-                    hintStyle: const TextStyle(color: Color(0xFFAAB0B8)),
+                    hintStyle: const TextStyle(
+                      color: _muted,
+                      fontFamily: SectionTheme.fontFamily,
+                    ),
                     isDense: true,
                     contentPadding: const EdgeInsets.symmetric(
                       horizontal: 10,
@@ -151,13 +162,18 @@ class _RsvpDialogState extends State<RsvpDialog> {
                       borderSide: const BorderSide(color: _ink, width: 1.2),
                     ),
                   ),
-                  style: const TextStyle(color: _ink, fontSize: 11),
+                  style: const TextStyle(
+                    color: _ink,
+                    fontFamily: SectionTheme.fontFamily,
+                    fontSize: 11,
+                  ),
                 ),
                 const SizedBox(height: 12),
                 const Text(
                   'Bạn sẽ đến chứ?',
                   style: TextStyle(
                     color: _ink,
+                    fontFamily: SectionTheme.fontFamily,
                     fontSize: 10.5,
                     fontWeight: FontWeight.w600,
                   ),
@@ -187,7 +203,8 @@ class _RsvpDialogState extends State<RsvpDialog> {
                   Text(
                     _error!,
                     style: const TextStyle(
-                      color: Color(0xFFB24B43),
+                      color: _ink,
+                      fontFamily: SectionTheme.fontFamily,
                       fontSize: 11,
                     ),
                   ),
@@ -219,6 +236,7 @@ class _RsvpDialogState extends State<RsvpDialog> {
                         : const Text(
                             'Gửi xác nhận',
                             style: TextStyle(
+                              fontFamily: SectionTheme.fontFamily,
                               fontSize: 11,
                               fontWeight: FontWeight.w600,
                             ),
@@ -285,6 +303,7 @@ class _AttendanceOption extends StatelessWidget {
                 label,
                 style: const TextStyle(
                   color: _RsvpDialogState._ink,
+                  fontFamily: SectionTheme.fontFamily,
                   fontSize: 10.5,
                   fontWeight: FontWeight.w600,
                 ),

@@ -83,15 +83,36 @@ class _WeddingCoverPageState extends State<WeddingCoverPage>
     _musicPlayerTransferred = true;
     Navigator.of(context).pushReplacement<void, void>(
       PageRouteBuilder<void>(
-        transitionDuration: const Duration(milliseconds: 300),
+        transitionDuration: const Duration(milliseconds: 700),
+        reverseTransitionDuration: const Duration(milliseconds: 450),
         pageBuilder: (context, animation, secondaryAnimation) =>
             WeddingInvitationPage(musicPlayer: _musicPlayer),
         transitionsBuilder: (context, animation, secondaryAnimation, child) {
           final fade = CurvedAnimation(
             parent: animation,
+            curve: const Interval(0, 0.86, curve: Curves.easeOutCubic),
+          );
+          final entrance = CurvedAnimation(
+            parent: animation,
             curve: Curves.easeOutCubic,
           );
-          return FadeTransition(opacity: fade, child: child);
+          final scale = Tween<double>(begin: 0.975, end: 1).animate(
+            CurvedAnimation(
+              parent: animation,
+              curve: const Interval(0, 1, curve: Curves.easeOutCubic),
+            ),
+          );
+
+          return FadeTransition(
+            opacity: fade,
+            child: SlideTransition(
+              position: Tween<Offset>(
+                begin: const Offset(0, 0.025),
+                end: Offset.zero,
+              ).animate(entrance),
+              child: ScaleTransition(scale: scale, child: child),
+            ),
+          );
         },
       ),
     );
@@ -194,7 +215,7 @@ class _WeddingCoverPageState extends State<WeddingCoverPage>
               left: 16 * scale,
               right: 16 * scale,
               child: Text(
-                'Kh\u{1EAF}c Ch\u{00ED}nh\n&\nTh\u{1ECB} Trang',
+                'Kh\u{1EAF}c Ch\u{00ED}nh\n&\nNguy\u{1EC5}n Trang',
                 textAlign: TextAlign.center,
                 style: TextStyle(
                   color: ink,

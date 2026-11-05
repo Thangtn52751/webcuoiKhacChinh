@@ -28,6 +28,13 @@ class GuestbookEntryCard extends StatelessWidget {
         border: Border.all(
           color: SectionTheme.inkMuted.withValues(alpha: 0.35),
         ),
+        boxShadow: [
+          BoxShadow(
+            color: const Color(0x225A473B),
+            blurRadius: 12 * textScale,
+            offset: Offset(0, 4 * textScale),
+          ),
+        ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -41,8 +48,8 @@ class GuestbookEntryCard extends StatelessWidget {
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                   style: TextStyle(
-                    color: const Color.fromARGB(255, 7, 7, 7),
-                    fontFamily: 'CormorantGaramond',
+                    color: SectionTheme.inkSoft,
+                    fontFamily: SectionTheme.fontFamily,
                     fontSize: 16 * textScale,
                     fontWeight: FontWeight.bold,
                   ),
@@ -54,7 +61,8 @@ class GuestbookEntryCard extends StatelessWidget {
                   _formatDate(entry.createdAt!.toLocal()),
                   textAlign: TextAlign.right,
                   style: TextStyle(
-                    color: const Color.fromARGB(255, 0, 0, 0),
+                    color: SectionTheme.inkSoft,
+                    fontFamily: SectionTheme.fontFamily,
                     fontSize: 13 * textScale,
                     fontWeight: FontWeight.w500,
                   ),
@@ -67,8 +75,8 @@ class GuestbookEntryCard extends StatelessWidget {
             Text(
               entry.message,
               style: TextStyle(
-                color: const Color(0xFF59483E),
-                fontFamily: 'CormorantGaramond',
+                color: SectionTheme.inkSoft,
+                fontFamily: SectionTheme.fontFamily,
                 fontSize: 15 * textScale,
                 fontWeight: FontWeight.w500,
                 height: 1.4,

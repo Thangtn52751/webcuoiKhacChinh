@@ -13,14 +13,21 @@ function getTransporter() {
   if (!transporter) {
     const port = Number(process.env.SMTP_PORT) || 587;
     const secure = process.env.SMTP_SECURE === 'true' || port === 465;
+    const host = SMTP_HOST.trim();
+    const user = SMTP_USER.trim();
+    // Google displays app passwords in groups separated by spaces. Gmail's
+    // SMTP AUTH expects the 16-character password without those separators.
+    const pass = host.toLowerCase() === 'smtp.gmail.com'
+      ? SMTP_PASS.replace(/\s/g, '')
+      : SMTP_PASS;
 
     transporter = nodemailer.createTransport({
-      host: SMTP_HOST,
+      host,
       port,
       secure,
       auth: {
-        user: SMTP_USER,
-        pass: SMTP_PASS,
+        user,
+        pass,
       },
     });
   }

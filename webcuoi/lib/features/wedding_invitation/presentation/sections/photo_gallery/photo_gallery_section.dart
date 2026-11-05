@@ -10,25 +10,45 @@ class PhotoGallerySection extends StatefulWidget {
   const PhotoGallerySection({
     super.key,
     required this.scale,
-    this.imagePaths = _defaultImages,
-  });
+    List<String>? imagePaths,
+    List<String>? thumbnailPaths,
+  }) : imagePaths = imagePaths ?? _defaultImages,
+       thumbnailPaths =
+           thumbnailPaths ??
+           (imagePaths == null ? _defaultThumbnailImages : null);
 
   final double scale;
   final List<String> imagePaths;
+  final List<String>? thumbnailPaths;
 
   static const List<String> _defaultImages = [
-    'assets/images/couple/couple.jpg',
-    'assets/images/couple/couple2.jpg',
-    'assets/images/couple/couple3.jpg',
-    'assets/images/couple/couple4.jpg',
-    'assets/images/couple/couple5.jpg',
-    'assets/images/couple/couple6.jpg',
-    'assets/images/couple/couple7.jpg',
-    'assets/images/couple/couple8.jpg',
-    'assets/images/couple/couple9.jpg',
-    'assets/images/couple/couple10.jpg',
-    'assets/images/couple/couple11.jpg',
-    'assets/images/couple/couple12.jpg',
+    'assets/images/couple/full/couple.webp',
+    'assets/images/couple/full/couple2.webp',
+    'assets/images/couple/full/couple3.webp',
+    'assets/images/couple/full/couple4.webp',
+    'assets/images/couple/full/couple5.webp',
+    'assets/images/couple/full/couple6.webp',
+    'assets/images/couple/full/couple7.webp',
+    'assets/images/couple/full/couple8.webp',
+    'assets/images/couple/full/couple9.webp',
+    'assets/images/couple/full/couple10.webp',
+    'assets/images/couple/full/couple11.webp',
+    'assets/images/couple/full/couple12.webp',
+  ];
+
+  static const List<String> _defaultThumbnailImages = [
+    'assets/images/couple/thumbnails/couple.webp',
+    'assets/images/couple/thumbnails/couple2.webp',
+    'assets/images/couple/thumbnails/couple3.webp',
+    'assets/images/couple/thumbnails/couple4.webp',
+    'assets/images/couple/thumbnails/couple5.webp',
+    'assets/images/couple/thumbnails/couple6.webp',
+    'assets/images/couple/thumbnails/couple7.webp',
+    'assets/images/couple/thumbnails/couple8.webp',
+    'assets/images/couple/thumbnails/couple9.webp',
+    'assets/images/couple/thumbnails/couple10.webp',
+    'assets/images/couple/thumbnails/couple11.webp',
+    'assets/images/couple/thumbnails/couple12.webp',
   ];
 
   @override
@@ -211,7 +231,7 @@ class _PhotoGallerySectionState extends State<PhotoGallerySection>
                   }
                 },
                 child: _GalleryImage(
-                  imagePath: widget.imagePaths[l.index],
+                  imagePath: _carouselImagePath(l.index),
                   width: centerW,
                   height: centerH,
                   scale: scale,
@@ -223,6 +243,14 @@ class _PhotoGallerySectionState extends State<PhotoGallerySection>
           ),
         ),
     ];
+  }
+
+  String _carouselImagePath(int index) {
+    final thumbnails = widget.thumbnailPaths;
+    if (thumbnails == null || index >= thumbnails.length) {
+      return widget.imagePaths[index];
+    }
+    return thumbnails[index];
   }
 
   /// Mở overlay phóng to ảnh, cho phép vuốt chuyển và pinch-zoom.
@@ -291,8 +319,8 @@ class _GalleryImage extends StatelessWidget {
         borderRadius: BorderRadius.circular(16 * scale),
         boxShadow: [
           BoxShadow(
-            color: const Color(0x335A473B),
-            blurRadius: 24 * scale,
+            color: const Color(0x405A473B),
+            blurRadius: 26 * scale,
             offset: Offset(0, 12 * scale),
           ),
         ],

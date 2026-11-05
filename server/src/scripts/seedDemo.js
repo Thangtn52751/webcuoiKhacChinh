@@ -14,10 +14,10 @@ async function seedDemo() {
         cover: { subtitle: 'Thân mời bạn đến dự lễ cưới', imageUrl: '' },
         couple: {
           groom: { name: 'Khắc Chính', title: 'Trưởng Nam' },
-          bride: { name: 'Thị Trang', title: 'Út Nữ' },
+          bride: { name: 'Nguyễn Trang', title: 'Út Nữ' },
         },
         families: [
-          { side: 'groom', parents: [], address: 'Số 300 đường Thân Công Tài, Phường Nếnh, Thành phố Bắc Ninh' },
+          { side: 'groom', parents: [], address: '300 Đ. Thân Công Tài' },
           { side: 'bride', parents: [], address: 'Tổ Dân Phố Dĩnh Sơn, Phường Vân Hà, Thành phố Bắc Ninh' },
         ],
         ceremony: {

@@ -43,8 +43,8 @@ class _GuestbookFormState extends State<GuestbookForm> {
         final height = width * 439 / 578;
         final textScale = (width / 460).clamp(0.88, 1.15).toDouble();
         final inputStyle = TextStyle(
-          color: SectionTheme.ink,
-          fontFamily: 'CormorantGaramond',
+          color: SectionTheme.inkSoft,
+          fontFamily: SectionTheme.fontFamily,
           fontSize: 15 * textScale,
           height: 1.2,
         );
@@ -55,6 +55,25 @@ class _GuestbookFormState extends State<GuestbookForm> {
           child: Stack(
             fit: StackFit.expand,
             children: [
+              Positioned(
+                left: width * 0.11,
+                right: width * 0.005,
+                top: height * 0.01,
+                bottom: height * 0.01,
+                child: DecoratedBox(
+                  decoration: BoxDecoration(
+                    color: const Color(0x01FFFFFF),
+                    borderRadius: BorderRadius.circular(16 * textScale),
+                    boxShadow: [
+                      BoxShadow(
+                        color: const Color(0x285A473B),
+                        blurRadius: 18 * textScale,
+                        offset: Offset(0, 7 * textScale),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
               Image.asset(
                 'assets/images/decorations/checknote_BG.png',
                 fit: BoxFit.contain,
@@ -68,8 +87,8 @@ class _GuestbookFormState extends State<GuestbookForm> {
                   'S\u1ED4 L\u01AFU B\u00DAT',
                   textAlign: TextAlign.center,
                   style: TextStyle(
-                    color: SectionTheme.ink,
-                    fontFamily: 'CormorantGaramond',
+                    color: SectionTheme.inkSoft,
+                    fontFamily: SectionTheme.fontFamily,
                     fontSize: 17 * textScale,
                     fontWeight: FontWeight.w700,
                     letterSpacing: 0.35 * textScale,
@@ -118,8 +137,8 @@ class _GuestbookFormState extends State<GuestbookForm> {
   InputDecoration _nameDecoration(double textScale) => InputDecoration(
     hintText: 'Nh\u1EADp t\u00EAn*',
     hintStyle: TextStyle(
-      color: SectionTheme.ink,
-      fontFamily: 'CormorantGaramond',
+      color: SectionTheme.inkSoft,
+      fontFamily: SectionTheme.fontFamily,
       fontSize: 14 * textScale,
     ),
     counterText: '',

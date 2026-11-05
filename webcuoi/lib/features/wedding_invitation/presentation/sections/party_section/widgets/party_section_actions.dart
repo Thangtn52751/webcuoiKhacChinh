@@ -12,7 +12,7 @@ class PartySectionActions extends StatelessWidget {
   Future<void> _addToCalendar(BuildContext context) async {
     final calendarUrl = Uri.https('calendar.google.com', '/calendar/render', {
       'action': 'TEMPLATE',
-      'text': 'Lễ cưới Khắc Chính & Thị Trang',
+      'text': 'Lễ cưới Khắc Chính & Nguyễn Trang',
       'dates': '20261213T011500Z/20261213T040000Z',
       'details':
           'Lễ cưới bắt đầu lúc 08:15, Chủ nhật ngày 13 tháng 12 năm 2026.',

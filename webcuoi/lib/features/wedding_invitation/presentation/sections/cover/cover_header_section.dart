@@ -9,7 +9,7 @@ class CoverHeaderSection extends StatelessWidget {
     super.key,
     required this.scale,
     this.overline = 'THE WEDDING OF',
-    this.coupleNames = 'Khắc Chính & Thị Trang',
+    this.coupleNames = 'Khắc Chính & Nguyễn Trang',
   });
 
   final double scale;
@@ -40,7 +40,7 @@ class CoverHeaderSection extends StatelessWidget {
             textAlign: TextAlign.center,
             style: SectionTheme.displayName(scale).copyWith(
               color: SectionTheme.inkSoft,
-              fontFamily: 'CormorantGaramond',
+              fontFamily: SectionTheme.fontFamily,
               fontSize: 42 * scale,
               fontStyle: FontStyle.italic,
               fontWeight: FontWeight.w600,
