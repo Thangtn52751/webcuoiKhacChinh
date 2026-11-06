@@ -21,6 +21,7 @@ const configuredOrigins = (
     'http://localhost:8080',
     'https://webcuoi-khac-chinh.vercel.app',
     'https://webcuoikhacchinh-webcuoi.vercel.app',
+    'https://webcuoikhacchinh-webcuoi-92e7-mocha.vercel.app',
   ].join(',')
 )
   .split(',')

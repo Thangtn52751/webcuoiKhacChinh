@@ -1,6 +1,7 @@
 # Deploy frontend lên Vercel
 
 Frontend: `https://webcuoikhacchinh-webcuoi.vercel.app`.
+Frontend đang mở theo log trình duyệt: `https://webcuoikhacchinh-webcuoi-92e7-mocha.vercel.app`.
 Backend: `https://webcuoi-khac-chinh.vercel.app`.
 API base URL: `https://webcuoi-khac-chinh.vercel.app/api`.
 
@@ -38,11 +39,19 @@ Trên project backend phục vụ `https://webcuoi-khac-chinh.vercel.app`
 của môi trường Production. Ví dụ nếu giữ các origin mặc định đang dùng:
 
 ```text
-CORS_ORIGINS=http://localhost:3000,http://localhost:5000,http://localhost:8080,https://webcuoi-khac-chinh.vercel.app,https://webcuoikhacchinh-webcuoi.vercel.app
+CORS_ORIGINS=http://localhost:3000,http://localhost:5000,http://localhost:8080,https://webcuoi-khac-chinh.vercel.app,https://webcuoikhacchinh-webcuoi.vercel.app,https://webcuoikhacchinh-webcuoi-92e7-mocha.vercel.app
 ```
 
 Nếu cấu hình hiện tại có origin khác, giữ chúng và thêm domain frontend ở cuối,
 phân tách bằng dấu phẩy. Origin không chứa `/api` hoặc dấu `/` cuối.
+
+CORS đối chiếu chính xác origin mà trình duyệt gửi. Domain có hậu tố
+`-92e7-mocha` là origin khác với domain không có hậu tố, nên cần khai báo cả hai
+nếu sử dụng cả hai địa chỉ. Khi đổi domain frontend, thêm đúng origin mới vào danh sách.
+
+Sửa `server/.env` chỉ thay đổi cấu hình local; thao tác đó không cập nhật biến môi
+trường trên Vercel. Cần cập nhật `CORS_ORIGINS` trực tiếp trong project backend
+trên Vercel rồi redeploy để bản online nhận cấu hình mới.
 
 `CORS_ORIGINS` trên Vercel thay thế toàn bộ danh sách mặc định trong
 `server/src/app.js`. Sửa danh sách mặc định trong code sẽ không có tác dụng nếu
@@ -74,10 +83,10 @@ flutter build web --release --dart-define=API_BASE_URL=https://webcuoi-khac-chin
 Kiểm tra preflight mà không ghi dữ liệu vào database:
 
 ```powershell
-curl.exe -i -X OPTIONS "https://webcuoi-khac-chinh.vercel.app/api/invitations/minimalism-nau-demo/guestbook" --header "Origin: https://webcuoikhacchinh-webcuoi.vercel.app" --header "Access-Control-Request-Method: POST" --header "Access-Control-Request-Headers: content-type"
+curl.exe -i -X OPTIONS "https://webcuoi-khac-chinh.vercel.app/api/invitations/minimalism-nau-demo/guestbook" --header "Origin: https://webcuoikhacchinh-webcuoi-92e7-mocha.vercel.app" --header "Access-Control-Request-Method: POST" --header "Access-Control-Request-Headers: content-type"
 ```
 
-Phản hồi phải có `Access-Control-Allow-Origin: https://webcuoikhacchinh-webcuoi.vercel.app`
+Phản hồi phải có `Access-Control-Allow-Origin: https://webcuoikhacchinh-webcuoi-92e7-mocha.vercel.app`
 và cho phép method `POST`, header `Content-Type`. HTTP 204 mà thiếu
 `Access-Control-Allow-Origin` vẫn bị trình duyệt chặn.
 
