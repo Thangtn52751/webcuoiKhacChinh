@@ -3,10 +3,11 @@ set -euo pipefail
 
 export PATH="${PWD}/.flutter-sdk/bin:${PATH}"
 
-BUILD_ARGS=(build web --release --no-pub)
-if [[ -n "${API_BASE_URL:-}" ]]; then
-  BUILD_ARGS+=("--dart-define=API_BASE_URL=${API_BASE_URL}")
-fi
+# Use the deployed backend unless this Vercel project overrides API_BASE_URL.
+BUILD_ARGS=(
+  build web --release --no-pub
+  "--dart-define=API_BASE_URL=${API_BASE_URL:-https://webcuoi-khac-chinh.vercel.app/api}"
+)
 
 flutter "${BUILD_ARGS[@]}"
 
