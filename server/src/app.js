@@ -15,7 +15,13 @@ let databaseConnection;
 
 const configuredOrigins = (
   process.env.CORS_ORIGINS ||
-  'http://localhost:3000,http://localhost:5000,http://localhost:8080,https://webcuoi-khac-chinh.vercel.app'
+  [
+    'http://localhost:3000',
+    'http://localhost:5000',
+    'http://localhost:8080',
+    'https://webcuoi-khac-chinh.vercel.app',
+    'https://webcuoikhacchinh-webcuoi.vercel.app',
+  ].join(',')
 )
   .split(',')
   .map((origin) => origin.trim().replace(/\/+$/, ''))
