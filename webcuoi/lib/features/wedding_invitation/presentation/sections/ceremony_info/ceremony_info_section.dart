@@ -25,11 +25,9 @@ class CeremonyInfoSection extends StatelessWidget {
       imageWidth / _artworkWidth,
       isCompact ? 0.62 : (scale * 0.9).clamp(0.65, 1.0),
     );
-    final familyInset = imageWidth < 500 ? 0.25 : 0.3;
-    const cardCenterShift = 0.077;
     const artworkShift = 0.077;
-    final familyLeft = isCompact ? 0.22 : familyInset + cardCenterShift;
-    final familyRight = isCompact ? 0.09 : familyInset - cardCenterShift;
+    final familyGroupWidth = imageWidth * (isCompact ? 0.28 : 0.24);
+    final familyDividerGap = isCompact ? 8.0 : 12 * textScale;
 
     return Padding(
       padding: EdgeInsets.symmetric(vertical: 24 * scale),
@@ -79,36 +77,40 @@ class CeremonyInfoSection extends StatelessWidget {
                 ),
                 Positioned(
                   top: imageHeight * 0.105,
-                  left: imageWidth * familyLeft,
-                  right: imageWidth * familyRight,
-                  child: Row(
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      Expanded(
-                        child: _familyText(
-                          'Nhà trai',
-                          'Nguyễn Khắc Phác\nNguyễn Thị Chung',
-                          textScale,
-                          nameAlignment: TextAlign.right,
+                  left: imageWidth * 0.18,
+                  right: imageWidth * 0.02,
+                  child: Center(
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        SizedBox(
+                          width: familyGroupWidth,
+                          child: _familyText(
+                            'Nhà trai',
+                            'Nguyễn Khắc Phác\nNguyễn Thị Chung',
+                            textScale,
+                            nameAlignment: TextAlign.right,
+                          ),
                         ),
-                      ),
-                      Container(
-                        width: 1.2 * textScale,
-                        height: 56 * textScale,
-                        margin: EdgeInsets.symmetric(
-                          horizontal: 10 * textScale,
+                        SizedBox(width: familyDividerGap),
+                        Container(
+                          width: 1.2 * textScale,
+                          height: 56 * textScale,
+                          color: SectionTheme.inkMuted.withValues(alpha: 0.65),
                         ),
-                        color: SectionTheme.inkMuted.withValues(alpha: 0.65),
-                      ),
-                      Expanded(
-                        child: _familyText(
-                          'Nhà gái',
-                          'Vũ Thị Khoa',
-                          textScale,
-                          nameAlignment: TextAlign.left,
+                        SizedBox(width: familyDividerGap),
+                        SizedBox(
+                          width: familyGroupWidth,
+                          child: _familyText(
+                            'Nhà gái',
+                            'Vũ Thị Khoa',
+                            textScale,
+                            nameAlignment: TextAlign.left,
+                          ),
                         ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
                 ),
                 _positionedText(
