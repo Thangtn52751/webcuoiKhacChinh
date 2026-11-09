@@ -119,12 +119,44 @@ class VenueSection extends StatefulWidget {
 class _VenueSectionState extends State<VenueSection> {
   late List<VenuePlace> _places;
   String _selectedSide = 'groom';
+  ScrollPosition? _scrollPosition;
+  bool _mapLoaded = false;
 
   @override
   void initState() {
     super.initState();
     _places = widget.places;
     if (widget.loadFromServer) unawaited(_loadPlaces());
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    final nextPosition = Scrollable.maybeOf(context)?.position;
+    if (identical(nextPosition, _scrollPosition)) return;
+    _scrollPosition?.removeListener(_loadMapWhenVisible);
+    _scrollPosition = nextPosition;
+    _scrollPosition?.addListener(_loadMapWhenVisible);
+    WidgetsBinding.instance.addPostFrameCallback((_) => _loadMapWhenVisible());
+  }
+
+  @override
+  void dispose() {
+    _scrollPosition?.removeListener(_loadMapWhenVisible);
+    super.dispose();
+  }
+
+  void _loadMapWhenVisible() {
+    if (!mounted || _mapLoaded) return;
+    final renderObject = context.findRenderObject();
+    if (renderObject is! RenderBox || !renderObject.hasSize) return;
+
+    final top = renderObject.localToGlobal(Offset.zero).dy;
+    final bottom = top + renderObject.size.height;
+    if (bottom <= 0 || top >= MediaQuery.sizeOf(context).height) return;
+
+    setState(() => _mapLoaded = true);
+    _scrollPosition?.removeListener(_loadMapWhenVisible);
   }
 
   VenuePlace get _selectedPlace => _places.firstWhere(
@@ -215,6 +247,7 @@ class _VenueSectionState extends State<VenueSection> {
                   place: place,
                   scale: widget.scale,
                   textScale: textScale,
+                  mapLoaded: _mapLoaded,
                   onOpenDirections: () => _openDirections(place),
                 ),
               ),
@@ -232,12 +265,14 @@ class _VenueCard extends StatelessWidget {
     required this.place,
     required this.scale,
     required this.textScale,
+    required this.mapLoaded,
     required this.onOpenDirections,
   });
 
   final VenuePlace place;
   final double scale;
   final double textScale;
+  final bool mapLoaded;
   final VoidCallback onOpenDirections;
 
   @override
@@ -268,12 +303,30 @@ class _VenueCard extends StatelessWidget {
         LayoutBuilder(
           builder: (context, constraints) {
             final mapHeight = constraints.maxWidth / 1.48;
-            return EmbeddedMap(
-              key: ValueKey('map-${place.side}-${place.mapQuery}'),
-              query: place.mapQuery,
-              embedUrl: place.hasCoordinates ? null : place.embedUrl,
+            return SizedBox(
               height: mapHeight,
-              borderRadius: 2 * scale,
+              width: double.infinity,
+              child: mapLoaded
+                  ? EmbeddedMap(
+                      key: ValueKey('map-${place.side}-${place.mapQuery}'),
+                      query: place.mapQuery,
+                      embedUrl: place.hasCoordinates ? null : place.embedUrl,
+                      height: mapHeight,
+                      borderRadius: 2 * scale,
+                    )
+                  : DecoratedBox(
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFE9E0D2),
+                        borderRadius: BorderRadius.circular(2 * scale),
+                      ),
+                      child: const Center(
+                        child: Icon(
+                          Icons.map_outlined,
+                          color: SectionTheme.inkSoft,
+                          size: 28,
+                        ),
+                      ),
+                    ),
             );
           },
         ),

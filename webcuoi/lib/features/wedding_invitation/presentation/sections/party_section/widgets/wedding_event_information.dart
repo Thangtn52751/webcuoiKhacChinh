@@ -11,6 +11,7 @@ class WeddingEventInformation extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final s = scale;
+    final isCompact = MediaQuery.sizeOf(context).width < 600;
     return Column(
       mainAxisSize: MainAxisSize.min,
       mainAxisAlignment: MainAxisAlignment.center,
@@ -131,7 +132,7 @@ class WeddingEventInformation extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             PartyTimeColumn(label: 'ĐÓN KHÁCH', time: '8:00', scale: s),
-            SizedBox(width: 46 * s),
+            SizedBox(width: (isCompact ? 14 : 46) * s),
             PartyTimeColumn(label: 'KHAI TIỆC', time: '8:15', scale: s),
           ],
         ),

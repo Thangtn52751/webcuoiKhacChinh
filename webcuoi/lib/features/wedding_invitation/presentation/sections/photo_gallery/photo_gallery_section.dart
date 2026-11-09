@@ -63,7 +63,8 @@ class _PhotoGallerySectionState extends State<PhotoGallerySection>
   static const _sideCount = 2;
 
   late final AnimationController _animation;
-  late final Timer _autoAdvanceTimer;
+  Timer? _autoAdvanceTimer;
+  ScrollPosition? _scrollPosition;
   int _current = 0;
   // Vị trí "ảo" mượt dùng để nội suy khi chuyển ảnh.
   double _displayIndex = 0;
@@ -71,6 +72,7 @@ class _PhotoGallerySectionState extends State<PhotoGallerySection>
   double _animTo = 0;
   double _dragDistance = 0;
   bool _isLightboxOpen = false;
+  bool _isVisible = false;
 
   @override
   void initState() {
@@ -79,28 +81,69 @@ class _PhotoGallerySectionState extends State<PhotoGallerySection>
       vsync: this,
       duration: const Duration(milliseconds: 420),
     )..addListener(_onTick);
-    _autoAdvanceTimer = Timer.periodic(const Duration(seconds: 3), (_) {
-      if (mounted && !_isLightboxOpen && !_animation.isAnimating) _step(1);
-    });
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    final nextPosition = Scrollable.maybeOf(context)?.position;
+    if (identical(nextPosition, _scrollPosition)) return;
+    _scrollPosition?.removeListener(_updateVisibility);
+    _scrollPosition = nextPosition;
+    _scrollPosition?.addListener(_updateVisibility);
+    WidgetsBinding.instance.addPostFrameCallback((_) => _updateVisibility());
   }
 
   void _onTick() {
-    setState(() {
-      final t = Curves.easeOutCubic.transform(_animation.value);
-      _displayIndex = _animFrom + (_animTo - _animFrom) * t;
-      // Khi trượt xong, chuẩn hóa vị trí ảo về [0, count) để lần sau tính đúng.
-      if (_animation.isCompleted) {
-        final count = widget.imagePaths.length;
-        _displayIndex = (_displayIndex % count + count) % count;
-      }
+    final t = Curves.easeOutCubic.transform(_animation.value);
+    _displayIndex = _animFrom + (_animTo - _animFrom) * t;
+    if (_animation.isCompleted) {
+      final count = widget.imagePaths.length;
+      _displayIndex = (_displayIndex % count + count) % count;
+    }
+  }
+
+  void _updateVisibility() {
+    if (!mounted) return;
+    final renderObject = context.findRenderObject();
+    if (renderObject is! RenderBox || !renderObject.hasSize) return;
+
+    final top = renderObject.localToGlobal(Offset.zero).dy;
+    final bottom = top + renderObject.size.height;
+    final viewportHeight = MediaQuery.sizeOf(context).height;
+    final visible = bottom > 0 && top < viewportHeight;
+    if (visible == _isVisible) return;
+
+    _isVisible = visible;
+    if (visible) {
+      _scheduleAutoAdvance();
+    } else {
+      _cancelAutoAdvance();
+    }
+  }
+
+  void _scheduleAutoAdvance() {
+    _cancelAutoAdvance();
+    if (!_isVisible || _isLightboxOpen || widget.imagePaths.length <= 1) return;
+
+    _autoAdvanceTimer = Timer(const Duration(seconds: 3), () {
+      _autoAdvanceTimer = null;
+      if (!mounted || !_isVisible || _isLightboxOpen) return;
+      _step(1);
     });
+  }
+
+  void _cancelAutoAdvance() {
+    _autoAdvanceTimer?.cancel();
+    _autoAdvanceTimer = null;
   }
 
   @override
   void dispose() {
     _animation.removeListener(_onTick);
     _animation.dispose();
-    _autoAdvanceTimer.cancel();
+    _scrollPosition?.removeListener(_updateVisibility);
+    _cancelAutoAdvance();
     super.dispose();
   }
 
@@ -113,7 +156,9 @@ class _PhotoGallerySectionState extends State<PhotoGallerySection>
     _animFrom = _displayIndex;
     _animTo = _displayIndex + direction; // có thể là -1 hoặc = count
     _current = ((_current + direction) % count + count) % count;
+    setState(() {});
     _animation.forward(from: 0);
+    _scheduleAutoAdvance();
   }
 
   @override
@@ -150,10 +195,13 @@ class _PhotoGallerySectionState extends State<PhotoGallerySection>
                   return SizedBox(
                     width: constraints.maxWidth,
                     height: carouselHeight,
-                    child: Stack(
-                      alignment: Alignment.center,
-                      clipBehavior: Clip.none,
-                      children: _buildLayers(scale, centerW, centerH, count),
+                    child: AnimatedBuilder(
+                      animation: _animation,
+                      builder: (context, child) => Stack(
+                        alignment: Alignment.center,
+                        clipBehavior: Clip.none,
+                        children: _buildLayers(scale, centerW, centerH, count),
+                      ),
                     ),
                   );
                 },
@@ -264,6 +312,7 @@ class _PhotoGallerySectionState extends State<PhotoGallerySection>
   /// Mở overlay phóng to ảnh, cho phép vuốt chuyển và pinch-zoom.
   Future<void> _openLightbox(int startIndex) async {
     _isLightboxOpen = true;
+    _cancelAutoAdvance();
     final result = await Navigator.of(context).push<int>(
       PageRouteBuilder<int>(
         opaque: false,
@@ -288,6 +337,7 @@ class _PhotoGallerySectionState extends State<PhotoGallerySection>
         _displayIndex = result.toDouble();
       });
     }
+    _scheduleAutoAdvance();
   }
 }
 
@@ -325,32 +375,39 @@ class _GalleryImage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final image = Image.asset(
+      imagePath,
+      width: width,
+      height: height,
+      fit: BoxFit.cover,
+      filterQuality: FilterQuality.medium,
+    );
+
     return Container(
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(16 * scale),
-        boxShadow: [
-          BoxShadow(
-            color: const Color(0x405A473B),
-            blurRadius: 26 * scale,
-            offset: Offset(0, 12 * scale),
-          ),
-        ],
+        boxShadow: dim
+            ? null
+            : [
+                BoxShadow(
+                  color: const Color(0x405A473B),
+                  blurRadius: 20 * scale,
+                  offset: Offset(0, 8 * scale),
+                ),
+              ],
       ),
       child: ClipRRect(
         borderRadius: BorderRadius.circular(16 * scale),
-        child: ColorFiltered(
-          colorFilter: dim
-              ? ColorFilter.mode(
-                  Colors.white.withValues(alpha: 0.35),
-                  BlendMode.srcOver,
+        child: RepaintBoundary(
+          child: dim
+              ? ColorFiltered(
+                  colorFilter: ColorFilter.mode(
+                    Colors.white.withValues(alpha: 0.35),
+                    BlendMode.srcOver,
+                  ),
+                  child: image,
                 )
-              : const ColorFilter.mode(Colors.transparent, BlendMode.srcOver),
-          child: Image.asset(
-            imagePath,
-            width: width,
-            height: height,
-            fit: BoxFit.cover,
-          ),
+              : image,
         ),
       ),
     );

@@ -26,7 +26,7 @@ class CeremonyInfoSection extends StatelessWidget {
       isCompact ? 0.62 : (scale * 0.9).clamp(0.65, 1.0),
     );
     const artworkShift = 0.077;
-    final familyGroupWidth = imageWidth * (isCompact ? 0.28 : 0.24);
+    final familyGroupWidth = imageWidth * (isCompact ? 0.32 : 0.24);
     final familyDividerGap = isCompact ? 8.0 : 12 * textScale;
 
     return Padding(

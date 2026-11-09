@@ -151,6 +151,7 @@ class _GiftBoxSectionState extends State<GiftBoxSection>
           final compositionWidth = math
               .min(390 * scale, availableWidth * 0.9)
               .toDouble();
+          final compactMotion = availableWidth < 600;
           final compositionHeight = 230 * scale;
           final artworkWidth = math
               .min(170 * scale, compositionWidth * 0.46)
@@ -177,6 +178,7 @@ class _GiftBoxSectionState extends State<GiftBoxSection>
                     height: compositionHeight,
                     giftWidth: artworkWidth,
                     scale: scale,
+                    compactMotion: compactMotion,
                   ),
                 ),
                 SizedBox(height: 4 * scale),
@@ -227,6 +229,7 @@ class _GiftBoxSectionState extends State<GiftBoxSection>
     required double height,
     required double giftWidth,
     required double scale,
+    required bool compactMotion,
   }) {
     final entrance = CurvedAnimation(
       parent: _entranceController,
@@ -246,6 +249,7 @@ class _GiftBoxSectionState extends State<GiftBoxSection>
             top: height * 0.08,
             phase: 0.3,
             entranceStart: 0.1,
+            compactMotion: compactMotion,
           ),
           _giftDecoration(
             'assets/images/decorations/present2.png',
@@ -254,6 +258,7 @@ class _GiftBoxSectionState extends State<GiftBoxSection>
             top: height * 0.08,
             phase: 2.1,
             entranceStart: 0.18,
+            compactMotion: compactMotion,
           ),
           _giftDecoration(
             'assets/images/decorations/present3.png',
@@ -262,6 +267,7 @@ class _GiftBoxSectionState extends State<GiftBoxSection>
             top: height * 0.48,
             phase: 4.0,
             entranceStart: 0.26,
+            compactMotion: compactMotion,
           ),
           _giftDecoration(
             'assets/images/decorations/present4.png',
@@ -270,6 +276,7 @@ class _GiftBoxSectionState extends State<GiftBoxSection>
             top: height * 0.48,
             phase: 1.4,
             entranceStart: 0.34,
+            compactMotion: compactMotion,
           ),
           _giftDecoration(
             'assets/images/decorations/present5.png',
@@ -278,6 +285,7 @@ class _GiftBoxSectionState extends State<GiftBoxSection>
             bottom: height * 0.17,
             phase: 3.1,
             entranceStart: 0.42,
+            compactMotion: compactMotion,
           ),
           AnimatedBuilder(
             animation: _idleController,
@@ -325,6 +333,7 @@ class _GiftBoxSectionState extends State<GiftBoxSection>
     required double size,
     required double phase,
     required double entranceStart,
+    required bool compactMotion,
     double? left,
     double? right,
     double? top,
@@ -338,77 +347,75 @@ class _GiftBoxSectionState extends State<GiftBoxSection>
         curve: Curves.easeInOut,
       ),
     );
-    final hoverOpacity = TweenSequence<double>([
-      TweenSequenceItem(
-        tween: Tween<double>(
-          begin: 1,
-          end: 0,
-        ).chain(CurveTween(curve: Curves.easeInOut)),
-        weight: 34,
-      ),
-      TweenSequenceItem(tween: ConstantTween<double>(0), weight: 20),
-      TweenSequenceItem(
-        tween: Tween<double>(
-          begin: 0,
-          end: 1,
-        ).chain(CurveTween(curve: Curves.easeInOut)),
-        weight: 18,
-      ),
-      TweenSequenceItem(tween: ConstantTween<double>(1), weight: 28),
-    ]).animate(_hoverAnimationController);
-    final hoverTravel = TweenSequence<double>([
-      TweenSequenceItem(
-        tween: Tween<double>(
-          begin: 0,
-          end: 1,
-        ).chain(CurveTween(curve: Curves.easeInOut)),
-        weight: 34,
-      ),
-      TweenSequenceItem(tween: ConstantTween<double>(1), weight: 12),
-      TweenSequenceItem(
-        tween: Tween<double>(
-          begin: 1,
-          end: 0,
-        ).chain(CurveTween(curve: Curves.easeInOut)),
-        weight: 8,
-      ),
-      TweenSequenceItem(tween: ConstantTween<double>(0), weight: 46),
-    ]).animate(_hoverAnimationController);
-
-    return Positioned(
-      left: left,
-      right: right,
-      top: top,
-      bottom: bottom,
-      child: AnimatedBuilder(
-        animation: _idleController,
-        child: AnimatedBuilder(
-          animation: _hoverAnimationController,
-          child: FadeTransition(
-            opacity: entrance,
-            child: ScaleTransition(
-              scale: Tween<double>(begin: 0.92, end: 1).animate(entrance),
-              child: RepaintBoundary(
-                child: Image.asset(
-                  asset,
-                  width: size,
-                  height: size,
-                  fit: BoxFit.contain,
-                  excludeFromSemantics: true,
-                ),
-              ),
-            ),
+    Widget decoration = FadeTransition(
+      opacity: entrance,
+      child: ScaleTransition(
+        scale: Tween<double>(begin: 0.92, end: 1).animate(entrance),
+        child: RepaintBoundary(
+          child: Image.asset(
+            asset,
+            width: size,
+            height: size,
+            fit: BoxFit.contain,
+            excludeFromSemantics: true,
           ),
-          builder: (context, child) {
-            return Opacity(
-              opacity: hoverOpacity.value,
-              child: Transform.translate(
-                offset: Offset(0, -34 * widget.scale * hoverTravel.value),
-                child: child,
-              ),
-            );
-          },
         ),
+      ),
+    );
+
+    if (!compactMotion) {
+      final hoverOpacity = TweenSequence<double>([
+        TweenSequenceItem(
+          tween: Tween<double>(
+            begin: 1,
+            end: 0,
+          ).chain(CurveTween(curve: Curves.easeInOut)),
+          weight: 34,
+        ),
+        TweenSequenceItem(tween: ConstantTween<double>(0), weight: 20),
+        TweenSequenceItem(
+          tween: Tween<double>(
+            begin: 0,
+            end: 1,
+          ).chain(CurveTween(curve: Curves.easeInOut)),
+          weight: 18,
+        ),
+        TweenSequenceItem(tween: ConstantTween<double>(1), weight: 28),
+      ]).animate(_hoverAnimationController);
+      final hoverTravel = TweenSequence<double>([
+        TweenSequenceItem(
+          tween: Tween<double>(
+            begin: 0,
+            end: 1,
+          ).chain(CurveTween(curve: Curves.easeInOut)),
+          weight: 34,
+        ),
+        TweenSequenceItem(tween: ConstantTween<double>(1), weight: 12),
+        TweenSequenceItem(
+          tween: Tween<double>(
+            begin: 1,
+            end: 0,
+          ).chain(CurveTween(curve: Curves.easeInOut)),
+          weight: 8,
+        ),
+        TweenSequenceItem(tween: ConstantTween<double>(0), weight: 46),
+      ]).animate(_hoverAnimationController);
+
+      decoration = AnimatedBuilder(
+        animation: _hoverAnimationController,
+        child: decoration,
+        builder: (context, child) => Opacity(
+          opacity: hoverOpacity.value,
+          child: Transform.translate(
+            offset: Offset(0, -34 * widget.scale * hoverTravel.value),
+            child: child,
+          ),
+        ),
+      );
+
+      decoration = AnimatedBuilder(
+        animation: _idleController,
+        child: decoration,
         builder: (context, child) {
           final angle =
               math.sin(_idleController.value * math.pi * 2 + phase) * 0.02;
@@ -421,7 +428,15 @@ class _GiftBoxSectionState extends State<GiftBoxSection>
             child: Transform.rotate(angle: angle, child: child),
           );
         },
-      ),
+      );
+    }
+
+    return Positioned(
+      left: left,
+      right: right,
+      top: top,
+      bottom: bottom,
+      child: decoration,
     );
   }
 

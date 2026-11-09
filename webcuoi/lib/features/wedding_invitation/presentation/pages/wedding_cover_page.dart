@@ -24,8 +24,6 @@ class _WeddingCoverPageState extends State<WeddingCoverPage>
   late final AudioPlayer _musicPlayer;
   bool _musicPlayerTransferred = false;
   bool _isOpening = false;
-  bool _musicReady = false;
-  bool _musicLoadFailed = false;
 
   @override
   void initState() {
@@ -35,18 +33,11 @@ class _WeddingCoverPageState extends State<WeddingCoverPage>
       duration: const Duration(milliseconds: 1100),
     );
     _musicPlayer = AudioPlayer();
-    unawaited(_prepareMusic());
-  }
-
-  Future<void> _prepareMusic() async {
-    try {
-      await _musicPlayer.setReleaseMode(ReleaseMode.loop);
-      await _musicPlayer.setSource(AssetSource('audio/music.mp3'));
-      if (mounted) setState(() => _musicReady = true);
-    } catch (error) {
-      debugPrint('Could not prepare wedding music: $error');
-      if (mounted) setState(() => _musicLoadFailed = true);
-    }
+    unawaited(
+      _musicPlayer.setReleaseMode(ReleaseMode.loop).catchError((Object error) {
+        debugPrint('Could not set wedding music loop mode: $error');
+      }),
+    );
   }
 
   @override
@@ -60,23 +51,13 @@ class _WeddingCoverPageState extends State<WeddingCoverPage>
 
   Future<void> _openInvitation() async {
     if (_isOpening) return;
-    if (!_musicReady && !_musicLoadFailed) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Nhạc đang được tải, vui lòng thử lại sau giây lát.'),
-        ),
-      );
-      return;
-    }
-
     setState(() => _isOpening = true);
     unawaited(
-      (_musicReady
-              ? _musicPlayer.resume()
-              : _musicPlayer.play(AssetSource('audio/music.mp3')))
-          .catchError((Object error) {
-            debugPrint('Could not start wedding music: $error');
-          }),
+      _musicPlayer.play(AssetSource('audio/music.mp3')).catchError((
+        Object error,
+      ) {
+        debugPrint('Could not start wedding music: $error');
+      }),
     );
     await _openController.forward();
     if (!mounted) return;
@@ -121,13 +102,15 @@ class _WeddingCoverPageState extends State<WeddingCoverPage>
 
   @override
   Widget build(BuildContext context) {
+    final leavesCount = MediaQuery.sizeOf(context).width < 600 ? 3 : 8;
+
     return Scaffold(
       backgroundColor: WeddingCoverPage._background,
       body: Stack(
         fit: StackFit.expand,
         children: [
-          const Positioned.fill(
-            child: IgnorePointer(child: FallingLeavesLayer()),
+          Positioned.fill(
+            child: IgnorePointer(child: FallingLeavesLayer(count: leavesCount)),
           ),
           SafeArea(
             child: LayoutBuilder(
@@ -299,15 +282,11 @@ class _WeddingCoverPageState extends State<WeddingCoverPage>
                         height: 42 * scale,
                         child: Center(
                           child: Text(
-                            _musicReady || _musicLoadFailed
-                                ? 'M\u{1EDF} thi\u{1EC7}p'
-                                : '\u{0110}ang t\u{1EA3}i nh\u{1EA1}c',
+                            'M\u{1EDF} thi\u{1EC7}p',
                             style: TextStyle(
                               color: Colors.white,
                               fontFamily: cardFont,
-                              fontSize:
-                                  (_musicReady || _musicLoadFailed ? 17 : 12) *
-                                  scale,
+                              fontSize: 17 * scale,
                               height: 1,
                               fontWeight: FontWeight.w500,
                             ),

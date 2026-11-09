@@ -18,7 +18,7 @@ class SectionTheme {
 
   static FontWeight weightFor(BuildContext context, FontWeight weight) {
     if (!isCompact(context)) return weight;
-    final nextWeight = (weight.index + 1)
+    final nextWeight = (FontWeight.values.indexOf(weight) + 1)
         .clamp(0, FontWeight.values.length - 1)
         .toInt();
     return FontWeight.values[nextWeight];
