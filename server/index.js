@@ -14,6 +14,9 @@ const ADMIN_API_KEY = defineSecret('ADMIN_API_KEY');
 const SMTP_HOST = defineString('SMTP_HOST');
 const SMTP_PORT = defineString('SMTP_PORT');
 const SMTP_SECURE = defineString('SMTP_SECURE');
+const RSVP_NOTIFICATION_EMAIL_2 = defineString('RSVP_NOTIFICATION_EMAIL_2', {
+  default: '',
+});
 const GOOGLE_MAPS_EMBED_API_KEY = defineString(
   'GOOGLE_MAPS_EMBED_API_KEY',
   { default: '' },
@@ -26,6 +29,7 @@ function loadEnvironment() {
   process.env.SMTP_USER = SMTP_USER.value();
   process.env.SMTP_PASS = SMTP_PASS.value();
   process.env.RSVP_NOTIFICATION_EMAIL = RSVP_NOTIFICATION_EMAIL.value();
+  process.env.RSVP_NOTIFICATION_EMAIL_2 = RSVP_NOTIFICATION_EMAIL_2.value();
   process.env.ADMIN_API_KEY = ADMIN_API_KEY.value();
   process.env.SMTP_HOST = SMTP_HOST.value();
   process.env.SMTP_PORT = SMTP_PORT.value();

@@ -46,6 +46,7 @@ class PartySectionActions extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final s = scale;
+    final isCompact = MediaQuery.sizeOf(context).width < 600;
     final linkStyle = TextStyle(
       fontSize: 14 * s,
       fontStyle: FontStyle.italic,
@@ -73,7 +74,7 @@ class PartySectionActions extends StatelessWidget {
             ),
           ),
         ),
-        SizedBox(height: 14 * s),
+        SizedBox(height: (isCompact ? 8 : 14) * s),
         SizedBox(
           height: 34 * s,
           child: ElevatedButton(
@@ -82,8 +83,11 @@ class PartySectionActions extends StatelessWidget {
               backgroundColor: PartySectionStyle.calendarBgColor,
               foregroundColor: Colors.white,
               elevation: 0,
+              minimumSize: const Size(0, 0),
               padding: EdgeInsets.symmetric(horizontal: 24 * s),
               shape: const StadiumBorder(),
+              tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+              visualDensity: VisualDensity.compact,
             ),
             child: Text(
               'XÁC NHẬN THAM DỰ',

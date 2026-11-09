@@ -66,7 +66,7 @@ class WeddingPartySection extends StatelessWidget {
                             child: Padding(
                               padding: EdgeInsets.fromLTRB(
                                 16 * s,
-                                actualHeight * 0.08,
+                                actualHeight * (isCompact ? 0.055 : 0.08),
                                 16 * s,
                                 0,
                               ),
@@ -87,10 +87,14 @@ class WeddingPartySection extends StatelessWidget {
 
                                       // --- BẢNG LỊCH MÀU NÂU ---
                                       SizedBox(
-                                        width: actualWidth * 0.45,
+                                        width:
+                                            actualWidth *
+                                            (isCompact ? 0.53 : 0.45),
                                         child: WeddingCalendarCard(scale: s),
                                       ),
-                                      SizedBox(height: 18 * s),
+                                      SizedBox(
+                                        height: (isCompact ? 8 : 18) * s,
+                                      ),
 
                                       PartySectionActions(scale: s),
                                     ],

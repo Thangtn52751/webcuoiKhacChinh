@@ -68,9 +68,14 @@ function formatDate(value) {
 }
 
 async function sendRsvpNotification({ invitation, rsvp }) {
-  const to = process.env.RSVP_NOTIFICATION_EMAIL;
+  const recipients = [
+    process.env.RSVP_NOTIFICATION_EMAIL,
+    process.env.RSVP_NOTIFICATION_EMAIL_2,
+  ]
+    .map((email) => email?.trim())
+    .filter(Boolean);
 
-  if (!to) {
+  if (recipients.length === 0) {
     throw new Error('Thiếu RSVP_NOTIFICATION_EMAIL trong .env');
   }
 
@@ -564,7 +569,7 @@ async function sendRsvpNotification({ invitation, rsvp }) {
 
   return getTransporter().sendMail({
     from,
-    to,
+    to: recipients,
     subject: `[WebCuoi] RSVP ${attendanceLabel} — ${safeGuestName}`.normalize('NFC'),
     text,
     html,

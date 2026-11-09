@@ -23,11 +23,13 @@ class CeremonyInfoSection extends StatelessWidget {
     final isCompact = imageWidth < 500;
     final textScale = math.max(
       imageWidth / _artworkWidth,
-      isCompact ? 0.76 : (scale * 0.9).clamp(0.65, 1.0),
+      isCompact ? 0.62 : (scale * 0.9).clamp(0.65, 1.0),
     );
     final familyInset = imageWidth < 500 ? 0.25 : 0.3;
     const cardCenterShift = 0.077;
     const artworkShift = 0.077;
+    final familyLeft = isCompact ? 0.22 : familyInset + cardCenterShift;
+    final familyRight = isCompact ? 0.09 : familyInset - cardCenterShift;
 
     return Padding(
       padding: EdgeInsets.symmetric(vertical: 24 * scale),
@@ -77,8 +79,8 @@ class CeremonyInfoSection extends StatelessWidget {
                 ),
                 Positioned(
                   top: imageHeight * 0.105,
-                  left: imageWidth * (familyInset + cardCenterShift),
-                  right: imageWidth * (familyInset - cardCenterShift),
+                  left: imageWidth * familyLeft,
+                  right: imageWidth * familyRight,
                   child: Row(
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
@@ -160,11 +162,11 @@ class CeremonyInfoSection extends StatelessWidget {
                           letterSpacing: 0.15 * textScale,
                         ),
                       ),
-                      SizedBox(height: isCompact ? 10 : 18 * textScale),
+                      SizedBox(height: (isCompact ? 8 : 18) * textScale),
                       Text('VÀO LÚC', style: _smallStyle(12, textScale)),
-                      SizedBox(height: isCompact ? 16 : 8 * textScale),
+                      SizedBox(height: (isCompact ? 10 : 8) * textScale),
                       Text('8:15', style: _smallStyle(20, textScale)),
-                      SizedBox(height: isCompact ? 20 : 12 * textScale),
+                      SizedBox(height: (isCompact ? 10 : 12) * textScale),
                       Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
@@ -185,9 +187,9 @@ class CeremonyInfoSection extends StatelessWidget {
                           Text('THÁNG 12', style: _smallStyle(11, textScale)),
                         ],
                       ),
-                      SizedBox(height: isCompact ? 20 : 14 * textScale),
+                      SizedBox(height: (isCompact ? 10 : 14) * textScale),
                       Text('2026', style: _smallStyle(14, textScale)),
-                      SizedBox(height: isCompact ? 20 : 14 * textScale),
+                      SizedBox(height: (isCompact ? 10 : 14) * textScale),
                       Text(
                         '(TỨC NGÀY 5 THÁNG 11 NĂM BÍNH NGỌ)',
                         textAlign: TextAlign.center,
@@ -259,16 +261,18 @@ class CeremonyInfoSection extends StatelessWidget {
 
   TextStyle _smallStyle(double fontSize, double scale) {
     final isCompact = scale < 0.8;
-    var resolvedFontSize = fontSize * scale * 1.25;
+    var resolvedFontSize = fontSize * scale * (isCompact ? 1 : 1.25);
     if (isCompact) {
       final minimumFontSize = fontSize <= 9
-          ? 11.0
+          ? 8.5
           : fontSize <= 10
-          ? 12.0
+          ? 9.5
           : fontSize <= 12
-          ? 14.0
+          ? 10.5
           : fontSize <= 14
-          ? 15.0
+          ? 11.5
+          : fontSize <= 18
+          ? 12.0
           : resolvedFontSize;
       resolvedFontSize = math.max(resolvedFontSize, minimumFontSize);
     }

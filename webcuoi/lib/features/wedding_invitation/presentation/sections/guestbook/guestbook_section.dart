@@ -84,20 +84,24 @@ class _GuestbookSectionState extends State<GuestbookSection> {
       padding: EdgeInsets.symmetric(vertical: 18 * widget.scale),
       child: LayoutBuilder(
         builder: (context, constraints) {
-          final widthFactor = constraints.maxWidth < 600 ? 0.94 : 0.72;
+          final isMobile = constraints.maxWidth < 600;
+          final widthFactor = isMobile ? 0.94 : 0.72;
           final formWidth = (580 * widget.scale)
               .clamp(0.0, constraints.maxWidth * widthFactor)
               .toDouble();
-          final listWidth = formWidth;
+          final listWidth = formWidth * (isMobile ? 0.82 : 1);
 
           return Center(
             child: SizedBox(
-              width: listWidth,
+              width: formWidth,
               child: Column(
                 children: [
                   GuestbookForm(onSubmit: _addEntry),
                   SizedBox(height: formWidth * 0.10),
-                  _buildEntryList(listWidth),
+                  Align(
+                    alignment: Alignment.center,
+                    child: _buildEntryList(listWidth),
+                  ),
                 ],
               ),
             ),

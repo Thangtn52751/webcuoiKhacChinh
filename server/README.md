@@ -33,6 +33,10 @@ Ví dụ RSVP:
 }
 ```
 
+## Optional second RSVP email recipient
+
+Keep `RSVP_NOTIFICATION_EMAIL` as the first recipient and set `RSVP_NOTIFICATION_EMAIL_2` to the additional address. The second address is optional. For Firebase Functions, configure `RSVP_NOTIFICATION_EMAIL_2` as a deployment parameter; for a Node host, add it to that service's environment variables.
+
 Sau khi lưu RSVP vào MongoDB, server gửi email đến `RSVP_NOTIFICATION_EMAIL` cho cả lựa chọn `attending` và `not-attending`. Cấu hình `SMTP_HOST`, `SMTP_PORT`, `SMTP_SECURE`, `SMTP_USER`, `SMTP_PASS` và tùy chọn `SMTP_FROM` trong `.env`. Nếu email lỗi, RSVP vẫn được lưu; API trả `notificationSent: false` để frontend có thể báo trạng thái.
 
 Ví dụ lời chúc:
