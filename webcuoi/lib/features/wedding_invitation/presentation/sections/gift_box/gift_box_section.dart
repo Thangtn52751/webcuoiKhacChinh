@@ -115,7 +115,9 @@ class _GiftBoxSectionState extends State<GiftBoxSection>
     final top = renderObject.localToGlobal(Offset.zero).dy;
     final bottom = top + renderObject.size.height;
     final viewportHeight = MediaQuery.sizeOf(context).height;
-    _isVisible = bottom > 0 && top < viewportHeight;
+    final isVisible = bottom > 0 && top < viewportHeight;
+    if (isVisible == _isVisible) return;
+    setState(() => _isVisible = isVisible);
 
     if (!_isVisible) {
       if (_idleController.isAnimating) _idleController.stop();
@@ -173,13 +175,18 @@ class _GiftBoxSectionState extends State<GiftBoxSection>
                 ),
                 SizedBox(height: 8 * scale),
                 Center(
-                  child: _giftArtwork(
-                    width: compositionWidth,
-                    height: compositionHeight,
-                    giftWidth: artworkWidth,
-                    scale: scale,
-                    compactMotion: compactMotion,
-                  ),
+                  child: _isVisible
+                      ? _giftArtwork(
+                          width: compositionWidth,
+                          height: compositionHeight,
+                          giftWidth: artworkWidth,
+                          scale: scale,
+                          compactMotion: compactMotion,
+                        )
+                      : SizedBox(
+                          width: compositionWidth,
+                          height: compositionHeight,
+                        ),
                 ),
                 SizedBox(height: 4 * scale),
                 FadeTransition(

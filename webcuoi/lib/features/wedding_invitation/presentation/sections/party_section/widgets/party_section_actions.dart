@@ -48,7 +48,7 @@ class PartySectionActions extends StatelessWidget {
     final s = scale;
     final isCompact = MediaQuery.sizeOf(context).width < 600;
     final linkStyle = TextStyle(
-      fontSize: 14 * s,
+      fontSize: isCompact ? 14 : 14 * s,
       fontStyle: FontStyle.italic,
       color: PartySectionStyle.primaryColor,
     );
@@ -58,43 +58,55 @@ class PartySectionActions extends StatelessWidget {
       children: [
         InkWell(
           onTap: () => _addToCalendar(context),
-          borderRadius: BorderRadius.circular(4 * s),
-          child: Padding(
-            padding: EdgeInsets.only(bottom: 2 * s),
-            child: DecoratedBox(
-              decoration: BoxDecoration(
-                border: Border(
-                  bottom: BorderSide(
-                    color: PartySectionStyle.primaryColor,
-                    width: 1 * s,
+          borderRadius: BorderRadius.circular(4),
+          child: SizedBox(
+            height: isCompact ? 44 : 34 * s,
+            child: Center(
+              child: Padding(
+                padding: EdgeInsets.symmetric(
+                  horizontal: isCompact ? 12 : 8 * s,
+                ),
+                child: Padding(
+                  padding: EdgeInsets.only(bottom: 2 * s),
+                  child: DecoratedBox(
+                    decoration: BoxDecoration(
+                      border: Border(
+                        bottom: BorderSide(
+                          color: PartySectionStyle.primaryColor,
+                          width: 1 * s,
+                        ),
+                      ),
+                    ),
+                    child: Text('Thêm vào lịch', style: linkStyle),
                   ),
                 ),
               ),
-              child: Text('Thêm vào lịch', style: linkStyle),
             ),
           ),
         ),
-        SizedBox(height: (isCompact ? 8 : 14) * s),
+        SizedBox(height: (isCompact ? 4 : 8) * s),
         SizedBox(
-          height: 34 * s,
+          height: isCompact ? 44 : 34 * s,
           child: ElevatedButton(
             onPressed: () => _openRsvp(context),
             style: ElevatedButton.styleFrom(
               backgroundColor: PartySectionStyle.calendarBgColor,
               foregroundColor: Colors.white,
               elevation: 0,
-              minimumSize: const Size(0, 0),
-              padding: EdgeInsets.symmetric(horizontal: 24 * s),
+              minimumSize: Size(44, isCompact ? 44 : 34 * s),
+              padding: EdgeInsets.symmetric(
+                horizontal: isCompact ? 18 : 24 * s,
+              ),
               shape: const StadiumBorder(),
-              tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+              tapTargetSize: MaterialTapTargetSize.padded,
               visualDensity: VisualDensity.compact,
             ),
             child: Text(
               'XÁC NHẬN THAM DỰ',
               style: TextStyle(
-                fontSize: 12.5 * s,
+                fontSize: isCompact ? 12.5 : 12.5 * s,
                 fontWeight: FontWeight.w500,
-                letterSpacing: 0.8 * s,
+                letterSpacing: isCompact ? 0.2 : 0.8 * s,
                 color: const Color(0xFFF3EFEA),
               ),
             ),

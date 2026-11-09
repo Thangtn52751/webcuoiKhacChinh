@@ -6,113 +6,148 @@ import 'widgets/party_section_actions.dart';
 import 'widgets/wedding_calendar_card.dart';
 import 'widgets/wedding_event_information.dart';
 
-class WeddingPartySection extends StatelessWidget {
+class WeddingPartySection extends StatefulWidget {
   const WeddingPartySection({super.key, required this.scale});
 
   final double scale;
 
   @override
+  State<WeddingPartySection> createState() => _WeddingPartySectionState();
+}
+
+class _WeddingPartySectionState extends State<WeddingPartySection> {
+  bool _isVisible = false;
+  ScrollPosition? _scrollPosition;
+
+  static const _artworkWidth = 900.0;
+  static const _artworkHeight = 1077.0;
+  static const _cardLeft = 0.2288;
+  static const _cardRight = 0.1492;
+  static const _cardTop = 65 / _artworkHeight;
+  static const _cardBottom = 68 / _artworkHeight;
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) => _updateVisibility());
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    final nextPosition = Scrollable.maybeOf(context)?.position;
+    if (identical(nextPosition, _scrollPosition)) return;
+    _scrollPosition?.removeListener(_updateVisibility);
+    _scrollPosition = nextPosition;
+    _scrollPosition?.addListener(_updateVisibility);
+    WidgetsBinding.instance.addPostFrameCallback((_) => _updateVisibility());
+  }
+
+  @override
+  void dispose() {
+    _scrollPosition?.removeListener(_updateVisibility);
+    super.dispose();
+  }
+
+  void _updateVisibility() {
+    if (!mounted) return;
+    final renderObject = context.findRenderObject();
+    if (renderObject is! RenderBox || !renderObject.hasSize) return;
+
+    final top = renderObject.localToGlobal(Offset.zero).dy;
+    final bottom = top + renderObject.size.height;
+    final visible = bottom > 0 && top < MediaQuery.sizeOf(context).height;
+    if (visible == _isVisible) return;
+    setState(() => _isVisible = visible);
+  }
+
+  @override
   Widget build(BuildContext context) {
-    final double targetImageWidth = 980 * scale;
-    final isCompact = MediaQuery.sizeOf(context).width < 600;
-    final artworkScale = isCompact ? 1.2 : 1.0;
-    final artworkBaseWidth = math.min(
-      targetImageWidth,
-      MediaQuery.sizeOf(context).width,
-    );
-    final artworkExtraHeight =
-        artworkBaseWidth * (969 / 804) * (artworkScale - 1);
+    final scale = widget.scale;
+    final screenWidth = MediaQuery.sizeOf(context).width;
+    final isCompact = screenWidth < 600;
 
-    return Container(
-      width: double.infinity,
-      alignment: Alignment.center,
+    return Padding(
       padding: EdgeInsets.symmetric(vertical: 24 * scale),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Transform.scale(
-            scale: artworkScale,
-            alignment: Alignment.topCenter,
-            child: ConstrainedBox(
-              constraints: BoxConstraints(maxWidth: targetImageWidth),
-              child: AspectRatio(
-                aspectRatio: 804 / 969,
-                child: LayoutBuilder(
-                  builder: (context, constraints) {
-                    final double actualWidth = constraints.maxWidth;
-                    final double actualHeight = constraints.maxHeight;
-                    final double s = math
-                        .max(scale, actualWidth / 804.0)
-                        .toDouble();
-                    final double paperCenterOffset = -actualWidth * 0.0398;
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          final availableWidth = constraints.maxWidth.isFinite
+              ? constraints.maxWidth
+              : screenWidth;
+          final cardWidthFraction = 1 - _cardLeft - _cardRight;
+          final artworkWidth = isCompact
+              ? math
+                    .min(
+                      _artworkWidth * scale,
+                      availableWidth * 0.88 / cardWidthFraction,
+                    )
+                    .toDouble()
+              : math.min(_artworkWidth * scale, availableWidth).toDouble();
+          final artworkHeight = artworkWidth * _artworkHeight / _artworkWidth;
+          final horizontalInset = isCompact ? 10.0 : 18 * scale;
+          final cardWidth = artworkWidth * cardWidthFraction;
+          final cardLeft = (availableWidth - cardWidth) / 2;
+          final artworkLeft = cardLeft - artworkWidth * _cardLeft;
+          final contentWidth = cardWidth - horizontalInset * 2;
+          final calendarWidth = math
+              .min(contentWidth * (isCompact ? 0.9 : 0.45), contentWidth)
+              .toDouble();
 
-                    return Transform.translate(
-                      offset: Offset(paperCenterOffset, 0),
-                      child: Stack(
-                        fit: StackFit.expand,
-                        children: [
-                          // 1. ẢNH NỀN KHUNG HOA LÁ
-                          Image.asset(
+          return Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              SizedBox(
+                width: availableWidth,
+                height: artworkHeight,
+                child: Stack(
+                  clipBehavior: Clip.none,
+                  children: [
+                    if (_isVisible)
+                      Positioned(
+                        left: artworkLeft,
+                        top: 0,
+                        width: artworkWidth,
+                        height: artworkHeight,
+                        child: IgnorePointer(
+                          child: Image.asset(
                             'assets/images/decorations/Group_5.png',
-                            fit: BoxFit.contain,
+                            fit: BoxFit.fill,
                             excludeFromSemantics: true,
                           ),
-
-                          Positioned(
-                            left: actualWidth * 0.2288,
-                            right: actualWidth * 0.1492,
-                            top: actualHeight * 0.03,
-                            bottom: actualHeight * 0.05,
-                            child: Padding(
-                              padding: EdgeInsets.fromLTRB(
-                                16 * s,
-                                actualHeight * (isCompact ? 0.055 : 0.08),
-                                16 * s,
-                                0,
-                              ),
-                              child: FittedBox(
-                                fit: BoxFit.scaleDown,
-                                alignment: Alignment.topCenter,
-                                child: SizedBox(
-                                  width:
-                                      (actualWidth * (1 - 0.2288 - 0.1492)) -
-                                      (32 * s),
-                                  child: Column(
-                                    mainAxisSize: MainAxisSize.min,
-                                    mainAxisAlignment: MainAxisAlignment.start,
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.center,
-                                    children: [
-                                      WeddingEventInformation(scale: s),
-
-                                      // --- BẢNG LỊCH MÀU NÂU ---
-                                      SizedBox(
-                                        width:
-                                            actualWidth *
-                                            (isCompact ? 0.53 : 0.45),
-                                        child: WeddingCalendarCard(scale: s),
-                                      ),
-                                      SizedBox(
-                                        height: (isCompact ? 8 : 18) * s,
-                                      ),
-
-                                      PartySectionActions(scale: s),
-                                    ],
-                                  ),
-                                ),
-                              ),
-                            ),
+                        ),
+                      ),
+                    Positioned(
+                      left: cardLeft + horizontalInset,
+                      right:
+                          availableWidth -
+                          cardLeft -
+                          cardWidth +
+                          horizontalInset,
+                      top:
+                          artworkHeight * _cardTop +
+                          (isCompact ? 4 : 20 * scale),
+                      bottom:
+                          artworkHeight * _cardBottom +
+                          (isCompact ? 4 : 18 * scale),
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          WeddingEventInformation(scale: scale),
+                          SizedBox(
+                            width: calendarWidth,
+                            child: WeddingCalendarCard(scale: scale),
                           ),
                         ],
                       ),
-                    );
-                  },
+                    ),
+                  ],
                 ),
               ),
-            ),
-          ),
-          if (isCompact) SizedBox(height: artworkExtraHeight),
-        ],
+              SizedBox(height: (isCompact ? 8 : 18) * scale),
+              PartySectionActions(scale: scale),
+            ],
+          );
+        },
       ),
     );
   }

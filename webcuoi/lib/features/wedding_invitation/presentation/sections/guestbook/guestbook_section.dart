@@ -23,10 +23,13 @@ class _GuestbookSectionState extends State<GuestbookSection> {
 
   List<GuestbookEntry> _entries = const [];
   bool _isLoading = true;
+  bool _hasStartedLoading = false;
   Object? _loadError;
+  ScrollPosition? _scrollPosition;
 
   @override
   void dispose() {
+    _scrollPosition?.removeListener(_updateVisibility);
     _entryScrollController.dispose();
     super.dispose();
   }
@@ -34,7 +37,33 @@ class _GuestbookSectionState extends State<GuestbookSection> {
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) => _updateVisibility());
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    final nextPosition = Scrollable.maybeOf(context)?.position;
+    if (identical(nextPosition, _scrollPosition)) return;
+    _scrollPosition?.removeListener(_updateVisibility);
+    _scrollPosition = nextPosition;
+    _scrollPosition?.addListener(_updateVisibility);
+    WidgetsBinding.instance.addPostFrameCallback((_) => _updateVisibility());
+  }
+
+  void _updateVisibility() {
+    if (!mounted || _hasStartedLoading) return;
+    final renderObject = context.findRenderObject();
+    if (renderObject is! RenderBox || !renderObject.hasSize) return;
+
+    final top = renderObject.localToGlobal(Offset.zero).dy;
+    final bottom = top + renderObject.size.height;
+    if (bottom <= 0 || top >= MediaQuery.sizeOf(context).height) return;
+
+    _hasStartedLoading = true;
     unawaited(_loadEntries());
+    _scrollPosition?.removeListener(_updateVisibility);
+    _scrollPosition = null;
   }
 
   Future<void> _loadEntries() async {
@@ -96,7 +125,10 @@ class _GuestbookSectionState extends State<GuestbookSection> {
               width: formWidth,
               child: Column(
                 children: [
-                  GuestbookForm(onSubmit: _addEntry),
+                  if (_hasStartedLoading)
+                    GuestbookForm(onSubmit: _addEntry)
+                  else
+                    SizedBox(width: formWidth, height: formWidth * 439 / 578),
                   SizedBox(height: formWidth * 0.10),
                   Align(
                     alignment: Alignment.center,

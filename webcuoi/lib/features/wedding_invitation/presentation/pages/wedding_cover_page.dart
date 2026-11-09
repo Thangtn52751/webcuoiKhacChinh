@@ -102,16 +102,17 @@ class _WeddingCoverPageState extends State<WeddingCoverPage>
 
   @override
   Widget build(BuildContext context) {
-    final leavesCount = MediaQuery.sizeOf(context).width < 600 ? 3 : 8;
+    final isMobile = MediaQuery.sizeOf(context).width <= 720;
 
     return Scaffold(
       backgroundColor: WeddingCoverPage._background,
       body: Stack(
         fit: StackFit.expand,
         children: [
-          Positioned.fill(
-            child: IgnorePointer(child: FallingLeavesLayer(count: leavesCount)),
-          ),
+          if (!isMobile)
+            const Positioned.fill(
+              child: IgnorePointer(child: FallingLeavesLayer(count: 8)),
+            ),
           SafeArea(
             child: LayoutBuilder(
               builder: (context, constraints) {

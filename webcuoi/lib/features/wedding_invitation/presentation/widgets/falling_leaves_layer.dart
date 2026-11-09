@@ -12,23 +12,43 @@ class FallingLeavesLayer extends StatefulWidget {
 }
 
 class _FallingLeavesLayerState extends State<FallingLeavesLayer>
-    with SingleTickerProviderStateMixin {
+    with SingleTickerProviderStateMixin, WidgetsBindingObserver {
   late final AnimationController _animation;
   late final List<_LeafParticle> _leaves;
+  bool _isAppResumed = true;
 
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
+    final lifecycleState = WidgetsBinding.instance.lifecycleState;
+    if (lifecycleState != null) {
+      _isAppResumed = lifecycleState == AppLifecycleState.resumed;
+    }
     final random = math.Random();
     _leaves = List.generate(widget.count, (_) => _LeafParticle.random(random));
     _animation = AnimationController(
       vsync: this,
       duration: const Duration(seconds: 36),
-    )..repeat();
+    );
+    if (_isAppResumed) _animation.repeat();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    final isResumed = state == AppLifecycleState.resumed;
+    if (isResumed == _isAppResumed) return;
+    _isAppResumed = isResumed;
+    if (isResumed) {
+      _animation.repeat();
+    } else {
+      _animation.stop();
+    }
   }
 
   @override
   void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
     _animation.dispose();
     super.dispose();
   }

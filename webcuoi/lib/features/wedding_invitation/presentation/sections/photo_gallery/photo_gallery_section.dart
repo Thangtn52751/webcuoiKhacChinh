@@ -58,7 +58,7 @@ class PhotoGallerySection extends StatefulWidget {
 }
 
 class _PhotoGallerySectionState extends State<PhotoGallerySection>
-    with SingleTickerProviderStateMixin {
+    with SingleTickerProviderStateMixin, WidgetsBindingObserver {
   /// Số lớp ảnh mỗi bên (ngoài ảnh giữa) -> tổng hiển thị = 2*side + 1 = 5.
   static const _sideCount = 2;
 
@@ -73,10 +73,16 @@ class _PhotoGallerySectionState extends State<PhotoGallerySection>
   double _dragDistance = 0;
   bool _isLightboxOpen = false;
   bool _isVisible = false;
+  bool _isAppResumed = true;
 
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
+    final lifecycleState = WidgetsBinding.instance.lifecycleState;
+    if (lifecycleState != null) {
+      _isAppResumed = lifecycleState == AppLifecycleState.resumed;
+    }
     _animation = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 420),
@@ -114,8 +120,20 @@ class _PhotoGallerySectionState extends State<PhotoGallerySection>
     final visible = bottom > 0 && top < viewportHeight;
     if (visible == _isVisible) return;
 
-    _isVisible = visible;
-    if (visible) {
+    setState(() => _isVisible = visible);
+    if (visible && _isAppResumed) {
+      _scheduleAutoAdvance();
+    } else {
+      _cancelAutoAdvance();
+    }
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    final isResumed = state == AppLifecycleState.resumed;
+    if (isResumed == _isAppResumed) return;
+    _isAppResumed = isResumed;
+    if (isResumed && _isVisible) {
       _scheduleAutoAdvance();
     } else {
       _cancelAutoAdvance();
@@ -124,7 +142,12 @@ class _PhotoGallerySectionState extends State<PhotoGallerySection>
 
   void _scheduleAutoAdvance() {
     _cancelAutoAdvance();
-    if (!_isVisible || _isLightboxOpen || widget.imagePaths.length <= 1) return;
+    if (!_isVisible ||
+        !_isAppResumed ||
+        _isLightboxOpen ||
+        widget.imagePaths.length <= 1) {
+      return;
+    }
 
     _autoAdvanceTimer = Timer(const Duration(seconds: 3), () {
       _autoAdvanceTimer = null;
@@ -140,6 +163,7 @@ class _PhotoGallerySectionState extends State<PhotoGallerySection>
 
   @override
   void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
     _animation.removeListener(_onTick);
     _animation.dispose();
     _scrollPosition?.removeListener(_updateVisibility);
@@ -178,35 +202,42 @@ class _PhotoGallerySectionState extends State<PhotoGallerySection>
 
           SizedBox(
             height: carouselHeight,
-            child: GestureDetector(
-              behavior: HitTestBehavior.translucent,
-              onHorizontalDragStart: (_) => _dragDistance = 0,
-              onHorizontalDragUpdate: (details) {
-                _dragDistance += details.delta.dx;
-              },
-              onHorizontalDragEnd: (_) {
-                if (_dragDistance.abs() >= 36 * scale) {
-                  _step(_dragDistance < 0 ? 1 : -1);
-                }
-                _dragDistance = 0;
-              },
-              child: LayoutBuilder(
-                builder: (context, constraints) {
-                  return SizedBox(
-                    width: constraints.maxWidth,
-                    height: carouselHeight,
-                    child: AnimatedBuilder(
-                      animation: _animation,
-                      builder: (context, child) => Stack(
-                        alignment: Alignment.center,
-                        clipBehavior: Clip.none,
-                        children: _buildLayers(scale, centerW, centerH, count),
-                      ),
+            child: _isVisible
+                ? GestureDetector(
+                    behavior: HitTestBehavior.translucent,
+                    onHorizontalDragStart: (_) => _dragDistance = 0,
+                    onHorizontalDragUpdate: (details) {
+                      _dragDistance += details.delta.dx;
+                    },
+                    onHorizontalDragEnd: (_) {
+                      if (_dragDistance.abs() >= 36 * scale) {
+                        _step(_dragDistance < 0 ? 1 : -1);
+                      }
+                      _dragDistance = 0;
+                    },
+                    child: LayoutBuilder(
+                      builder: (context, constraints) {
+                        return SizedBox(
+                          width: constraints.maxWidth,
+                          height: carouselHeight,
+                          child: AnimatedBuilder(
+                            animation: _animation,
+                            builder: (context, child) => Stack(
+                              alignment: Alignment.center,
+                              clipBehavior: Clip.none,
+                              children: _buildLayers(
+                                scale,
+                                centerW,
+                                centerH,
+                                count,
+                              ),
+                            ),
+                          ),
+                        );
+                      },
                     ),
-                  );
-                },
-              ),
-            ),
+                  )
+                : const SizedBox.expand(),
           ),
 
           SizedBox(height: 20 * scale),

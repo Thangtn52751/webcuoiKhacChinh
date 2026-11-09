@@ -10,24 +10,26 @@ class WeddingCalendarCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final textScale = scale > 1 ? scale * 0.9 : scale;
+    final isCompact = MediaQuery.sizeOf(context).width < 600;
+    final calendarScale = isCompact ? 0.55 : scale;
+    final textScale = isCompact ? 0.9 : (scale > 1 ? scale * 0.9 : scale);
     final weddingDay = DateTime(2026, 12, 13);
     final dowLabels = ['T2', 'T3', 'T4', 'T5', 'T6', 'T7', 'CN'];
     final bodyStyle = TextStyle(
       color: PartySectionStyle.calendarTextColor,
-      fontSize: 11 * textScale,
+      fontSize: isCompact ? 9.5 : 11 * textScale,
       fontWeight: DefaultTextStyle.of(context).style.fontWeight,
     );
 
     return Container(
       width: double.infinity,
       padding: EdgeInsets.symmetric(
-        vertical: 18 * scale,
-        horizontal: 20 * scale,
+        vertical: isCompact ? 8 : 18 * scale,
+        horizontal: isCompact ? 7 : 20 * scale,
       ),
       decoration: BoxDecoration(
         color: PartySectionStyle.calendarBgColor,
-        borderRadius: BorderRadius.circular(10 * scale),
+        borderRadius: BorderRadius.circular(10 * calendarScale),
       ),
       child: Column(
         mainAxisSize: MainAxisSize.min,
@@ -35,11 +37,11 @@ class WeddingCalendarCard extends StatelessWidget {
           Text(
             'Th\u{00E1}ng 12 / 2026',
             style: TextStyle(
-              fontSize: 24 * textScale,
+              fontSize: isCompact ? 16 : 24 * textScale,
               color: PartySectionStyle.calendarTextColor,
             ),
           ),
-          SizedBox(height: 8 * scale),
+          SizedBox(height: isCompact ? 3 : 8 * scale),
           TableCalendar<DateTime>(
             firstDay: DateTime(2026, 12, 1),
             lastDay: DateTime(2026, 12, 31),
@@ -53,15 +55,15 @@ class WeddingCalendarCard extends StatelessWidget {
             shouldFillViewport: false,
             pageAnimationEnabled: false,
             availableGestures: AvailableGestures.none,
-            rowHeight: 30 * scale,
-            daysOfWeekHeight: 18 * scale,
+            rowHeight: isCompact ? 15.6 : 30 * scale,
+            daysOfWeekHeight: isCompact ? 11 : 18 * scale,
             selectedDayPredicate: (day) => isSameDay(day, weddingDay),
             daysOfWeekStyle: DaysOfWeekStyle(
               decoration: BoxDecoration(
                 border: Border(
                   bottom: BorderSide(
                     color: const Color(0xFFEAE3DC).withValues(alpha: 0.72),
-                    width: 1.1 * scale,
+                    width: 1.1 * calendarScale,
                   ),
                 ),
               ),
@@ -86,7 +88,7 @@ class WeddingCalendarCard extends StatelessWidget {
                   dowLabels[day.weekday - 1],
                   style: TextStyle(
                     color: const Color(0xFFD6CEC6),
-                    fontSize: 10 * textScale,
+                    fontSize: isCompact ? 9 : 10 * textScale,
                     fontWeight: DefaultTextStyle.of(context).style.fontWeight,
                   ),
                 ),
@@ -96,7 +98,7 @@ class WeddingCalendarCard extends StatelessWidget {
               selectedBuilder: (context, day, focusedDay) => Center(
                 child: _HeartDayCell(
                   day: '${day.day}',
-                  scale: scale,
+                  scale: calendarScale,
                   textScale: textScale,
                 ),
               ),
