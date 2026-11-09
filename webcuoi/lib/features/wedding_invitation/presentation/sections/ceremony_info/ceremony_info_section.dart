@@ -89,6 +89,7 @@ class CeremonyInfoSection extends StatelessWidget {
                           'Nhà trai',
                           'Nguyễn Khắc Phác\nNguyễn Thị Chung',
                           textScale,
+                          nameAlignment: TextAlign.right,
                         ),
                       ),
                       Container(
@@ -100,7 +101,12 @@ class CeremonyInfoSection extends StatelessWidget {
                         color: SectionTheme.inkMuted.withValues(alpha: 0.65),
                       ),
                       Expanded(
-                        child: _familyText('Nhà gái', 'Vũ Thị Khoa', textScale),
+                        child: _familyText(
+                          'Nhà gái',
+                          'Vũ Thị Khoa',
+                          textScale,
+                          nameAlignment: TextAlign.left,
+                        ),
                       ),
                     ],
                   ),
@@ -209,7 +215,12 @@ class CeremonyInfoSection extends StatelessWidget {
     );
   }
 
-  Widget _familyText(String heading, String names, double scale) => Column(
+  Widget _familyText(
+    String heading,
+    String names,
+    double scale, {
+    required TextAlign nameAlignment,
+  }) => Column(
     children: [
       Text(
         heading,
@@ -222,7 +233,7 @@ class CeremonyInfoSection extends StatelessWidget {
       SizedBox(height: 3 * scale),
       Text(
         names,
-        textAlign: TextAlign.center,
+        textAlign: nameAlignment,
         style: _smallStyle(10, scale).copyWith(
           color: SectionTheme.ink,
           fontWeight: FontWeight.w700,
