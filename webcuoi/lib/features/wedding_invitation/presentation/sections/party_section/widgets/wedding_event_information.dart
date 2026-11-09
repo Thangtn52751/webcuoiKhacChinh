@@ -37,7 +37,7 @@ class WeddingEventInformation extends StatelessWidget {
             height: 1.15,
           ),
         ),
-        SizedBox(height: compactGap(18, 4)),
+        SizedBox(height: compactGap(18, 8)),
         Text(
           'TIỆC CƯỚI SẼ DIỄN RA VÀO LÚC:',
           textAlign: TextAlign.center,
@@ -50,7 +50,7 @@ class WeddingEventInformation extends StatelessWidget {
             color: PartySectionStyle.primaryColor,
           ),
         ),
-        SizedBox(height: compactGap(22, 4)),
+        SizedBox(height: compactGap(22, 10)),
         Text(
           '08:15',
           style: TextStyle(
@@ -60,14 +60,14 @@ class WeddingEventInformation extends StatelessWidget {
             color: PartySectionStyle.primaryColor,
           ),
         ),
-        SizedBox(height: compactGap(14, 4)),
+        SizedBox(height: compactGap(14, 10)),
         _WeddingDateRow(
           scale: scale,
           isCompact: isCompact,
           labelSize: dateLabelSize,
           daySize: daySize,
         ),
-        SizedBox(height: compactGap(16, 3)),
+        SizedBox(height: compactGap(16, 6)),
         Text(
           '2026',
           style: TextStyle(
@@ -76,11 +76,10 @@ class WeddingEventInformation extends StatelessWidget {
             color: PartySectionStyle.primaryColor,
           ),
         ),
-        SizedBox(height: compactGap(8, 2)),
+        SizedBox(height: compactGap(8, 6)),
         Text(
           '(TỨC NGÀY 5 THÁNG 11 NĂM BÍNH NGỌ)',
           textAlign: TextAlign.center,
-          maxLines: 1,
           style: TextStyle(
             fontSize: lunarSize,
             height: 1.1,
@@ -88,21 +87,25 @@ class WeddingEventInformation extends StatelessWidget {
             color: PartySectionStyle.accentColor,
           ),
         ),
-        SizedBox(height: compactGap(22, 4)),
+        SizedBox(height: compactGap(22, 12)),
         Row(
-          mainAxisSize: MainAxisSize.min,
+          mainAxisSize: isCompact ? MainAxisSize.max : MainAxisSize.min,
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            PartyTimeColumn(
-              label: 'ĐÓN KHÁCH',
-              time: '8:00',
-              scale: isCompact ? 0.9 : scale,
+            Flexible(
+              child: PartyTimeColumn(
+                label: 'ĐÓN KHÁCH',
+                time: '8:00',
+                scale: isCompact ? 0.9 : scale,
+              ),
             ),
             SizedBox(width: compactGap(46, 14)),
-            PartyTimeColumn(
-              label: 'KHAI TIỆC',
-              time: '8:15',
-              scale: isCompact ? 0.9 : scale,
+            Flexible(
+              child: PartyTimeColumn(
+                label: 'KHAI TIỆC',
+                time: '8:15',
+                scale: isCompact ? 0.9 : scale,
+              ),
             ),
           ],
         ),

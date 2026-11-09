@@ -17,9 +17,11 @@ class PartyTimeColumn extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Column(
+      mainAxisSize: MainAxisSize.min,
       children: [
         Text(
           label,
+          textAlign: TextAlign.center,
           style: TextStyle(
             fontSize: 12 * scale,
             fontWeight: DefaultTextStyle.of(context).style.fontWeight,
