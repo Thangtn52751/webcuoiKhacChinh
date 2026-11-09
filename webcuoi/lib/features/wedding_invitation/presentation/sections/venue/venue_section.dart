@@ -9,8 +9,6 @@ import '../../widgets/embedded_map.dart';
 import '../section_theme.dart';
 
 class VenuePlace {
-  static const groomMapAddress = '300 Đ. Thân Công Tài';
-
   const VenuePlace({
     required this.side,
     required this.title,
@@ -31,9 +29,14 @@ class VenuePlace {
   final double? latitude;
   final double? longitude;
 
+  bool get hasCoordinates =>
+      latitude != null &&
+      longitude != null &&
+      latitude!.isFinite &&
+      longitude!.isFinite;
+
   String get mapQuery {
-    if (side == 'groom') return groomMapAddress;
-    if (latitude != null && longitude != null) {
+    if (hasCoordinates) {
       return '$latitude,$longitude';
     }
     return address;
@@ -41,7 +44,7 @@ class VenuePlace {
 
   Uri get directionsUri {
     final fromApi = Uri.tryParse(directionsUrl ?? '');
-    if (side != 'groom' &&
+    if (!hasCoordinates &&
         fromApi != null &&
         fromApi.hasScheme &&
         fromApi.host.isNotEmpty) {
@@ -64,11 +67,9 @@ class VenuePlace {
     return VenuePlace(
       side: side,
       title: json['title']?.toString() ?? _titleFor(side),
-      address: side == 'groom'
-          ? groomMapAddress
-          : json['address']?.toString() ?? '',
-      directionsUrl: side == 'groom' ? null : maps['directionsUrl']?.toString(),
-      embedUrl: side == 'groom' ? null : maps['embedUrl']?.toString(),
+      address: json['address']?.toString() ?? '',
+      directionsUrl: maps['directionsUrl']?.toString(),
+      embedUrl: maps['embedUrl']?.toString(),
       placeId: json['placeId']?.toString() ?? '',
       latitude: _asDouble(json['latitude']),
       longitude: _asDouble(json['longitude']),
@@ -98,12 +99,16 @@ class VenueSection extends StatefulWidget {
     VenuePlace(
       side: 'groom',
       title: 'Địa chỉ nhà trai',
-      address: VenuePlace.groomMapAddress,
+      address: '300 Đ. Thân Công Tài',
+      latitude: 21.212936479442916,
+      longitude: 106.09532359291711,
     ),
     VenuePlace(
       side: 'bride',
       title: 'Địa chỉ nhà gái',
       address: 'Tổ Dân Phố Dĩnh Sơn, Phường Vân Hà, Thành phố Bắc Ninh',
+      latitude: 21.256900289911776,
+      longitude: 106.05149489064672,
     ),
   ];
 
@@ -266,7 +271,7 @@ class _VenueCard extends StatelessWidget {
             return EmbeddedMap(
               key: ValueKey('map-${place.side}-${place.mapQuery}'),
               query: place.mapQuery,
-              embedUrl: place.side == 'groom' ? null : place.embedUrl,
+              embedUrl: place.hasCoordinates ? null : place.embedUrl,
               height: mapHeight,
               borderRadius: 2 * scale,
             );
@@ -393,7 +398,7 @@ class _ToggleSegment extends StatelessWidget {
                 label,
                 style: TextStyle(
                   color: selected ? Colors.white : SectionTheme.inkSoft,
-                  fontFamily: SectionTheme.fontFamily,
+                  fontFamily: SectionTheme.fontFamilyFor(context),
                   fontSize: 13 * textScale,
                   fontWeight: FontWeight.w600,
                 ),

@@ -464,80 +464,89 @@ class _GiftQrDialog extends StatelessWidget {
         constraints: const BoxConstraints(maxWidth: 560),
         child: ClipRRect(
           borderRadius: BorderRadius.circular(16 * uiScale),
-          child: Container(
-            width: dialogWidth,
-            color: const Color(0xFFFFF8F4),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                SizedBox(
-                  width: double.infinity,
-                  height: 62 * uiScale,
-                  child: Stack(
-                    alignment: Alignment.center,
-                    children: [
-                      const Positioned.fill(
-                        child: ColoredBox(color: Color(0xFF806D62)),
-                      ),
-                      Text(
-                        'HỘP QUÀ MỪNG',
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontFamily: SectionTheme.fontFamily,
-                          fontSize: 18 * uiScale,
-                          fontWeight: FontWeight.w700,
-                          letterSpacing: 0.3 * uiScale,
+          child: DefaultTextStyle.merge(
+            style: TextStyle(
+              fontFamily: SectionTheme.fontFamilyFor(context),
+              fontWeight: SectionTheme.isCompact(context)
+                  ? FontWeight.w500
+                  : FontWeight.w400,
+              color: SectionTheme.inkSoft,
+            ),
+            child: Container(
+              width: dialogWidth,
+              color: const Color(0xFFFFF8F4),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  SizedBox(
+                    width: double.infinity,
+                    height: 62 * uiScale,
+                    child: Stack(
+                      alignment: Alignment.center,
+                      children: [
+                        const Positioned.fill(
+                          child: ColoredBox(color: Color(0xFF806D62)),
                         ),
-                      ),
-                      Positioned(
-                        top: 4 * uiScale,
-                        right: 6 * uiScale,
-                        child: IconButton(
-                          tooltip: 'Đóng',
-                          onPressed: () => Navigator.of(context).pop(),
-                          icon: Icon(
-                            Icons.close_rounded,
-                            color: Colors.white.withValues(alpha: 0.9),
-                            size: 20 * uiScale,
+                        Text(
+                          'HỘP QUÀ MỪNG',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontFamily: SectionTheme.fontFamilyFor(context),
+                            fontSize: 18 * uiScale,
+                            fontWeight: FontWeight.w700,
+                            letterSpacing: 0.3 * uiScale,
                           ),
                         ),
-                      ),
-                    ],
-                  ),
-                ),
-                Padding(
-                  padding: EdgeInsets.fromLTRB(
-                    18 * uiScale,
-                    18 * uiScale,
-                    18 * uiScale,
-                    20 * uiScale,
-                  ),
-                  child: Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Expanded(
-                        child: _QrGiftCard(
-                          account: groom,
-                          imageAsset: groomQr,
-                          fileName: 'qr-chu-re.jpeg',
-                          size: qrSize,
-                          scale: uiScale,
+                        Positioned(
+                          top: 4 * uiScale,
+                          right: 6 * uiScale,
+                          child: IconButton(
+                            tooltip: 'Đóng',
+                            onPressed: () => Navigator.of(context).pop(),
+                            icon: Icon(
+                              Icons.close_rounded,
+                              color: Colors.white.withValues(alpha: 0.9),
+                              size: 20 * uiScale,
+                            ),
+                          ),
                         ),
-                      ),
-                      SizedBox(width: 12 * uiScale),
-                      Expanded(
-                        child: _QrGiftCard(
-                          account: bride,
-                          imageAsset: brideQr,
-                          fileName: 'qr-co-dau.jpeg',
-                          size: qrSize,
-                          scale: uiScale,
-                        ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
-                ),
-              ],
+                  Padding(
+                    padding: EdgeInsets.fromLTRB(
+                      18 * uiScale,
+                      18 * uiScale,
+                      18 * uiScale,
+                      20 * uiScale,
+                    ),
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Expanded(
+                          child: _QrGiftCard(
+                            account: groom,
+                            imageAsset: groomQr,
+                            fileName: 'qr-chu-re.jpeg',
+                            size: qrSize,
+                            scale: uiScale,
+                          ),
+                        ),
+                        SizedBox(width: 12 * uiScale),
+                        Expanded(
+                          child: _QrGiftCard(
+                            account: bride,
+                            imageAsset: brideQr,
+                            fileName: 'qr-co-dau.jpeg',
+                            size: qrSize,
+                            scale: uiScale,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
             ),
           ),
         ),

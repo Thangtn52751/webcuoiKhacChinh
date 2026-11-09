@@ -49,7 +49,7 @@ class GuestbookEntryCard extends StatelessWidget {
                   overflow: TextOverflow.ellipsis,
                   style: TextStyle(
                     color: SectionTheme.inkSoft,
-                    fontFamily: SectionTheme.fontFamily,
+                    fontFamily: SectionTheme.fontFamilyFor(context),
                     fontSize: 16 * textScale,
                     fontWeight: FontWeight.bold,
                   ),
@@ -62,7 +62,7 @@ class GuestbookEntryCard extends StatelessWidget {
                   textAlign: TextAlign.right,
                   style: TextStyle(
                     color: SectionTheme.inkSoft,
-                    fontFamily: SectionTheme.fontFamily,
+                    fontFamily: SectionTheme.fontFamilyFor(context),
                     fontSize: 13 * textScale,
                     fontWeight: FontWeight.w500,
                   ),
@@ -76,7 +76,7 @@ class GuestbookEntryCard extends StatelessWidget {
               entry.message,
               style: TextStyle(
                 color: SectionTheme.inkSoft,
-                fontFamily: SectionTheme.fontFamily,
+                fontFamily: SectionTheme.fontFamilyFor(context),
                 fontSize: 15 * textScale,
                 fontWeight: FontWeight.w500,
                 height: 1.4,

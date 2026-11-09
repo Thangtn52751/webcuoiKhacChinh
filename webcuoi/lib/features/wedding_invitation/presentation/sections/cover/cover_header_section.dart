@@ -31,8 +31,11 @@ class CoverHeaderSection extends StatelessWidget {
           Text(
             overline.toUpperCase(),
             textAlign: TextAlign.center,
-            style: SectionTheme.overline(scale)
-                .copyWith(fontSize: 14 * scale, fontWeight: FontWeight.w400),
+            style: SectionTheme.overline(scale).copyWith(
+              fontFamily: SectionTheme.fontFamilyFor(context),
+              fontSize: 14 * scale,
+              fontWeight: SectionTheme.weightFor(context, FontWeight.w400),
+            ),
           ),
           SizedBox(height: 14 * scale),
           Text(
@@ -40,10 +43,12 @@ class CoverHeaderSection extends StatelessWidget {
             textAlign: TextAlign.center,
             style: SectionTheme.displayName(scale).copyWith(
               color: SectionTheme.inkSoft,
-              fontFamily: SectionTheme.fontFamily,
+              fontFamily: SectionTheme.fontFamilyFor(context),
               fontSize: 42 * scale,
               fontStyle: FontStyle.italic,
-              fontWeight: FontWeight.w600,
+              fontWeight: SectionTheme.isCompact(context)
+                  ? FontWeight.w500
+                  : FontWeight.w600,
               letterSpacing: 0.15 * scale,
               height: 1.05,
             ),

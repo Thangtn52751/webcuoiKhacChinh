@@ -21,8 +21,6 @@ class WeddingEventInformation extends StatelessWidget {
           'THÔNG TIN TIỆC CƯỚI',
           textAlign: TextAlign.center,
           style: TextStyle(
-            fontFamily: PartySectionStyle.serifFont,
-            fontFamilyFallback: PartySectionStyle.serifFallback,
             fontSize: 19 * s,
             fontWeight: FontWeight.w700,
             letterSpacing: 1.4 * s,
@@ -34,10 +32,8 @@ class WeddingEventInformation extends StatelessWidget {
           'TIỆC CƯỚI SẼ DIỄN RA VÀO LÚC:',
           textAlign: TextAlign.center,
           style: TextStyle(
-            fontFamily: PartySectionStyle.serifFont,
-            fontFamilyFallback: PartySectionStyle.serifFallback,
             fontSize: 25 * s,
-            fontWeight: FontWeight.w400,
+            fontWeight: DefaultTextStyle.of(context).style.fontWeight,
             letterSpacing: 0.6 * s,
             color: PartySectionStyle.primaryColor,
           ),
@@ -48,10 +44,8 @@ class WeddingEventInformation extends StatelessWidget {
         Text(
           '08:15',
           style: TextStyle(
-            fontFamily: PartySectionStyle.serifFont,
-            fontFamilyFallback: PartySectionStyle.serifFallback,
             fontSize: 29 * s,
-            fontWeight: FontWeight.w400,
+            fontWeight: DefaultTextStyle.of(context).style.fontWeight,
             height: 1.0,
             color: PartySectionStyle.primaryColor,
           ),
@@ -68,10 +62,8 @@ class WeddingEventInformation extends StatelessWidget {
                 'CHỦ NHẬT',
                 textAlign: TextAlign.right,
                 style: TextStyle(
-                  fontFamily: PartySectionStyle.serifFont,
-                  fontFamilyFallback: PartySectionStyle.serifFallback,
                   fontSize: 17 * s,
-                  fontWeight: FontWeight.w400,
+                  fontWeight: DefaultTextStyle.of(context).style.fontWeight,
                   letterSpacing: 0.6 * s,
                   color: PartySectionStyle.primaryColor,
                 ),
@@ -86,10 +78,8 @@ class WeddingEventInformation extends StatelessWidget {
             Text(
               '13',
               style: TextStyle(
-                fontFamily: PartySectionStyle.serifFont,
-                fontFamilyFallback: PartySectionStyle.serifFallback,
                 fontSize: 42 * s,
-                fontWeight: FontWeight.w400,
+                fontWeight: DefaultTextStyle.of(context).style.fontWeight,
                 height: 0.95,
                 color: PartySectionStyle.primaryColor,
               ),
@@ -105,10 +95,8 @@ class WeddingEventInformation extends StatelessWidget {
                 'THÁNG 12',
                 textAlign: TextAlign.left,
                 style: TextStyle(
-                  fontFamily: PartySectionStyle.serifFont,
-                  fontFamilyFallback: PartySectionStyle.serifFallback,
                   fontSize: 17 * s,
-                  fontWeight: FontWeight.w400,
+                  fontWeight: DefaultTextStyle.of(context).style.fontWeight,
                   letterSpacing: 0.6 * s,
                   color: PartySectionStyle.primaryColor,
                 ),
@@ -120,10 +108,8 @@ class WeddingEventInformation extends StatelessWidget {
         Text(
           '2026',
           style: TextStyle(
-            fontFamily: PartySectionStyle.serifFont,
-            fontFamilyFallback: PartySectionStyle.serifFallback,
             fontSize: 25 * s,
-            fontWeight: FontWeight.w400,
+            fontWeight: DefaultTextStyle.of(context).style.fontWeight,
             color: PartySectionStyle.primaryColor,
           ),
         ),
@@ -132,10 +118,8 @@ class WeddingEventInformation extends StatelessWidget {
           '(TỨC NGÀY 5 THÁNG 11 NĂM BÍNH NGỌ)',
           textAlign: TextAlign.center,
           style: TextStyle(
-            fontFamily: PartySectionStyle.serifFont,
-            fontFamilyFallback: PartySectionStyle.serifFallback,
             fontSize: 12 * s,
-            fontWeight: FontWeight.w400,
+            fontWeight: DefaultTextStyle.of(context).style.fontWeight,
             letterSpacing: 2.4 * s,
             color: PartySectionStyle.accentColor,
           ),

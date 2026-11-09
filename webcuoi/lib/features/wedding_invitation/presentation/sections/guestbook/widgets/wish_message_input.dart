@@ -58,9 +58,10 @@ class _WishMessageInputState extends State<WishMessageInput> {
                 textAlignVertical: TextAlignVertical.top,
                 style: TextStyle(
                   color: SectionTheme.inkSoft,
-                  fontFamily: SectionTheme.fontFamily,
+                  fontFamily: SectionTheme.fontFamilyFor(context),
                   fontSize: 14 * fieldScale,
                   height: 1.25,
+                  fontWeight: SectionTheme.weightFor(context, FontWeight.w400),
                 ),
                 cursorColor: const Color(0xFF806F63),
                 decoration: InputDecoration(
@@ -68,8 +69,12 @@ class _WishMessageInputState extends State<WishMessageInput> {
                   counterText: '',
                   hintStyle: TextStyle(
                     color: SectionTheme.inkSoft,
-                    fontFamily: SectionTheme.fontFamily,
+                    fontFamily: SectionTheme.fontFamilyFor(context),
                     fontSize: 14 * fieldScale,
+                    fontWeight: SectionTheme.weightFor(
+                      context,
+                      FontWeight.w400,
+                    ),
                   ),
                   filled: true,
                   fillColor: const Color(0x66F7F1E8),
@@ -132,7 +137,7 @@ class _WishMessageInputState extends State<WishMessageInput> {
                           : Text(
                               'GỬI LỜI CHÚC',
                               style: TextStyle(
-                                fontFamily: SectionTheme.fontFamily,
+                                fontFamily: SectionTheme.fontFamilyFor(context),
                                 fontSize: 13 * buttonScale,
                                 fontWeight: FontWeight.w700,
                                 letterSpacing: 0.25 * buttonScale,

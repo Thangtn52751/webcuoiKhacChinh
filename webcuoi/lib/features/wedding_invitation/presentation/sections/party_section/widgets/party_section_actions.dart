@@ -47,8 +47,6 @@ class PartySectionActions extends StatelessWidget {
   Widget build(BuildContext context) {
     final s = scale;
     final linkStyle = TextStyle(
-      fontFamily: PartySectionStyle.serifFont,
-      fontFamilyFallback: PartySectionStyle.serifFallback,
       fontSize: 14 * s,
       fontStyle: FontStyle.italic,
       color: PartySectionStyle.primaryColor,
@@ -90,8 +88,6 @@ class PartySectionActions extends StatelessWidget {
             child: Text(
               'XÁC NHẬN THAM DỰ',
               style: TextStyle(
-                fontFamily: PartySectionStyle.serifFont,
-                fontFamilyFallback: PartySectionStyle.serifFallback,
                 fontSize: 12.5 * s,
                 fontWeight: FontWeight.w500,
                 letterSpacing: 0.8 * s,

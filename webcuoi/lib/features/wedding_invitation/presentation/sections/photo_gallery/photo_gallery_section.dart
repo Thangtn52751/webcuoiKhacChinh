@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 
 import '../section_theme.dart';
@@ -5,7 +7,7 @@ import '../section_theme.dart';
 /// Section 3 — ALBUM ẢNH (coverflow theo Figma):
 /// Ảnh giữa to, đứng thẳng, bo góc lớn (không viền polaroid). Hai bên là các
 /// lớp ảnh nhỏ dần, mờ dần và CHỒNG LỚP lên nhau (ảnh gần tâm đè lên ảnh xa).
-/// Nút ‹ › tròn nâu đặc hai bên, chỉ số "n/tổng" phía dưới.
+/// Hỗ trợ vuốt ngang và tự chuyển ảnh mỗi 3 giây.
 class PhotoGallerySection extends StatefulWidget {
   const PhotoGallerySection({
     super.key,
@@ -61,11 +63,14 @@ class _PhotoGallerySectionState extends State<PhotoGallerySection>
   static const _sideCount = 2;
 
   late final AnimationController _animation;
+  late final Timer _autoAdvanceTimer;
   int _current = 0;
   // Vị trí "ảo" mượt dùng để nội suy khi chuyển ảnh.
   double _displayIndex = 0;
   double _animFrom = 0;
   double _animTo = 0;
+  double _dragDistance = 0;
+  bool _isLightboxOpen = false;
 
   @override
   void initState() {
@@ -74,6 +79,9 @@ class _PhotoGallerySectionState extends State<PhotoGallerySection>
       vsync: this,
       duration: const Duration(milliseconds: 420),
     )..addListener(_onTick);
+    _autoAdvanceTimer = Timer.periodic(const Duration(seconds: 3), (_) {
+      if (mounted && !_isLightboxOpen && !_animation.isAnimating) _step(1);
+    });
   }
 
   void _onTick() {
@@ -92,6 +100,7 @@ class _PhotoGallerySectionState extends State<PhotoGallerySection>
   void dispose() {
     _animation.removeListener(_onTick);
     _animation.dispose();
+    _autoAdvanceTimer.cancel();
     super.dispose();
   }
 
@@ -124,33 +133,31 @@ class _PhotoGallerySectionState extends State<PhotoGallerySection>
 
           SizedBox(
             height: carouselHeight,
-            child: LayoutBuilder(
-              builder: (context, constraints) {
-                final maxWidth = constraints.maxWidth;
-                return Stack(
-                  alignment: Alignment.center,
-                  clipBehavior: Clip.none,
-                  children: [
-                    ..._buildLayers(scale, centerW, centerH, maxWidth, count),
-                    Positioned(
-                      left: 8 * scale,
-                      child: _NavButton(
-                        scale: scale,
-                        icon: Icons.chevron_left_rounded,
-                        onTap: () => _step(-1),
-                      ),
-                    ),
-                    Positioned(
-                      right: 8 * scale,
-                      child: _NavButton(
-                        scale: scale,
-                        icon: Icons.chevron_right_rounded,
-                        onTap: () => _step(1),
-                      ),
-                    ),
-                  ],
-                );
+            child: GestureDetector(
+              behavior: HitTestBehavior.translucent,
+              onHorizontalDragStart: (_) => _dragDistance = 0,
+              onHorizontalDragUpdate: (details) {
+                _dragDistance += details.delta.dx;
               },
+              onHorizontalDragEnd: (_) {
+                if (_dragDistance.abs() >= 36 * scale) {
+                  _step(_dragDistance < 0 ? 1 : -1);
+                }
+                _dragDistance = 0;
+              },
+              child: LayoutBuilder(
+                builder: (context, constraints) {
+                  return SizedBox(
+                    width: constraints.maxWidth,
+                    height: carouselHeight,
+                    child: Stack(
+                      alignment: Alignment.center,
+                      clipBehavior: Clip.none,
+                      children: _buildLayers(scale, centerW, centerH, count),
+                    ),
+                  );
+                },
+              ),
             ),
           ),
 
@@ -173,7 +180,6 @@ class _PhotoGallerySectionState extends State<PhotoGallerySection>
     double scale,
     double centerW,
     double centerH,
-    double maxWidth,
     int count,
   ) {
     // Bước lệch ngang giữa các lớp (ảnh gần tâm cách tâm bao xa).
@@ -200,13 +206,15 @@ class _PhotoGallerySectionState extends State<PhotoGallerySection>
       final opacity = (1 - 0.30 * clamped).clamp(0.0, 1.0);
       final dx = rel * step;
 
-      layers.add(_Layer(
-        index: index,
-        dx: dx,
-        scale: itemScale,
-        opacity: opacity,
-        dist: dist,
-      ));
+      layers.add(
+        _Layer(
+          index: index,
+          dx: dx,
+          scale: itemScale,
+          opacity: opacity,
+          dist: dist,
+        ),
+      );
     }
 
     // Sắp xếp: xa tâm trước (dưới), gần tâm sau (trên).
@@ -255,6 +263,7 @@ class _PhotoGallerySectionState extends State<PhotoGallerySection>
 
   /// Mở overlay phóng to ảnh, cho phép vuốt chuyển và pinch-zoom.
   Future<void> _openLightbox(int startIndex) async {
+    _isLightboxOpen = true;
     final result = await Navigator.of(context).push<int>(
       PageRouteBuilder<int>(
         opaque: false,
@@ -270,8 +279,10 @@ class _PhotoGallerySectionState extends State<PhotoGallerySection>
             FadeTransition(opacity: animation, child: child),
       ),
     );
+    _isLightboxOpen = false;
+    if (!mounted) return;
     // Đồng bộ carousel về ảnh cuối cùng người dùng xem trong lightbox.
-    if (result != null && mounted && result != _current) {
+    if (result != null && result != _current) {
       setState(() {
         _current = result;
         _displayIndex = result.toDouble();
@@ -333,10 +344,7 @@ class _GalleryImage extends StatelessWidget {
                   Colors.white.withValues(alpha: 0.35),
                   BlendMode.srcOver,
                 )
-              : const ColorFilter.mode(
-                  Colors.transparent,
-                  BlendMode.srcOver,
-                ),
+              : const ColorFilter.mode(Colors.transparent, BlendMode.srcOver),
           child: Image.asset(
             imagePath,
             width: width,
@@ -349,44 +357,15 @@ class _GalleryImage extends StatelessWidget {
   }
 }
 
-/// Nút tròn nâu đặc điều hướng carousel.
-class _NavButton extends StatelessWidget {
-  const _NavButton({
-    required this.scale,
-    required this.icon,
-    required this.onTap,
-  });
-
-  final double scale;
-  final IconData icon;
-  final VoidCallback onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    final size = 44.0 * scale;
-    return Material(
-      color: SectionTheme.ink,
-      shape: const CircleBorder(),
-      elevation: 2,
-      child: InkWell(
-        customBorder: const CircleBorder(),
-        onTap: onTap,
-        child: SizedBox(
-          width: size,
-          height: size,
-          child: Icon(icon, color: Colors.white, size: 26 * scale),
-        ),
-      ),
-    );
-  }
-}
-
 /// Overlay xem ảnh phóng to toàn màn hình.
-/// - Vuốt ngang hoặc bấm nút ‹ › để chuyển ảnh (xoay vòng).
+/// - Vuốt ngang để chuyển ảnh (xoay vòng).
 /// - Pinch-zoom / kéo để phóng to từng ảnh (InteractiveViewer).
 /// - Bấm nền tối hoặc nút X để đóng; trả về index ảnh đang xem.
 class _GalleryLightbox extends StatefulWidget {
-  const _GalleryLightbox({required this.imagePaths, required this.initialIndex});
+  const _GalleryLightbox({
+    required this.imagePaths,
+    required this.initialIndex,
+  });
 
   final List<String> imagePaths;
   final int initialIndex;
@@ -413,16 +392,6 @@ class _GalleryLightboxState extends State<_GalleryLightbox> {
   }
 
   void _close() => Navigator.of(context).pop(_index);
-
-  void _step(int direction) {
-    final count = widget.imagePaths.length;
-    final target = ((_index + direction) % count + count) % count;
-    _controller.animateToPage(
-      target,
-      duration: const Duration(milliseconds: 300),
-      curve: Curves.easeOutCubic,
-    );
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -462,38 +431,12 @@ class _GalleryLightboxState extends State<_GalleryLightbox> {
             },
           ),
 
-          // Nút chuyển trái.
-          Align(
-            alignment: Alignment.centerLeft,
-            child: Padding(
-              padding: const EdgeInsets.only(left: 12),
-              child: _LightboxButton(
-                icon: Icons.chevron_left_rounded,
-                onTap: () => _step(-1),
-              ),
-            ),
-          ),
-          // Nút chuyển phải.
-          Align(
-            alignment: Alignment.centerRight,
-            child: Padding(
-              padding: const EdgeInsets.only(right: 12),
-              child: _LightboxButton(
-                icon: Icons.chevron_right_rounded,
-                onTap: () => _step(1),
-              ),
-            ),
-          ),
-
           // Nút đóng.
           Positioned(
             top: 16,
             right: 16,
             child: SafeArea(
-              child: _LightboxButton(
-                icon: Icons.close_rounded,
-                onTap: _close,
-              ),
+              child: _LightboxButton(icon: Icons.close_rounded, onTap: _close),
             ),
           ),
 

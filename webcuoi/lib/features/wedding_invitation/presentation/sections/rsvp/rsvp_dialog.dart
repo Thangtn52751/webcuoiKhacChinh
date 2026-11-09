@@ -58,6 +58,7 @@ class _RsvpDialogState extends State<RsvpDialog> {
         _nameController.text.trim().isNotEmpty &&
         _attending != null &&
         !_isSubmitting;
+    final fontFamily = SectionTheme.fontFamilyFor(context);
 
     return Dialog(
       backgroundColor: Colors.transparent,
@@ -84,12 +85,12 @@ class _RsvpDialogState extends State<RsvpDialog> {
               children: [
                 Row(
                   children: [
-                    const Expanded(
+                    Expanded(
                       child: Text(
                         'Xác nhận tham dự',
                         style: TextStyle(
                           color: _ink,
-                          fontFamily: SectionTheme.fontFamily,
+                          fontFamily: fontFamily,
                           fontSize: 17,
                           fontWeight: FontWeight.w700,
                         ),
@@ -117,23 +118,30 @@ class _RsvpDialogState extends State<RsvpDialog> {
                   ],
                 ),
                 const SizedBox(height: 5),
-                const Text(
+                Text(
                   'Sự hiện diện của bạn là niềm vinh hạnh cho gia đình chúng tôi. Xin xác nhận để chúng tôi chuẩn bị chu đáo hơn.',
                   style: TextStyle(
                     color: _muted,
-                    fontFamily: SectionTheme.fontFamily,
+                    fontFamily: fontFamily,
                     fontSize: 10.5,
                     height: 1.45,
+                    fontWeight: SectionTheme.weightFor(
+                      context,
+                      FontWeight.w400,
+                    ),
                   ),
                 ),
                 const SizedBox(height: 14),
-                const Text(
+                Text(
                   'Tên của bạn',
                   style: TextStyle(
                     color: _ink,
-                    fontFamily: SectionTheme.fontFamily,
+                    fontFamily: fontFamily,
                     fontSize: 10.5,
-                    fontWeight: FontWeight.w600,
+                    fontWeight: SectionTheme.weightFor(
+                      context,
+                      FontWeight.w600,
+                    ),
                   ),
                 ),
                 const SizedBox(height: 5),
@@ -144,9 +152,13 @@ class _RsvpDialogState extends State<RsvpDialog> {
                   onChanged: (_) => setState(() {}),
                   decoration: InputDecoration(
                     hintText: 'Nhập tên của bạn',
-                    hintStyle: const TextStyle(
+                    hintStyle: TextStyle(
                       color: _muted,
-                      fontFamily: SectionTheme.fontFamily,
+                      fontFamily: fontFamily,
+                      fontWeight: SectionTheme.weightFor(
+                        context,
+                        FontWeight.w400,
+                      ),
                     ),
                     isDense: true,
                     contentPadding: const EdgeInsets.symmetric(
@@ -162,20 +174,27 @@ class _RsvpDialogState extends State<RsvpDialog> {
                       borderSide: const BorderSide(color: _ink, width: 1.2),
                     ),
                   ),
-                  style: const TextStyle(
+                  style: TextStyle(
                     color: _ink,
-                    fontFamily: SectionTheme.fontFamily,
+                    fontFamily: fontFamily,
                     fontSize: 11,
+                    fontWeight: SectionTheme.weightFor(
+                      context,
+                      FontWeight.w400,
+                    ),
                   ),
                 ),
                 const SizedBox(height: 12),
-                const Text(
+                Text(
                   'Bạn sẽ đến chứ?',
                   style: TextStyle(
                     color: _ink,
-                    fontFamily: SectionTheme.fontFamily,
+                    fontFamily: fontFamily,
                     fontSize: 10.5,
-                    fontWeight: FontWeight.w600,
+                    fontWeight: SectionTheme.weightFor(
+                      context,
+                      FontWeight.w600,
+                    ),
                   ),
                 ),
                 const SizedBox(height: 6),
@@ -202,10 +221,14 @@ class _RsvpDialogState extends State<RsvpDialog> {
                   const SizedBox(height: 8),
                   Text(
                     _error!,
-                    style: const TextStyle(
+                    style: TextStyle(
                       color: _ink,
-                      fontFamily: SectionTheme.fontFamily,
+                      fontFamily: fontFamily,
                       fontSize: 11,
+                      fontWeight: SectionTheme.weightFor(
+                        context,
+                        FontWeight.w400,
+                      ),
                     ),
                   ),
                 ],
@@ -233,12 +256,15 @@ class _RsvpDialogState extends State<RsvpDialog> {
                               color: Colors.white,
                             ),
                           )
-                        : const Text(
+                        : Text(
                             'Gửi xác nhận',
                             style: TextStyle(
-                              fontFamily: SectionTheme.fontFamily,
+                              fontFamily: fontFamily,
                               fontSize: 11,
-                              fontWeight: FontWeight.w600,
+                              fontWeight: SectionTheme.weightFor(
+                                context,
+                                FontWeight.w600,
+                              ),
                             ),
                           ),
                   ),
@@ -301,11 +327,11 @@ class _AttendanceOption extends StatelessWidget {
               const SizedBox(width: 9),
               Text(
                 label,
-                style: const TextStyle(
+                style: TextStyle(
                   color: _RsvpDialogState._ink,
-                  fontFamily: SectionTheme.fontFamily,
+                  fontFamily: SectionTheme.fontFamilyFor(context),
                   fontSize: 10.5,
-                  fontWeight: FontWeight.w600,
+                  fontWeight: SectionTheme.weightFor(context, FontWeight.w600),
                 ),
               ),
             ],

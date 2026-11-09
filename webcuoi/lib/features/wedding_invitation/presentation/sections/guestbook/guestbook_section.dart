@@ -144,7 +144,7 @@ class _GuestbookSectionState extends State<GuestbookSection> {
           textAlign: TextAlign.center,
           style: SectionTheme.body(widget.scale).copyWith(
             color: SectionTheme.inkSoft,
-            fontFamily: SectionTheme.fontFamily,
+            fontFamily: SectionTheme.fontFamilyFor(context),
           ),
         ),
       );

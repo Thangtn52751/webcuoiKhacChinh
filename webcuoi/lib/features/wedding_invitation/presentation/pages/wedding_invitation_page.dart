@@ -12,6 +12,7 @@ import '../sections/photo_gallery/photo_gallery_section.dart';
 import '../sections/venue/venue_section.dart';
 import '../widgets/falling_leaves_layer.dart';
 import '../sections/party_section/wedding_party_section.dart';
+import '../sections/section_theme.dart';
 
 class WeddingInvitationPage extends StatefulWidget {
   const WeddingInvitationPage({super.key, required this.musicPlayer});
@@ -31,15 +32,18 @@ class _WeddingInvitationPageState extends State<WeddingInvitationPage> {
 
   @override
   Widget build(BuildContext context) {
+    final isMobile = MediaQuery.sizeOf(context).width <= 720;
+
     return Scaffold(
       backgroundColor: const Color(0xFFE8D3BC),
       floatingActionButton: _MusicPlaybackButton(player: widget.musicPlayer),
       body: Stack(
         fit: StackFit.expand,
         children: [
-          const Positioned.fill(
-            child: IgnorePointer(child: FallingLeavesLayer(count: 16)),
-          ),
+          if (!isMobile)
+            const Positioned.fill(
+              child: IgnorePointer(child: FallingLeavesLayer(count: 16)),
+            ),
           SafeArea(
             child: LayoutBuilder(
               builder: (context, constraints) {
@@ -49,6 +53,8 @@ class _WeddingInvitationPageState extends State<WeddingInvitationPage> {
                 final backgroundAsset = canvasWidth <= 720
                     ? 'assets/images/backgrounds/mainBG.mobile.webp'
                     : 'assets/images/backgrounds/mainBG.webp';
+                final compactTypography = SectionTheme.isCompact(context);
+                final fontFamily = SectionTheme.fontFamilyFor(context);
 
                 return SingleChildScrollView(
                   child: Center(
@@ -62,24 +68,45 @@ class _WeddingInvitationPageState extends State<WeddingInvitationPage> {
                               child: Image.asset(
                                 backgroundAsset,
                                 width: canvasWidth,
-                                fit: BoxFit.fitWidth,
+                                fit: canvasWidth <= 720
+                                    ? BoxFit.cover
+                                    : BoxFit.fitWidth,
                                 alignment: Alignment.topCenter,
                                 excludeFromSemantics: true,
                               ),
                             ),
                           ),
-                          SizedBox(
-                            width: canvasWidth,
-                            child: Column(
-                              children: [
-                                CoverHeaderSection(scale: scale),
-                                CeremonyInfoSection(scale: scale),
-                                PhotoGallerySection(scale: scale),
-                                WeddingPartySection(scale: scale),
-                                VenueSection(scale: scale),
-                                GuestbookSection(scale: scale),
-                                GiftBoxSection(scale: scale),
-                              ],
+                          Theme(
+                            data: Theme.of(context).copyWith(
+                              textTheme: Theme.of(context).textTheme
+                                  .apply(fontFamily: fontFamily),
+                            ),
+                            child: DefaultTextStyle.merge(
+                              style: TextStyle(
+                                fontFamily: fontFamily,
+                                fontWeight: compactTypography
+                                    ? FontWeight.w500
+                                    : FontWeight.w400,
+                                color: SectionTheme.inkSoft,
+                              ),
+                              child: SizedBox(
+                                width: canvasWidth,
+                                child: Column(
+                                  children: [
+                                    CoverHeaderSection(scale: scale),
+                                    CeremonyInfoSection(scale: scale),
+                                    PhotoGallerySection(scale: scale),
+                                    WeddingPartySection(scale: scale),
+                                    // Keep the confirmed family pins for this invitation.
+                                    VenueSection(
+                                      scale: scale,
+                                      loadFromServer: false,
+                                    ),
+                                    GuestbookSection(scale: scale),
+                                    GiftBoxSection(scale: scale),
+                                  ],
+                                ),
+                              ),
                             ),
                           ),
                         ],

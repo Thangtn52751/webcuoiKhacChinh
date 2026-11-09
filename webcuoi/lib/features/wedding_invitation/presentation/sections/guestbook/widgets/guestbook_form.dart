@@ -44,9 +44,10 @@ class _GuestbookFormState extends State<GuestbookForm> {
         final textScale = (width / 460).clamp(0.88, 1.15).toDouble();
         final inputStyle = TextStyle(
           color: SectionTheme.inkSoft,
-          fontFamily: SectionTheme.fontFamily,
+          fontFamily: SectionTheme.fontFamilyFor(context),
           fontSize: 15 * textScale,
           height: 1.2,
+          fontWeight: SectionTheme.weightFor(context, FontWeight.w400),
         );
 
         return SizedBox(
@@ -88,7 +89,7 @@ class _GuestbookFormState extends State<GuestbookForm> {
                   textAlign: TextAlign.center,
                   style: TextStyle(
                     color: SectionTheme.inkSoft,
-                    fontFamily: SectionTheme.fontFamily,
+                    fontFamily: SectionTheme.fontFamilyFor(context),
                     fontSize: 17 * textScale,
                     fontWeight: FontWeight.w700,
                     letterSpacing: 0.35 * textScale,
@@ -111,7 +112,7 @@ class _GuestbookFormState extends State<GuestbookForm> {
                           maxLength: 100,
                           style: inputStyle,
                           cursorColor: SectionTheme.inkSoft,
-                          decoration: _nameDecoration(textScale),
+                          decoration: _nameDecoration(textScale, context),
                           validator: (value) =>
                               value == null || value.trim().isEmpty
                               ? 'Vui l\u00F2ng nh\u1EADp t\u00EAn.'
@@ -134,34 +135,36 @@ class _GuestbookFormState extends State<GuestbookForm> {
     );
   }
 
-  InputDecoration _nameDecoration(double textScale) => InputDecoration(
-    hintText: 'Nh\u1EADp t\u00EAn*',
-    hintStyle: TextStyle(
-      color: SectionTheme.inkSoft,
-      fontFamily: SectionTheme.fontFamily,
-      fontSize: 14 * textScale,
-    ),
-    counterText: '',
-    contentPadding: EdgeInsets.symmetric(
-      horizontal: 10 * textScale,
-      vertical: 4 * textScale,
-    ),
-    enabledBorder: OutlineInputBorder(
-      borderRadius: BorderRadius.circular(6 * textScale),
-      borderSide: BorderSide(color: SectionTheme.inkSoft, width: 1),
-    ),
-    focusedBorder: OutlineInputBorder(
-      borderRadius: BorderRadius.circular(6 * textScale),
-      borderSide: BorderSide(color: SectionTheme.ink, width: 1.3),
-    ),
-    errorBorder: OutlineInputBorder(
-      borderRadius: BorderRadius.circular(6 * textScale),
-      borderSide: const BorderSide(color: Color(0xFF9B5144), width: 0.9),
-    ),
-    focusedErrorBorder: OutlineInputBorder(
-      borderRadius: BorderRadius.circular(6 * textScale),
-      borderSide: const BorderSide(color: Color(0xFF9B5144), width: 1.1),
-    ),
-    errorStyle: TextStyle(fontSize: 9 * textScale, height: 1.0),
-  );
+  InputDecoration _nameDecoration(double textScale, BuildContext context) =>
+      InputDecoration(
+        hintText: 'Nh\u1EADp t\u00EAn*',
+        hintStyle: TextStyle(
+          color: SectionTheme.inkSoft,
+          fontFamily: SectionTheme.fontFamilyFor(context),
+          fontSize: 14 * textScale,
+          fontWeight: SectionTheme.weightFor(context, FontWeight.w400),
+        ),
+        counterText: '',
+        contentPadding: EdgeInsets.symmetric(
+          horizontal: 10 * textScale,
+          vertical: 4 * textScale,
+        ),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(6 * textScale),
+          borderSide: BorderSide(color: SectionTheme.inkSoft, width: 1),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(6 * textScale),
+          borderSide: BorderSide(color: SectionTheme.ink, width: 1.3),
+        ),
+        errorBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(6 * textScale),
+          borderSide: const BorderSide(color: Color(0xFF9B5144), width: 0.9),
+        ),
+        focusedErrorBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(6 * textScale),
+          borderSide: const BorderSide(color: Color(0xFF9B5144), width: 1.1),
+        ),
+        errorStyle: TextStyle(fontSize: 9 * textScale, height: 1.0),
+      );
 }

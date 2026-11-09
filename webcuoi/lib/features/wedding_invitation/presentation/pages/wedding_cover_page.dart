@@ -4,6 +4,7 @@ import 'dart:math' as math;
 import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/material.dart';
 
+import '../sections/section_theme.dart';
 import '../widgets/falling_leaves_layer.dart';
 import 'wedding_invitation_page.dart';
 
@@ -173,7 +174,10 @@ class _WeddingCoverPageState extends State<WeddingCoverPage>
                       ),
                     );
                   },
-                  child: _buildCard(scale),
+                  child: _buildCard(
+                    scale,
+                    isCompact: constraints.maxWidth < 600,
+                  ),
                 );
               },
             ),
@@ -183,8 +187,11 @@ class _WeddingCoverPageState extends State<WeddingCoverPage>
     );
   }
 
-  Widget _buildCard(double scale) {
+  Widget _buildCard(double scale, {required bool isCompact}) {
     final ink = WeddingCoverPage._ink;
+    final cardFont = isCompact
+        ? SectionTheme.mobileFontFamily
+        : SectionTheme.fontFamily;
 
     return Container(
       width: 520 * scale,
@@ -219,9 +226,10 @@ class _WeddingCoverPageState extends State<WeddingCoverPage>
                 textAlign: TextAlign.center,
                 style: TextStyle(
                   color: ink,
+                  fontFamily: cardFont,
                   fontSize: 30 * scale,
                   height: 1.12,
-                  fontWeight: FontWeight.w400,
+                  fontWeight: isCompact ? FontWeight.w500 : FontWeight.w400,
                   letterSpacing: 0.1,
                 ),
               ),
@@ -247,7 +255,13 @@ class _WeddingCoverPageState extends State<WeddingCoverPage>
               child: Text(
                 '13 th\u{00E1}ng 12, 2026',
                 textAlign: TextAlign.center,
-                style: TextStyle(color: ink, fontSize: 17 * scale, height: 1.3),
+                style: TextStyle(
+                  color: ink,
+                  fontFamily: cardFont,
+                  fontSize: 17 * scale,
+                  height: 1.3,
+                  fontWeight: isCompact ? FontWeight.w500 : FontWeight.w400,
+                ),
               ),
             ),
             Positioned(
@@ -257,7 +271,13 @@ class _WeddingCoverPageState extends State<WeddingCoverPage>
               child: Text(
                 'Th\u{00E2}n M\u{1EDD}i',
                 textAlign: TextAlign.center,
-                style: TextStyle(color: ink, fontSize: 18 * scale, height: 1.3),
+                style: TextStyle(
+                  color: ink,
+                  fontFamily: cardFont,
+                  fontSize: 18 * scale,
+                  height: 1.3,
+                  fontWeight: isCompact ? FontWeight.w500 : FontWeight.w400,
+                ),
               ),
             ),
             Positioned(
@@ -284,10 +304,12 @@ class _WeddingCoverPageState extends State<WeddingCoverPage>
                                 : '\u{0110}ang t\u{1EA3}i nh\u{1EA1}c',
                             style: TextStyle(
                               color: Colors.white,
+                              fontFamily: cardFont,
                               fontSize:
                                   (_musicReady || _musicLoadFailed ? 17 : 12) *
                                   scale,
                               height: 1,
+                              fontWeight: FontWeight.w500,
                             ),
                           ),
                         ),

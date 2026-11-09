@@ -21,10 +21,8 @@ class PartyTimeColumn extends StatelessWidget {
         Text(
           label,
           style: TextStyle(
-            fontFamily: PartySectionStyle.serifFont,
-            fontFamilyFallback: PartySectionStyle.serifFallback,
             fontSize: 12 * scale,
-            fontWeight: FontWeight.w400,
+            fontWeight: DefaultTextStyle.of(context).style.fontWeight,
             letterSpacing: 0.7 * scale,
             color: PartySectionStyle.accentColor,
           ),
@@ -33,10 +31,8 @@ class PartyTimeColumn extends StatelessWidget {
         Text(
           time,
           style: TextStyle(
-            fontFamily: PartySectionStyle.serifFont,
-            fontFamilyFallback: PartySectionStyle.serifFallback,
             fontSize: 21 * scale,
-            fontWeight: FontWeight.w400,
+            fontWeight: DefaultTextStyle.of(context).style.fontWeight,
             color: PartySectionStyle.primaryColor,
           ),
         ),

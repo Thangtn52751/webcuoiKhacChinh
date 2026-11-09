@@ -14,11 +14,9 @@ class WeddingCalendarCard extends StatelessWidget {
     final weddingDay = DateTime(2026, 12, 13);
     final dowLabels = ['T2', 'T3', 'T4', 'T5', 'T6', 'T7', 'CN'];
     final bodyStyle = TextStyle(
-      fontFamily: PartySectionStyle.serifFont,
-      fontFamilyFallback: PartySectionStyle.serifFallback,
       color: PartySectionStyle.calendarTextColor,
       fontSize: 11 * textScale,
-      fontWeight: FontWeight.w400,
+      fontWeight: DefaultTextStyle.of(context).style.fontWeight,
     );
 
     return Container(
@@ -37,8 +35,6 @@ class WeddingCalendarCard extends StatelessWidget {
           Text(
             'Th\u{00E1}ng 12 / 2026',
             style: TextStyle(
-              fontFamily: PartySectionStyle.serifFont,
-              fontFamilyFallback: PartySectionStyle.serifFallback,
               fontSize: 24 * textScale,
               color: PartySectionStyle.calendarTextColor,
             ),
@@ -89,11 +85,9 @@ class WeddingCalendarCard extends StatelessWidget {
                 child: Text(
                   dowLabels[day.weekday - 1],
                   style: TextStyle(
-                    fontFamily: PartySectionStyle.serifFont,
-                    fontFamilyFallback: PartySectionStyle.serifFallback,
                     color: const Color(0xFFD6CEC6),
                     fontSize: 10 * textScale,
-                    fontWeight: FontWeight.w400,
+                    fontWeight: DefaultTextStyle.of(context).style.fontWeight,
                   ),
                 ),
               ),
@@ -141,8 +135,6 @@ class _HeartDayCell extends StatelessWidget {
           Text(
             day,
             style: TextStyle(
-              fontFamily: PartySectionStyle.serifFont,
-              fontFamilyFallback: PartySectionStyle.serifFallback,
               fontSize: 10.5 * textScale,
               fontWeight: FontWeight.w600,
               color: PartySectionStyle.primaryColor,
