@@ -6,6 +6,7 @@ import 'package:url_launcher/url_launcher.dart';
 
 import '../../../data/invitation_api.dart';
 import '../../widgets/embedded_map.dart';
+import '../../widgets/scroll_visibility.dart';
 import '../section_theme.dart';
 
 class VenuePlace {
@@ -116,48 +117,70 @@ class VenueSection extends StatefulWidget {
   State<VenueSection> createState() => _VenueSectionState();
 }
 
-class _VenueSectionState extends State<VenueSection> {
+class _VenueSectionState extends State<VenueSection>
+    with WidgetsBindingObserver {
   late List<VenuePlace> _places;
   String _selectedSide = 'groom';
-  ScrollPosition? _scrollPosition;
-  bool _mapLoaded = false;
+  late final ScrollViewportObserver _viewportObserver = ScrollViewportObserver(
+    _updateVisibility,
+  );
+  ScrollPosition? get _scrollPosition => _viewportObserver.position;
+  bool _isVisible = false;
+  bool _mapActivated = false;
+  bool _isAppVisible = true;
 
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
+    final lifecycleState = WidgetsBinding.instance.lifecycleState;
+    if (lifecycleState != null) {
+      _isAppVisible = _isVisibleLifecycle(lifecycleState);
+    }
     _places = widget.places;
+    WidgetsBinding.instance.addPostFrameCallback((_) => _updateVisibility());
     if (widget.loadFromServer) unawaited(_loadPlaces());
   }
 
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    final nextPosition = Scrollable.maybeOf(context)?.position;
-    if (identical(nextPosition, _scrollPosition)) return;
-    _scrollPosition?.removeListener(_loadMapWhenVisible);
-    _scrollPosition = nextPosition;
-    _scrollPosition?.addListener(_loadMapWhenVisible);
-    WidgetsBinding.instance.addPostFrameCallback((_) => _loadMapWhenVisible());
+    _viewportObserver.attach(context);
+    WidgetsBinding.instance.addPostFrameCallback((_) => _updateVisibility());
   }
 
   @override
   void dispose() {
-    _scrollPosition?.removeListener(_loadMapWhenVisible);
+    WidgetsBinding.instance.removeObserver(this);
+    _viewportObserver.dispose();
     super.dispose();
   }
 
-  void _loadMapWhenVisible() {
-    if (!mounted || _mapLoaded) return;
-    final renderObject = context.findRenderObject();
-    if (renderObject is! RenderBox || !renderObject.hasSize) return;
+  void _updateVisibility() {
+    if (!mounted) return;
+    final visible = isInScrollViewport(context, _scrollPosition);
+    if (visible == _isVisible) return;
 
-    final top = renderObject.localToGlobal(Offset.zero).dy;
-    final bottom = top + renderObject.size.height;
-    if (bottom <= 0 || top >= MediaQuery.sizeOf(context).height) return;
-
-    setState(() => _mapLoaded = true);
-    _scrollPosition?.removeListener(_loadMapWhenVisible);
+    setState(() {
+      _isVisible = visible;
+      if (!visible) _mapActivated = false;
+    });
   }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    final isVisible = _isVisibleLifecycle(state);
+    if (isVisible == _isAppVisible) return;
+    setState(() {
+      _isAppVisible = isVisible;
+      if (!isVisible) _mapActivated = false;
+    });
+  }
+
+  bool _isVisibleLifecycle(AppLifecycleState state) =>
+      state != AppLifecycleState.hidden &&
+      state != AppLifecycleState.paused &&
+      state != AppLifecycleState.detached;
 
   VenuePlace get _selectedPlace => _places.firstWhere(
     (place) => place.side == _selectedSide,
@@ -212,6 +235,20 @@ class _VenueSectionState extends State<VenueSection> {
   Widget build(BuildContext context) {
     final place = _selectedPlace;
     final textScale = math.max(widget.scale, 0.9).toDouble();
+    final isMobile = MediaQuery.widthOf(context) <= 720;
+    final mapLoaded =
+        _isVisible && _isAppVisible && (!isMobile || _mapActivated);
+    final card = _VenueCard(
+      key: ValueKey(place.side),
+      place: place,
+      scale: widget.scale,
+      textScale: textScale,
+      mapLoaded: mapLoaded,
+      isMobile: isMobile,
+      onActivateMap: () => setState(() => _mapActivated = true),
+      onCloseMap: () => setState(() => _mapActivated = false),
+      onOpenDirections: () => _openDirections(place),
+    );
 
     return Padding(
       padding: EdgeInsets.symmetric(vertical: 28 * widget.scale),
@@ -238,19 +275,15 @@ class _VenueSectionState extends State<VenueSection> {
                 ),
               ),
               SizedBox(height: 14 * widget.scale),
-              AnimatedSwitcher(
-                duration: const Duration(milliseconds: 240),
-                switchInCurve: Curves.easeOutCubic,
-                switchOutCurve: Curves.easeInCubic,
-                child: _VenueCard(
-                  key: ValueKey(place.side),
-                  place: place,
-                  scale: widget.scale,
-                  textScale: textScale,
-                  mapLoaded: _mapLoaded,
-                  onOpenDirections: () => _openDirections(place),
+              if (isMobile)
+                card
+              else
+                AnimatedSwitcher(
+                  duration: const Duration(milliseconds: 240),
+                  switchInCurve: Curves.easeOutCubic,
+                  switchOutCurve: Curves.easeInCubic,
+                  child: card,
                 ),
-              ),
             ],
           ),
         ),
@@ -266,6 +299,9 @@ class _VenueCard extends StatelessWidget {
     required this.scale,
     required this.textScale,
     required this.mapLoaded,
+    required this.isMobile,
+    required this.onActivateMap,
+    required this.onCloseMap,
     required this.onOpenDirections,
   });
 
@@ -273,6 +309,9 @@ class _VenueCard extends StatelessWidget {
   final double scale;
   final double textScale;
   final bool mapLoaded;
+  final bool isMobile;
+  final VoidCallback onActivateMap;
+  final VoidCallback onCloseMap;
   final VoidCallback onOpenDirections;
 
   @override
@@ -314,22 +353,50 @@ class _VenueCard extends StatelessWidget {
                       height: mapHeight,
                       borderRadius: 2 * scale,
                     )
-                  : DecoratedBox(
-                      decoration: BoxDecoration(
-                        color: const Color(0xFFE9E0D2),
+                  : Material(
+                      color: const Color(0xFFE9E0D2),
+                      borderRadius: BorderRadius.circular(2 * scale),
+                      child: InkWell(
+                        onTap: isMobile ? onActivateMap : null,
                         borderRadius: BorderRadius.circular(2 * scale),
-                      ),
-                      child: const Center(
-                        child: Icon(
-                          Icons.map_outlined,
-                          color: SectionTheme.inkSoft,
-                          size: 28,
+                        child: Center(
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              const Icon(
+                                Icons.map_outlined,
+                                color: SectionTheme.inkSoft,
+                                size: 28,
+                              ),
+                              if (isMobile) ...[
+                                const SizedBox(height: 10),
+                                Text(
+                                  'Chạm để xem bản đồ',
+                                  textAlign: TextAlign.center,
+                                  style: SectionTheme.body(scale).copyWith(
+                                    fontSize: 14 * textScale,
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                ),
+                              ],
+                            ],
+                          ),
                         ),
                       ),
                     ),
             );
           },
         ),
+        if (isMobile && mapLoaded)
+          TextButton.icon(
+            onPressed: onCloseMap,
+            style: TextButton.styleFrom(
+              foregroundColor: SectionTheme.ink,
+              minimumSize: const Size(44, 44),
+            ),
+            icon: const Icon(Icons.close_rounded, size: 17),
+            label: const Text('Đóng bản đồ để cuộn thiệp'),
+          ),
         SizedBox(height: 14 * scale),
         Material(
           color: Colors.transparent,

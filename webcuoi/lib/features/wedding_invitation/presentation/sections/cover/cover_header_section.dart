@@ -18,7 +18,8 @@ class CoverHeaderSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final screenWidth = MediaQuery.sizeOf(context).width;
+    final screenWidth = MediaQuery.widthOf(context);
+    final photoWidth = math.min(450 * scale, screenWidth * 0.56);
     final singleLineNames = coupleNames.replaceAll(RegExp(r'\s*&\s*'), ' & ');
     final responsiveNames = screenWidth < 640
         ? singleLineNames.replaceFirst(' & ', '\n& ')
@@ -56,10 +57,8 @@ class CoverHeaderSection extends StatelessWidget {
           SizedBox(height: 24 * scale),
           Image.asset(
             'assets/images/decorations/intro_pic.png',
-            width: math.min(
-              450 * scale,
-              MediaQuery.sizeOf(context).width * 0.56,
-            ),
+            width: photoWidth,
+            height: photoWidth * 829 / 553,
             fit: BoxFit.contain,
             excludeFromSemantics: true,
           ),

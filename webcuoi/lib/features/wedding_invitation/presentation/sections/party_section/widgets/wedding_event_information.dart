@@ -10,7 +10,7 @@ class WeddingEventInformation extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final isCompact = MediaQuery.sizeOf(context).width < 600;
+    final isCompact = MediaQuery.widthOf(context) < 600;
     final titleSize = isCompact ? 14.0 : 19 * scale;
     final headingSize = isCompact ? 15.0 : 25 * scale;
     final timeSize = isCompact ? 24.0 : 29 * scale;

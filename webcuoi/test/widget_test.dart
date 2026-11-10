@@ -117,6 +117,53 @@ void main() {
       await tester.pumpWidget(const SizedBox.shrink());
     },
   );
+
+  testWidgets('ceremony parents sit close to the centered divider', (
+    tester,
+  ) async {
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+
+    for (final width in [320.0, 375.0, 390.0, 430.0]) {
+      tester.view.physicalSize = Size(width, 1000);
+      await tester.pumpWidget(
+        const MaterialApp(
+          home: Scaffold(
+            body: SingleChildScrollView(
+              child: CeremonyInfoSection(scale: 0.72),
+            ),
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+      expect(tester.takeException(), isNull, reason: '$width px');
+
+      final groom = tester.getRect(
+        find.text('Nguyễn Khắc Phác\nNguyễn Thị Chung'),
+      );
+      final bride = tester.getRect(find.text('Vũ Thị Khoa'));
+      final divider = tester.getRect(
+        find.descendant(
+          of: find.byType(CeremonyInfoSection),
+          matching: find.byType(VerticalDivider),
+        ),
+      );
+      expect(divider.left - groom.right, closeTo(8, 0.1));
+      expect(bride.left - divider.right, closeTo(8, 0.1));
+
+      final groomHeading = tester.getRect(find.text('Nhà trai'));
+      final brideHeading = tester.getRect(find.text('Nhà gái'));
+      expect(groomHeading.center.dx, closeTo(groom.center.dx, 0.1));
+      expect(brideHeading.center.dx, closeTo(bride.center.dx, 0.1));
+      expect(groomHeading.top, closeTo(brideHeading.top, 0.1));
+
+      final artwork = tester.getRect(find.byType(Image));
+      final cardCenter = artwork.left + artwork.width * 366 / 627;
+      expect(divider.center.dx, closeTo(cardCenter, 0.1));
+    }
+    await tester.pumpWidget(const SizedBox.shrink());
+  });
 }
 
 Future<void> _expectNoOverflow(

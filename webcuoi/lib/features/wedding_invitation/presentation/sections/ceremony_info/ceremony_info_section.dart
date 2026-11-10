@@ -21,7 +21,7 @@ class CeremonyInfoSection extends StatelessWidget {
   Widget build(BuildContext context) {
     final imageWidth = math.min(
       _artworkWidth * scale,
-      MediaQuery.sizeOf(context).width * 0.98,
+      MediaQuery.widthOf(context) * 0.98,
     );
     final imageHeight = imageWidth * _artworkHeight / _artworkWidth;
     final isCompact = imageWidth < 500;
@@ -87,41 +87,45 @@ class CeremonyInfoSection extends StatelessWidget {
                     ),
                     Positioned(
                       top: imageHeight * 0.105,
-                      left: imageWidth * 0.18,
-                      right: imageWidth * 0.02,
+                      left: imageWidth * _cardLeftFraction,
+                      right:
+                          imageWidth *
+                          (1 - _cardLeftFraction - _cardWidthFraction),
                       child: Center(
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          children: [
-                            SizedBox(
-                              width: familyGroupWidth,
-                              child: _familyText(
-                                'Nhà trai',
-                                'Nguyễn Khắc Phác\nNguyễn Thị Chung',
-                                textScale,
-                                nameAlignment: TextAlign.right,
+                        child: IntrinsicHeight(
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            crossAxisAlignment: CrossAxisAlignment.stretch,
+                            children: [
+                              SizedBox(
+                                width: familyGroupWidth,
+                                child: _familyText(
+                                  'Nhà trai',
+                                  'Nguyễn Khắc Phác\nNguyễn Thị Chung',
+                                  textScale,
+                                  nameAlignment: TextAlign.right,
+                                ),
                               ),
-                            ),
-                            SizedBox(width: familyDividerGap),
-                            Container(
-                              width: 1.2 * textScale,
-                              height: 56 * textScale,
-                              color: SectionTheme.inkMuted.withValues(
-                                alpha: 0.65,
+                              SizedBox(width: familyDividerGap),
+                              VerticalDivider(
+                                width: 1.2 * textScale,
+                                thickness: 1.2 * textScale,
+                                color: SectionTheme.inkMuted.withValues(
+                                  alpha: 0.65,
+                                ),
                               ),
-                            ),
-                            SizedBox(width: familyDividerGap),
-                            SizedBox(
-                              width: familyGroupWidth,
-                              child: _familyText(
-                                'Nhà gái',
-                                'Vũ Thị Khoa',
-                                textScale,
-                                nameAlignment: TextAlign.left,
+                              SizedBox(width: familyDividerGap),
+                              SizedBox(
+                                width: familyGroupWidth,
+                                child: _familyText(
+                                  'Nhà gái',
+                                  'Vũ Thị Khoa',
+                                  textScale,
+                                  nameAlignment: TextAlign.left,
+                                ),
                               ),
-                            ),
-                          ],
+                            ],
+                          ),
                         ),
                       ),
                     ),
@@ -243,27 +247,36 @@ class CeremonyInfoSection extends StatelessWidget {
     String names,
     double scale, {
     required TextAlign nameAlignment,
-  }) => Column(
-    children: [
-      Text(
-        heading,
-        textAlign: TextAlign.center,
-        style: _smallStyle(
-          10,
-          scale,
-        ).copyWith(color: SectionTheme.ink, fontWeight: FontWeight.w600),
+  }) => Align(
+    alignment: nameAlignment == TextAlign.right
+        ? Alignment.topRight
+        : Alignment.topLeft,
+    child: IntrinsicWidth(
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Text(
+            heading,
+            textAlign: TextAlign.center,
+            style: _smallStyle(
+              10,
+              scale,
+            ).copyWith(color: SectionTheme.ink, fontWeight: FontWeight.w600),
+          ),
+          SizedBox(height: 3 * scale),
+          Text(
+            names,
+            textAlign: nameAlignment,
+            style: _smallStyle(10, scale).copyWith(
+              color: SectionTheme.ink,
+              fontWeight: FontWeight.w700,
+              height: 1.35,
+            ),
+          ),
+        ],
       ),
-      SizedBox(height: 3 * scale),
-      Text(
-        names,
-        textAlign: nameAlignment,
-        style: _smallStyle(10, scale).copyWith(
-          color: SectionTheme.ink,
-          fontWeight: FontWeight.w700,
-          height: 1.35,
-        ),
-      ),
-    ],
+    ),
   );
 
   Positioned _positionedText({

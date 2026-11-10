@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 
+import '../../widgets/scroll_visibility.dart';
 import '../section_theme.dart';
 
 /// Section 3 — ALBUM ẢNH (coverflow theo Figma):
@@ -63,8 +64,10 @@ class _PhotoGallerySectionState extends State<PhotoGallerySection>
   static const _sideCount = 2;
 
   late final AnimationController _animation;
+  final _mobileCarouselKey = GlobalKey<_MobileGalleryCarouselState>();
   Timer? _autoAdvanceTimer;
-  ScrollPosition? _scrollPosition;
+  late final _viewportObserver = ScrollViewportObserver(_updateVisibility);
+  ScrollPosition? get _scrollPosition => _viewportObserver.position;
   int _current = 0;
   // Vị trí "ảo" mượt dùng để nội suy khi chuyển ảnh.
   double _displayIndex = 0;
@@ -74,6 +77,8 @@ class _PhotoGallerySectionState extends State<PhotoGallerySection>
   bool _isLightboxOpen = false;
   bool _isVisible = false;
   bool _isAppResumed = true;
+  bool _isCarouselScrolling = false;
+  bool? _usesMobileCarousel;
 
   @override
   void initState() {
@@ -92,12 +97,32 @@ class _PhotoGallerySectionState extends State<PhotoGallerySection>
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    final nextPosition = Scrollable.maybeOf(context)?.position;
-    if (identical(nextPosition, _scrollPosition)) return;
-    _scrollPosition?.removeListener(_updateVisibility);
-    _scrollPosition = nextPosition;
-    _scrollPosition?.addListener(_updateVisibility);
-    WidgetsBinding.instance.addPostFrameCallback((_) => _updateVisibility());
+    final isMobile = MediaQuery.widthOf(context) <= 720;
+    final modeChanged =
+        _usesMobileCarousel != null && _usesMobileCarousel != isMobile;
+    _usesMobileCarousel = isMobile;
+    if (modeChanged) {
+      _isCarouselScrolling = false;
+      _animation.stop();
+      _displayIndex = _current.toDouble();
+    }
+    _viewportObserver.attach(context);
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _updateVisibility();
+      if (mounted && modeChanged) _scheduleAutoAdvance();
+    });
+  }
+
+  @override
+  void didUpdateWidget(covariant PhotoGallerySection oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.imagePaths.length == widget.imagePaths.length) return;
+    final count = widget.imagePaths.length;
+    _current = count == 0 ? 0 : _current % count;
+    _displayIndex = _current.toDouble();
+    _isCarouselScrolling = false;
+    _animation.stop();
+    _scheduleAutoAdvance();
   }
 
   void _onTick() {
@@ -105,25 +130,23 @@ class _PhotoGallerySectionState extends State<PhotoGallerySection>
     _displayIndex = _animFrom + (_animTo - _animFrom) * t;
     if (_animation.isCompleted) {
       final count = widget.imagePaths.length;
+      if (count == 0) return;
       _displayIndex = (_displayIndex % count + count) % count;
     }
   }
 
   void _updateVisibility() {
     if (!mounted) return;
-    final renderObject = context.findRenderObject();
-    if (renderObject is! RenderBox || !renderObject.hasSize) return;
-
-    final top = renderObject.localToGlobal(Offset.zero).dy;
-    final bottom = top + renderObject.size.height;
-    final viewportHeight = MediaQuery.sizeOf(context).height;
-    final visible = bottom > 0 && top < viewportHeight;
+    final visible = isInScrollViewport(context, _scrollPosition);
     if (visible == _isVisible) return;
 
     setState(() => _isVisible = visible);
     if (visible && _isAppResumed) {
       _scheduleAutoAdvance();
     } else {
+      _isCarouselScrolling = false;
+      _animation.stop();
+      _displayIndex = _current.toDouble();
       _cancelAutoAdvance();
     }
   }
@@ -144,6 +167,7 @@ class _PhotoGallerySectionState extends State<PhotoGallerySection>
     _cancelAutoAdvance();
     if (!_isVisible ||
         !_isAppResumed ||
+        _isCarouselScrolling ||
         _isLightboxOpen ||
         widget.imagePaths.length <= 1) {
       return;
@@ -166,7 +190,7 @@ class _PhotoGallerySectionState extends State<PhotoGallerySection>
     WidgetsBinding.instance.removeObserver(this);
     _animation.removeListener(_onTick);
     _animation.dispose();
-    _scrollPosition?.removeListener(_updateVisibility);
+    _viewportObserver.dispose();
     _cancelAutoAdvance();
     super.dispose();
   }
@@ -177,6 +201,11 @@ class _PhotoGallerySectionState extends State<PhotoGallerySection>
   void _step(int direction) {
     final count = widget.imagePaths.length;
     if (count <= 1) return;
+    if (MediaQuery.widthOf(context) <= 720) {
+      _cancelAutoAdvance();
+      _mobileCarouselKey.currentState?.step(direction);
+      return;
+    }
     _animFrom = _displayIndex;
     _animTo = _displayIndex + direction; // có thể là -1 hoặc = count
     _current = ((_current + direction) % count + count) % count;
@@ -185,10 +214,29 @@ class _PhotoGallerySectionState extends State<PhotoGallerySection>
     _scheduleAutoAdvance();
   }
 
+  void _onMobilePageChanged(int index) {
+    if (index != _current) {
+      setState(() {
+        _current = index;
+        _displayIndex = index.toDouble();
+      });
+    }
+  }
+
+  void _onCarouselScrollingChanged(bool scrolling) {
+    _isCarouselScrolling = scrolling;
+    if (scrolling) {
+      _cancelAutoAdvance();
+    } else {
+      _scheduleAutoAdvance();
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final scale = widget.scale;
     final count = widget.imagePaths.length;
+    final isMobile = MediaQuery.widthOf(context) <= 720;
     final centerW = 300.0 * scale;
     final centerH = 400.0 * scale;
     final carouselHeight = centerH + 24 * scale;
@@ -202,8 +250,21 @@ class _PhotoGallerySectionState extends State<PhotoGallerySection>
 
           SizedBox(
             height: carouselHeight,
-            child: _isVisible
-                ? GestureDetector(
+            child: !_isVisible || count == 0
+                ? const SizedBox.expand()
+                : isMobile
+                ? _MobileGalleryCarousel(
+                    key: _mobileCarouselKey,
+                    imagePaths: List.generate(count, _carouselImagePath),
+                    selectedIndex: _current,
+                    imageWidth: centerW,
+                    imageHeight: centerH,
+                    scale: scale,
+                    onChanged: _onMobilePageChanged,
+                    onOpen: _openLightbox,
+                    onScrollingChanged: _onCarouselScrollingChanged,
+                  )
+                : GestureDetector(
                     behavior: HitTestBehavior.translucent,
                     onHorizontalDragStart: (_) => _dragDistance = 0,
                     onHorizontalDragUpdate: (details) {
@@ -236,13 +297,12 @@ class _PhotoGallerySectionState extends State<PhotoGallerySection>
                         );
                       },
                     ),
-                  )
-                : const SizedBox.expand(),
+                  ),
           ),
 
           SizedBox(height: 20 * scale),
           Text(
-            '${_current + 1} / $count',
+            '${count == 0 ? 0 : _current + 1} / $count',
             style: SectionTheme.body(scale).copyWith(
               fontSize: 14 * scale,
               color: SectionTheme.inkSoft,
@@ -372,6 +432,138 @@ class _PhotoGallerySectionState extends State<PhotoGallerySection>
   }
 }
 
+/// Native paging keeps mobile scrolling on the viewport's scroll path instead
+/// of rebuilding five filtered image layers for every animation frame.
+class _MobileGalleryCarousel extends StatefulWidget {
+  const _MobileGalleryCarousel({
+    super.key,
+    required this.imagePaths,
+    required this.selectedIndex,
+    required this.imageWidth,
+    required this.imageHeight,
+    required this.scale,
+    required this.onChanged,
+    required this.onOpen,
+    required this.onScrollingChanged,
+  });
+
+  final List<String> imagePaths;
+  final int selectedIndex;
+  final double imageWidth;
+  final double imageHeight;
+  final double scale;
+  final ValueChanged<int> onChanged;
+  final ValueChanged<int> onOpen;
+  final ValueChanged<bool> onScrollingChanged;
+
+  @override
+  State<_MobileGalleryCarousel> createState() => _MobileGalleryCarouselState();
+}
+
+class _MobileGalleryCarouselState extends State<_MobileGalleryCarousel> {
+  late final PageController _controller;
+  late int _page;
+
+  int get _count => widget.imagePaths.length;
+
+  @override
+  void initState() {
+    super.initState();
+    _page = _count == 1 ? 0 : _count * 1000 + widget.selectedIndex;
+    _controller = PageController(initialPage: _page, viewportFraction: 0.66);
+  }
+
+  @override
+  void didUpdateWidget(covariant _MobileGalleryCarousel oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (_page % _count == widget.selectedIndex &&
+        oldWidget.imagePaths.length == _count) {
+      return;
+    }
+
+    // A lightbox can return a different photo. Jump directly to its equivalent
+    // virtual page; normal carousel changes already match the selected index.
+    final target = _count == 1
+        ? 0
+        : (_page ~/ _count) * _count + widget.selectedIndex;
+    _page = target;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted && _controller.hasClients) _controller.jumpToPage(target);
+    });
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  void step(int direction) => _animateTo(_page + direction);
+
+  void _animateTo(int page) {
+    if (_count <= 1 ||
+        !_controller.hasClients ||
+        _controller.position.isScrollingNotifier.value) {
+      return;
+    }
+    _controller.animateToPage(
+      page,
+      duration: const Duration(milliseconds: 420),
+      curve: Curves.easeOutCubic,
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return NotificationListener<ScrollNotification>(
+      onNotification: (notification) {
+        if (notification.depth != 0) return false;
+        if (notification is ScrollStartNotification) {
+          widget.onScrollingChanged(true);
+        } else if (notification is ScrollEndNotification) {
+          widget.onScrollingChanged(false);
+        }
+        return false;
+      },
+      child: PageView.builder(
+        controller: _controller,
+        itemCount: _count == 1 ? 1 : null,
+        physics: _count == 1 ? const NeverScrollableScrollPhysics() : null,
+        onPageChanged: (page) {
+          _page = page;
+          widget.onChanged(page % _count);
+        },
+        itemBuilder: (context, page) {
+          final index = page % _count;
+          return Center(
+            child: Semantics(
+              button: true,
+              label: 'Mở ảnh cưới ${index + 1}',
+              child: GestureDetector(
+                onTap: () {
+                  if (page == _page) {
+                    widget.onOpen(index);
+                  } else {
+                    _animateTo(page);
+                  }
+                },
+                child: _GalleryImage(
+                  imagePath: widget.imagePaths[index],
+                  width: widget.imageWidth,
+                  height: widget.imageHeight,
+                  scale: widget.scale,
+                  dim: false,
+                  lightweight: true,
+                ),
+              ),
+            ),
+          );
+        },
+      ),
+    );
+  }
+}
+
 class _Layer {
   _Layer({
     required this.index,
@@ -396,6 +588,7 @@ class _GalleryImage extends StatelessWidget {
     required this.height,
     required this.scale,
     required this.dim,
+    this.lightweight = false,
   });
 
   final String imagePath;
@@ -403,6 +596,7 @@ class _GalleryImage extends StatelessWidget {
   final double height;
   final double scale;
   final bool dim;
+  final bool lightweight;
 
   @override
   Widget build(BuildContext context) {
@@ -411,8 +605,15 @@ class _GalleryImage extends StatelessWidget {
       width: width,
       height: height,
       fit: BoxFit.cover,
-      filterQuality: FilterQuality.medium,
+      filterQuality: lightweight ? FilterQuality.low : FilterQuality.medium,
     );
+
+    if (lightweight) {
+      return ClipRRect(
+        borderRadius: BorderRadius.circular(16 * scale),
+        child: image,
+      );
+    }
 
     return Container(
       decoration: BoxDecoration(

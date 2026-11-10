@@ -2,6 +2,7 @@ import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
 
+import '../../widgets/scroll_visibility.dart';
 import 'qr_download_stub.dart'
     if (dart.library.js_interop) 'qr_download_web.dart';
 import '../section_theme.dart';
@@ -61,7 +62,10 @@ class _GiftBoxSectionState extends State<GiftBoxSection>
   AnimationController? _hoverController;
   bool _hasEntered = false;
   bool _isVisible = false;
-  ScrollPosition? _scrollPosition;
+  bool _dialogOpen = false;
+  bool _reduceMotion = false;
+  late final _viewportObserver = ScrollViewportObserver(_updateVisibility);
+  ScrollPosition? get _scrollPosition => _viewportObserver.position;
 
   @override
   void initState() {
@@ -80,17 +84,26 @@ class _GiftBoxSectionState extends State<GiftBoxSection>
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    final nextPosition = Scrollable.maybeOf(context)?.position;
-    if (identical(nextPosition, _scrollPosition)) return;
-    _scrollPosition?.removeListener(_updateVisibility);
-    _scrollPosition = nextPosition;
-    _scrollPosition?.addListener(_updateVisibility);
-    WidgetsBinding.instance.addPostFrameCallback((_) => _updateVisibility());
+    _reduceMotion = MediaQuery.disableAnimationsOf(context);
+    final previousPosition = _scrollPosition;
+    _viewportObserver.attach(context);
+    if (!identical(previousPosition, _scrollPosition)) {
+      previousPosition?.isScrollingNotifier.removeListener(
+        _updateIdleForScroll,
+      );
+      _scrollPosition?.isScrollingNotifier.addListener(_updateIdleForScroll);
+    }
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      _updateVisibility();
+      _updateIdleForScroll();
+    });
   }
 
   @override
   void dispose() {
-    _scrollPosition?.removeListener(_updateVisibility);
+    _viewportObserver.dispose();
+    _scrollPosition?.isScrollingNotifier.removeListener(_updateIdleForScroll);
     _entranceController.dispose();
     _idleController.dispose();
     _hoverController?.dispose();
@@ -103,38 +116,57 @@ class _GiftBoxSectionState extends State<GiftBoxSection>
         duration: const Duration(milliseconds: 1100),
       );
 
-  void _startGiftHover() => _hoverAnimationController.repeat();
+  void _startGiftHover() {
+    if (_isVisible && !_dialogOpen && !_reduceMotion) {
+      _hoverAnimationController.repeat();
+    }
+  }
 
-  void _stopGiftHover() => _hoverAnimationController.reset();
+  void _stopGiftHover() => _hoverController?.reset();
+
+  void _updateIdleForScroll() {
+    if (_reduceMotion ||
+        _dialogOpen ||
+        (_scrollPosition?.isScrollingNotifier.value ?? false)) {
+      _idleController.stop();
+      _stopGiftHover();
+    } else {
+      _startIdleIfVisible();
+    }
+  }
 
   void _updateVisibility() {
     if (!mounted) return;
-    final renderObject = context.findRenderObject();
-    if (renderObject is! RenderBox || !renderObject.hasSize) return;
-
-    final top = renderObject.localToGlobal(Offset.zero).dy;
-    final bottom = top + renderObject.size.height;
-    final viewportHeight = MediaQuery.sizeOf(context).height;
-    final isVisible = bottom > 0 && top < viewportHeight;
+    final isVisible = isInScrollViewport(context, _scrollPosition);
     if (isVisible == _isVisible) return;
     setState(() => _isVisible = isVisible);
 
     if (!_isVisible) {
       if (_idleController.isAnimating) _idleController.stop();
+      _stopGiftHover();
       return;
     }
 
     if (!_hasEntered) {
       _hasEntered = true;
-      _entranceController.forward().whenComplete(_startIdleIfVisible);
-    } else if (_entranceController.isCompleted &&
-        !_idleController.isAnimating) {
-      _idleController.repeat();
+      if (_reduceMotion) {
+        _entranceController.value = 1;
+      } else {
+        _entranceController.forward().whenComplete(_startIdleIfVisible);
+      }
+    } else {
+      _startIdleIfVisible();
     }
   }
 
   void _startIdleIfVisible() {
-    if (mounted && _isVisible && !_idleController.isAnimating) {
+    if (mounted &&
+        _isVisible &&
+        _entranceController.isCompleted &&
+        !_dialogOpen &&
+        !_reduceMotion &&
+        !(_scrollPosition?.isScrollingNotifier.value ?? false) &&
+        !_idleController.isAnimating) {
       _idleController.repeat();
     }
   }
@@ -149,7 +181,7 @@ class _GiftBoxSectionState extends State<GiftBoxSection>
         builder: (context, constraints) {
           final availableWidth = constraints.maxWidth.isFinite
               ? constraints.maxWidth
-              : MediaQuery.sizeOf(context).width;
+              : MediaQuery.widthOf(context);
           final compositionWidth = math
               .min(390 * scale, availableWidth * 0.9)
               .toDouble();
@@ -158,10 +190,9 @@ class _GiftBoxSectionState extends State<GiftBoxSection>
           final artworkWidth = math
               .min(170 * scale, compositionWidth * 0.46)
               .toDouble();
-          final sectionFade = CurvedAnimation(
-            parent: _entranceController,
+          final sectionFade = CurveTween(
             curve: const Interval(0, 0.84, curve: Curves.easeInOut),
-          );
+          ).animate(_entranceController);
 
           return FadeTransition(
             opacity: sectionFade,
@@ -190,10 +221,9 @@ class _GiftBoxSectionState extends State<GiftBoxSection>
                 ),
                 SizedBox(height: 4 * scale),
                 FadeTransition(
-                  opacity: CurvedAnimation(
-                    parent: _entranceController,
+                  opacity: CurveTween(
                     curve: const Interval(0.25, 0.9, curve: Curves.easeInOut),
-                  ),
+                  ).animate(_entranceController),
                   child: GestureDetector(
                     onTap: _toggle,
                     child: Padding(
@@ -238,99 +268,100 @@ class _GiftBoxSectionState extends State<GiftBoxSection>
     required double scale,
     required bool compactMotion,
   }) {
-    final entrance = CurvedAnimation(
-      parent: _entranceController,
+    final entrance = CurveTween(
       curve: const Interval(0.08, 0.88, curve: Curves.easeInOut),
-    );
+    ).animate(_entranceController);
 
-    return SizedBox(
-      width: width,
-      height: height,
-      child: Stack(
-        alignment: Alignment.center,
-        children: [
-          _giftDecoration(
-            'assets/images/decorations/present1.png',
-            size: 43 * scale,
-            left: width * 0.20,
-            top: height * 0.08,
-            phase: 0.3,
-            entranceStart: 0.1,
-            compactMotion: compactMotion,
-          ),
-          _giftDecoration(
-            'assets/images/decorations/present2.png',
-            size: 43 * scale,
-            right: width * 0.20,
-            top: height * 0.08,
-            phase: 2.1,
-            entranceStart: 0.18,
-            compactMotion: compactMotion,
-          ),
-          _giftDecoration(
-            'assets/images/decorations/present3.png',
-            size: 34 * scale,
-            left: width * 0.18,
-            top: height * 0.48,
-            phase: 4.0,
-            entranceStart: 0.26,
-            compactMotion: compactMotion,
-          ),
-          _giftDecoration(
-            'assets/images/decorations/present4.png',
-            size: 34 * scale,
-            right: width * 0.18,
-            top: height * 0.48,
-            phase: 1.4,
-            entranceStart: 0.34,
-            compactMotion: compactMotion,
-          ),
-          _giftDecoration(
-            'assets/images/decorations/present5.png',
-            size: 42 * scale,
-            left: width * 0.20,
-            bottom: height * 0.17,
-            phase: 3.1,
-            entranceStart: 0.42,
-            compactMotion: compactMotion,
-          ),
-          AnimatedBuilder(
-            animation: _idleController,
-            child: RepaintBoundary(
-              child: ScaleTransition(
-                scale: Tween<double>(begin: 0.9, end: 1).animate(entrance),
-                child: SlideTransition(
-                  position: Tween<Offset>(
-                    begin: const Offset(0, 0.04),
-                    end: Offset.zero,
-                  ).animate(entrance),
-                  child: GestureDetector(
-                    onTap: _toggle,
-                    child: MouseRegion(
-                      cursor: SystemMouseCursors.click,
-                      onEnter: (_) => _startGiftHover(),
-                      onExit: (_) => _stopGiftHover(),
-                      child: Image.asset(
-                        'assets/images/decorations/big_Present.png',
-                        width: giftWidth,
-                        fit: BoxFit.contain,
-                        excludeFromSemantics: true,
+    return RepaintBoundary(
+      child: SizedBox(
+        width: width,
+        height: height,
+        child: Stack(
+          alignment: Alignment.center,
+          children: [
+            _giftDecoration(
+              'assets/images/decorations/present1.png',
+              size: 43 * scale,
+              left: width * 0.20,
+              top: height * 0.08,
+              phase: 0.3,
+              entranceStart: 0.1,
+              compactMotion: compactMotion,
+            ),
+            _giftDecoration(
+              'assets/images/decorations/present2.png',
+              size: 43 * scale,
+              right: width * 0.20,
+              top: height * 0.08,
+              phase: 2.1,
+              entranceStart: 0.18,
+              compactMotion: compactMotion,
+            ),
+            _giftDecoration(
+              'assets/images/decorations/present3.png',
+              size: 34 * scale,
+              left: width * 0.18,
+              top: height * 0.48,
+              phase: 4.0,
+              entranceStart: 0.26,
+              compactMotion: compactMotion,
+            ),
+            _giftDecoration(
+              'assets/images/decorations/present4.png',
+              size: 34 * scale,
+              right: width * 0.18,
+              top: height * 0.48,
+              phase: 1.4,
+              entranceStart: 0.34,
+              compactMotion: compactMotion,
+            ),
+            _giftDecoration(
+              'assets/images/decorations/present5.png',
+              size: 42 * scale,
+              left: width * 0.20,
+              bottom: height * 0.17,
+              phase: 3.1,
+              entranceStart: 0.42,
+              compactMotion: compactMotion,
+            ),
+            AnimatedBuilder(
+              animation: _idleController,
+              child: RepaintBoundary(
+                child: ScaleTransition(
+                  scale: Tween<double>(begin: 0.9, end: 1).animate(entrance),
+                  child: SlideTransition(
+                    position: Tween<Offset>(
+                      begin: const Offset(0, 0.04),
+                      end: Offset.zero,
+                    ).animate(entrance),
+                    child: GestureDetector(
+                      onTap: _toggle,
+                      child: MouseRegion(
+                        cursor: SystemMouseCursors.click,
+                        onEnter: (_) => _startGiftHover(),
+                        onExit: (_) => _stopGiftHover(),
+                        child: Image.asset(
+                          'assets/images/decorations/big_Present.png',
+                          width: giftWidth,
+                          fit: BoxFit.contain,
+                          excludeFromSemantics: true,
+                        ),
                       ),
                     ),
                   ),
                 ),
               ),
+              builder: (context, child) {
+                final float =
+                    math.sin(_idleController.value * math.pi * 2) * 5 * scale;
+                return Transform.translate(
+                  offset: Offset(0, float),
+                  child: child,
+                );
+              },
             ),
-            builder: (context, child) {
-              final float =
-                  math.sin(_idleController.value * math.pi * 2) * 5 * scale;
-              return Transform.translate(
-                offset: Offset(0, float),
-                child: child,
-              );
-            },
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
@@ -346,14 +377,13 @@ class _GiftBoxSectionState extends State<GiftBoxSection>
     double? top,
     double? bottom,
   }) {
-    final entrance = CurvedAnimation(
-      parent: _entranceController,
+    final entrance = CurveTween(
       curve: Interval(
         entranceStart,
         math.min(entranceStart + 0.48, 1),
         curve: Curves.easeInOut,
       ),
-    );
+    ).animate(_entranceController);
     Widget decoration = FadeTransition(
       opacity: entrance,
       child: ScaleTransition(
@@ -447,12 +477,18 @@ class _GiftBoxSectionState extends State<GiftBoxSection>
     );
   }
 
-  void _toggle() {
-    showDialog<void>(
+  Future<void> _toggle() async {
+    if (_dialogOpen) return;
+    _dialogOpen = true;
+    _idleController.stop();
+    _stopGiftHover();
+    await showDialog<void>(
       context: context,
       barrierColor: const Color(0xB3000000),
       builder: (dialogContext) => _GiftQrDialog(accounts: widget.accounts),
     );
+    _dialogOpen = false;
+    _startIdleIfVisible();
   }
 }
 
@@ -466,7 +502,7 @@ class _GiftQrDialog extends StatelessWidget {
     const groomQr = 'assets/images/gallery/qr_hus.jpeg';
     const brideQr = 'assets/images/gallery/qr_Wife.jpeg';
     final dialogWidth = math
-        .min(560.0, MediaQuery.sizeOf(context).width - 24)
+        .min(560.0, MediaQuery.widthOf(context) - 24)
         .toDouble();
     final uiScale = (dialogWidth / 520).clamp(0.72, 1.0).toDouble();
     final groom = accounts.isNotEmpty

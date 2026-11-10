@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 
 import '../../../data/guestbook_entry.dart';
 import '../../../data/guestbook_repository.dart';
+import '../../widgets/scroll_visibility.dart';
 import '../section_theme.dart';
 import 'widgets/guestbook_entry_card.dart';
 import 'widgets/guestbook_form.dart';
@@ -24,12 +25,14 @@ class _GuestbookSectionState extends State<GuestbookSection> {
   List<GuestbookEntry> _entries = const [];
   bool _isLoading = true;
   bool _hasStartedLoading = false;
+  bool _isVisible = false;
   Object? _loadError;
-  ScrollPosition? _scrollPosition;
+  late final _viewportObserver = ScrollViewportObserver(_updateVisibility);
+  ScrollPosition? get _scrollPosition => _viewportObserver.position;
 
   @override
   void dispose() {
-    _scrollPosition?.removeListener(_updateVisibility);
+    _viewportObserver.dispose();
     _entryScrollController.dispose();
     super.dispose();
   }
@@ -43,27 +46,17 @@ class _GuestbookSectionState extends State<GuestbookSection> {
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    final nextPosition = Scrollable.maybeOf(context)?.position;
-    if (identical(nextPosition, _scrollPosition)) return;
-    _scrollPosition?.removeListener(_updateVisibility);
-    _scrollPosition = nextPosition;
-    _scrollPosition?.addListener(_updateVisibility);
+    _viewportObserver.attach(context);
     WidgetsBinding.instance.addPostFrameCallback((_) => _updateVisibility());
   }
 
   void _updateVisibility() {
-    if (!mounted || _hasStartedLoading) return;
-    final renderObject = context.findRenderObject();
-    if (renderObject is! RenderBox || !renderObject.hasSize) return;
-
-    final top = renderObject.localToGlobal(Offset.zero).dy;
-    final bottom = top + renderObject.size.height;
-    if (bottom <= 0 || top >= MediaQuery.sizeOf(context).height) return;
-
+    if (!mounted) return;
+    final visible = isInScrollViewport(context, _scrollPosition);
+    if (visible != _isVisible) setState(() => _isVisible = visible);
+    if (!visible || _hasStartedLoading) return;
     _hasStartedLoading = true;
     unawaited(_loadEntries());
-    _scrollPosition?.removeListener(_updateVisibility);
-    _scrollPosition = null;
   }
 
   Future<void> _loadEntries() async {
@@ -132,7 +125,10 @@ class _GuestbookSectionState extends State<GuestbookSection> {
                   SizedBox(height: formWidth * 0.10),
                   Align(
                     alignment: Alignment.center,
-                    child: _buildEntryList(listWidth),
+                    child: TickerMode(
+                      enabled: _isVisible,
+                      child: _buildEntryList(listWidth),
+                    ),
                   ),
                 ],
               ),
@@ -144,6 +140,9 @@ class _GuestbookSectionState extends State<GuestbookSection> {
   }
 
   Widget _buildEntryList(double width) {
+    if (!_hasStartedLoading) {
+      return SizedBox(height: 68 * widget.scale);
+    }
     if (_isLoading) {
       return Padding(
         padding: EdgeInsets.symmetric(vertical: 24 * widget.scale),

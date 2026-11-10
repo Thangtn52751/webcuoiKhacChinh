@@ -46,7 +46,7 @@ class PartySectionActions extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final s = scale;
-    final isCompact = MediaQuery.sizeOf(context).width < 600;
+    final isCompact = MediaQuery.widthOf(context) < 600;
     final linkStyle = TextStyle(
       fontSize: isCompact ? 14 : 14 * s,
       fontStyle: FontStyle.italic,

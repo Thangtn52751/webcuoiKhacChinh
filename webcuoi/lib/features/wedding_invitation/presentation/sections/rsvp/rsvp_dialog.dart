@@ -325,13 +325,18 @@ class _AttendanceOption extends StatelessWidget {
                 ),
               ),
               const SizedBox(width: 9),
-              Text(
-                label,
-                style: TextStyle(
-                  color: _RsvpDialogState._ink,
-                  fontFamily: SectionTheme.fontFamilyFor(context),
-                  fontSize: 10.5,
-                  fontWeight: SectionTheme.weightFor(context, FontWeight.w600),
+              Flexible(
+                child: Text(
+                  label,
+                  style: TextStyle(
+                    color: _RsvpDialogState._ink,
+                    fontFamily: SectionTheme.fontFamilyFor(context),
+                    fontSize: 10.5,
+                    fontWeight: SectionTheme.weightFor(
+                      context,
+                      FontWeight.w600,
+                    ),
+                  ),
                 ),
               ),
             ],

@@ -12,7 +12,7 @@ class WeddingCalendarCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final isCompact = MediaQuery.sizeOf(context).width < 600;
+    final isCompact = MediaQuery.widthOf(context) < 600;
     final calendarScale = isCompact ? 0.8 : scale;
     final textScale = isCompact ? 1.1 : (scale > 1 ? scale * 0.9 : scale);
     final weddingDay = DateTime(2026, 12, 13);

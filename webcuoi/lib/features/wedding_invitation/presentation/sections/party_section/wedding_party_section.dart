@@ -2,6 +2,7 @@ import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
 
+import '../../widgets/scroll_visibility.dart';
 import 'widgets/party_section_actions.dart';
 import 'widgets/wedding_calendar_card.dart';
 import 'widgets/wedding_event_information.dart';
@@ -17,7 +18,8 @@ class WeddingPartySection extends StatefulWidget {
 
 class _WeddingPartySectionState extends State<WeddingPartySection> {
   bool _isVisible = false;
-  ScrollPosition? _scrollPosition;
+  late final _viewportObserver = ScrollViewportObserver(_updateVisibility);
+  ScrollPosition? get _scrollPosition => _viewportObserver.position;
 
   static const _artworkWidth = 900.0;
   static const _artworkHeight = 1077.0;
@@ -35,28 +37,19 @@ class _WeddingPartySectionState extends State<WeddingPartySection> {
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    final nextPosition = Scrollable.maybeOf(context)?.position;
-    if (identical(nextPosition, _scrollPosition)) return;
-    _scrollPosition?.removeListener(_updateVisibility);
-    _scrollPosition = nextPosition;
-    _scrollPosition?.addListener(_updateVisibility);
+    _viewportObserver.attach(context);
     WidgetsBinding.instance.addPostFrameCallback((_) => _updateVisibility());
   }
 
   @override
   void dispose() {
-    _scrollPosition?.removeListener(_updateVisibility);
+    _viewportObserver.dispose();
     super.dispose();
   }
 
   void _updateVisibility() {
     if (!mounted) return;
-    final renderObject = context.findRenderObject();
-    if (renderObject is! RenderBox || !renderObject.hasSize) return;
-
-    final top = renderObject.localToGlobal(Offset.zero).dy;
-    final bottom = top + renderObject.size.height;
-    final visible = bottom > 0 && top < MediaQuery.sizeOf(context).height;
+    final visible = isInScrollViewport(context, _scrollPosition);
     if (visible == _isVisible) return;
     setState(() => _isVisible = visible);
   }
@@ -64,7 +57,7 @@ class _WeddingPartySectionState extends State<WeddingPartySection> {
   @override
   Widget build(BuildContext context) {
     final scale = widget.scale;
-    final screenWidth = MediaQuery.sizeOf(context).width;
+    final screenWidth = MediaQuery.widthOf(context);
     final isCompact = screenWidth < 600;
 
     return Padding(

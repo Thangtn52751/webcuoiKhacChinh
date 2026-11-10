@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 
 import '../sections/section_theme.dart';
 import '../widgets/falling_leaves_layer.dart';
+import '../wedding_music.dart';
 import 'wedding_invitation_page.dart';
 
 class WeddingCoverPage extends StatefulWidget {
@@ -53,37 +54,37 @@ class _WeddingCoverPageState extends State<WeddingCoverPage>
     if (_isOpening) return;
     setState(() => _isOpening = true);
     unawaited(
-      _musicPlayer.play(AssetSource('audio/music.mp3')).catchError((
-        Object error,
-      ) {
-        debugPrint('Could not start wedding music: $error');
-      }),
+      _musicPlayer
+          .play(
+            AssetSource(weddingMusicAssetForWidth(MediaQuery.widthOf(context))),
+          )
+          .catchError((Object error) {
+            debugPrint('Could not start wedding music: $error');
+          }),
     );
     await _openController.forward();
     if (!mounted) return;
 
     _musicPlayerTransferred = true;
+    final isMobile = MediaQuery.widthOf(context) <= 720;
     Navigator.of(context).pushReplacement<void, void>(
       PageRouteBuilder<void>(
-        transitionDuration: const Duration(milliseconds: 700),
+        transitionDuration: Duration(milliseconds: isMobile ? 260 : 700),
         reverseTransitionDuration: const Duration(milliseconds: 450),
         pageBuilder: (context, animation, secondaryAnimation) =>
             WeddingInvitationPage(musicPlayer: _musicPlayer),
         transitionsBuilder: (context, animation, secondaryAnimation, child) {
-          final fade = CurvedAnimation(
-            parent: animation,
+          final fade = CurveTween(
             curve: const Interval(0, 0.86, curve: Curves.easeOutCubic),
-          );
-          final entrance = CurvedAnimation(
-            parent: animation,
-            curve: Curves.easeOutCubic,
-          );
-          final scale = Tween<double>(begin: 0.975, end: 1).animate(
-            CurvedAnimation(
-              parent: animation,
-              curve: const Interval(0, 1, curve: Curves.easeOutCubic),
-            ),
-          );
+          ).animate(animation);
+          if (isMobile) return FadeTransition(opacity: fade, child: child);
+
+          final entrance = CurveTween(curve: Curves.easeOutCubic)
+              .animate(animation);
+          final scale = Tween<double>(
+            begin: 0.975,
+            end: 1,
+          ).chain(CurveTween(curve: Curves.easeOutCubic)).animate(animation);
 
           return FadeTransition(
             opacity: fade,
@@ -102,7 +103,7 @@ class _WeddingCoverPageState extends State<WeddingCoverPage>
 
   @override
   Widget build(BuildContext context) {
-    final isMobile = MediaQuery.sizeOf(context).width <= 720;
+    final isMobile = MediaQuery.widthOf(context) <= 720;
 
     return Scaffold(
       backgroundColor: WeddingCoverPage._background,

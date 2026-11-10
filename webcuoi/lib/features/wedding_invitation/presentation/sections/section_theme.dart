@@ -11,7 +11,7 @@ class SectionTheme {
   static const Color hairline = Color(0xFFD8C9B6);
 
   static bool isCompact(BuildContext context) =>
-      MediaQuery.sizeOf(context).width < 600;
+      MediaQuery.widthOf(context) < 600;
 
   static String fontFamilyFor(BuildContext context) =>
       isCompact(context) ? mobileFontFamily : fontFamily;
