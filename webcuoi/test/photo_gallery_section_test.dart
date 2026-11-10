@@ -15,6 +15,61 @@ const _thumbnails = [
 ];
 
 void main() {
+  testWidgets('mobile album centers one portrait between external arrows', (
+    tester,
+  ) async {
+    for (final width in [320.0, 375.0, 390.0, 430.0, 570.0]) {
+      await _pumpGallery(tester, width: width);
+      final label = '$width px';
+      final imageFinder = _thumbnailImages().hitTestable();
+      expect(imageFinder, findsOneWidget, reason: label);
+      final image = tester.getRect(imageFinder);
+      final previous = tester.getRect(
+        find.byKey(const ValueKey('gallery_previous')),
+      );
+      final next = tester.getRect(find.byKey(const ValueKey('gallery_next')));
+
+      // PageView rounds its fractional viewport size to a logical pixel.
+      expect(image.center.dx, closeTo(width / 2, 1), reason: label);
+      expect(image.width, lessThanOrEqualTo(260), reason: label);
+      expect(
+        image.width / image.height,
+        closeTo(13 / 18, 0.001),
+        reason: label,
+      );
+      expect(previous.right, lessThanOrEqualTo(image.left), reason: label);
+      expect(next.left, greaterThanOrEqualTo(image.right), reason: label);
+      expect(previous.left, greaterThanOrEqualTo(0), reason: label);
+      expect(next.right, lessThanOrEqualTo(width), reason: label);
+      expect(previous.center.dy, closeTo(image.center.dy, 1), reason: label);
+      expect(next.center.dy, closeTo(image.center.dy, 1), reason: label);
+      expect(
+        tester.getRect(find.text('1 / 3')).top,
+        greaterThan(image.bottom),
+        reason: label,
+      );
+      expect(tester.takeException(), isNull, reason: label);
+      await tester.pumpWidget(const SizedBox.shrink());
+    }
+  });
+
+  testWidgets('mobile album arrows move in both directions and wrap', (
+    tester,
+  ) async {
+    await _pumpGallery(tester);
+    await tester.tap(find.byKey(const ValueKey('gallery_previous')));
+    await tester.pumpAndSettle();
+    expect(find.text('3 / 3'), findsOneWidget);
+    await tester.tap(find.byKey(const ValueKey('gallery_next')));
+    await tester.pumpAndSettle();
+    expect(find.text('1 / 3'), findsOneWidget);
+    await tester.tap(find.byKey(const ValueKey('gallery_next')));
+    await tester.pumpAndSettle();
+    expect(find.text('2 / 3'), findsOneWidget);
+    expect(tester.takeException(), isNull);
+    await tester.pumpWidget(const SizedBox.shrink());
+  });
+
   testWidgets(
     'mobile album swipes and advances every three seconds cyclically',
     (tester) async {
@@ -22,7 +77,7 @@ void main() {
       expect(find.text('1 / 3'), findsOneWidget);
       expect(_thumbnailImages().evaluate().length, lessThanOrEqualTo(3));
 
-      await tester.drag(find.byType(PageView), const Offset(-240, 0));
+      await tester.drag(find.byType(PageView), const Offset(-180, 0));
       await tester.pumpAndSettle();
       expect(find.text('2 / 3'), findsOneWidget);
 
@@ -143,9 +198,9 @@ Finder _thumbnailImages() => find.byWidgetPredicate(
       (widget.image as AssetImage).assetName.contains('/thumbnails/'),
 );
 
-Future<void> _pumpGallery(WidgetTester tester) async {
+Future<void> _pumpGallery(WidgetTester tester, {double width = 390}) async {
   tester.view.devicePixelRatio = 1;
-  tester.view.physicalSize = const Size(390, 800);
+  tester.view.physicalSize = Size(width, 800);
   addTearDown(tester.view.resetPhysicalSize);
   addTearDown(tester.view.resetDevicePixelRatio);
   tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.resumed);

@@ -1,14 +1,13 @@
 import 'dart:async';
+import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
 
 import '../../widgets/scroll_visibility.dart';
 import '../section_theme.dart';
 
-/// Section 3 — ALBUM ẢNH (coverflow theo Figma):
-/// Ảnh giữa to, đứng thẳng, bo góc lớn (không viền polaroid). Hai bên là các
-/// lớp ảnh nhỏ dần, mờ dần và CHỒNG LỚP lên nhau (ảnh gần tâm đè lên ảnh xa).
-/// Hỗ trợ vuốt ngang và tự chuyển ảnh mỗi 3 giây.
+/// Mobile uses one framed portrait; desktop keeps the layered coverflow.
+/// Both layouts support swiping, autoplay and opening the original photo.
 class PhotoGallerySection extends StatefulWidget {
   const PhotoGallerySection({
     super.key,
@@ -233,83 +232,151 @@ class _PhotoGallerySectionState extends State<PhotoGallerySection>
   }
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context) => LayoutBuilder(
+    builder: (context, constraints) =>
+        _buildAlbum(context, constraints.maxWidth),
+  );
+
+  Widget _buildAlbum(BuildContext context, double availableWidth) {
     final scale = widget.scale;
     final count = widget.imagePaths.length;
     final isMobile = MediaQuery.widthOf(context) <= 720;
-    final centerW = 300.0 * scale;
-    final centerH = 400.0 * scale;
-    final carouselHeight = centerH + 24 * scale;
+    final centerW = isMobile
+        ? math.max(
+            0.0,
+            math.min(
+              260.0,
+              math.min(availableWidth * 0.66, availableWidth - 108),
+            ),
+          )
+        : 300.0 * scale;
+    final centerH = isMobile ? centerW * 18 / 13 : 400.0 * scale;
+    final carouselHeight = isMobile ? centerH : centerH + 24 * scale;
 
-    return Padding(
-      padding: EdgeInsets.symmetric(vertical: 36 * scale),
-      child: Column(
-        children: [
-          Text('ALBUM \u{1EA2}NH', style: SectionTheme.label(scale)),
-          SizedBox(height: 28 * scale),
+    return SizedBox(
+      width: isMobile ? availableWidth : null,
+      child: Padding(
+        padding: isMobile
+            ? const EdgeInsets.only(top: 40, bottom: 20)
+            : EdgeInsets.symmetric(vertical: 36 * scale),
+        child: Column(
+          children: [
+            Text(
+              'ALBUM \u{1EA2}NH',
+              style: isMobile
+                  ? SectionTheme.label(scale).copyWith(
+                      fontFamily: SectionTheme.fontFamily,
+                      fontSize: 14,
+                      fontWeight: FontWeight.w700,
+                      height: 1.2,
+                      letterSpacing: 0.3,
+                    )
+                  : SectionTheme.label(scale),
+            ),
+            SizedBox(height: isMobile ? 28 : 28 * scale),
 
-          SizedBox(
-            height: carouselHeight,
-            child: !_isVisible || count == 0
-                ? const SizedBox.expand()
-                : isMobile
-                ? _MobileGalleryCarousel(
-                    key: _mobileCarouselKey,
-                    imagePaths: List.generate(count, _carouselImagePath),
-                    selectedIndex: _current,
-                    imageWidth: centerW,
-                    imageHeight: centerH,
-                    scale: scale,
-                    onChanged: _onMobilePageChanged,
-                    onOpen: _openLightbox,
-                    onScrollingChanged: _onCarouselScrollingChanged,
-                  )
-                : GestureDetector(
-                    behavior: HitTestBehavior.translucent,
-                    onHorizontalDragStart: (_) => _dragDistance = 0,
-                    onHorizontalDragUpdate: (details) {
-                      _dragDistance += details.delta.dx;
-                    },
-                    onHorizontalDragEnd: (_) {
-                      if (_dragDistance.abs() >= 36 * scale) {
-                        _step(_dragDistance < 0 ? 1 : -1);
-                      }
-                      _dragDistance = 0;
-                    },
-                    child: LayoutBuilder(
-                      builder: (context, constraints) {
-                        return SizedBox(
-                          width: constraints.maxWidth,
-                          height: carouselHeight,
-                          child: AnimatedBuilder(
-                            animation: _animation,
-                            builder: (context, child) => Stack(
-                              alignment: Alignment.center,
-                              clipBehavior: Clip.none,
-                              children: _buildLayers(
-                                scale,
-                                centerW,
-                                centerH,
-                                count,
+            SizedBox(
+              height: carouselHeight,
+              child: !_isVisible || count == 0
+                  ? const SizedBox.expand()
+                  : isMobile
+                  ? Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        _GalleryNavigationButton(
+                          key: const ValueKey('gallery_previous'),
+                          label: 'Ảnh trước',
+                          icon: Icons.chevron_left_rounded,
+                          onPressed: count > 1 ? () => _step(-1) : null,
+                        ),
+                        const SizedBox(width: 10),
+                        Container(
+                          width: centerW,
+                          height: centerH,
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(16 * scale),
+                            boxShadow: const [
+                              BoxShadow(
+                                color: Color(0x265A473B),
+                                blurRadius: 14,
+                                offset: Offset(0, 6),
+                              ),
+                            ],
+                          ),
+                          child: _MobileGalleryCarousel(
+                            key: _mobileCarouselKey,
+                            imagePaths: List.generate(
+                              count,
+                              _carouselImagePath,
+                            ),
+                            selectedIndex: _current,
+                            imageWidth: centerW,
+                            imageHeight: centerH,
+                            scale: scale,
+                            onChanged: _onMobilePageChanged,
+                            onOpen: _openLightbox,
+                            onScrollingChanged: _onCarouselScrollingChanged,
+                          ),
+                        ),
+                        const SizedBox(width: 10),
+                        _GalleryNavigationButton(
+                          key: const ValueKey('gallery_next'),
+                          label: 'Ảnh tiếp theo',
+                          icon: Icons.chevron_right_rounded,
+                          onPressed: count > 1 ? () => _step(1) : null,
+                        ),
+                      ],
+                    )
+                  : GestureDetector(
+                      behavior: HitTestBehavior.translucent,
+                      onHorizontalDragStart: (_) => _dragDistance = 0,
+                      onHorizontalDragUpdate: (details) {
+                        _dragDistance += details.delta.dx;
+                      },
+                      onHorizontalDragEnd: (_) {
+                        if (_dragDistance.abs() >= 36 * scale) {
+                          _step(_dragDistance < 0 ? 1 : -1);
+                        }
+                        _dragDistance = 0;
+                      },
+                      child: LayoutBuilder(
+                        builder: (context, constraints) {
+                          return SizedBox(
+                            width: constraints.maxWidth,
+                            height: carouselHeight,
+                            child: AnimatedBuilder(
+                              animation: _animation,
+                              builder: (context, child) => Stack(
+                                alignment: Alignment.center,
+                                clipBehavior: Clip.none,
+                                children: _buildLayers(
+                                  scale,
+                                  centerW,
+                                  centerH,
+                                  count,
+                                ),
                               ),
                             ),
-                          ),
-                        );
-                      },
+                          );
+                        },
+                      ),
                     ),
-                  ),
-          ),
-
-          SizedBox(height: 20 * scale),
-          Text(
-            '${count == 0 ? 0 : _current + 1} / $count',
-            style: SectionTheme.body(scale).copyWith(
-              fontSize: 14 * scale,
-              color: SectionTheme.inkSoft,
-              letterSpacing: 1 * scale,
             ),
-          ),
-        ],
+
+            SizedBox(height: isMobile ? 30 : 20 * scale),
+            Text(
+              '${count == 0 ? 0 : _current + 1} / $count',
+              style: SectionTheme.body(scale).copyWith(
+                fontFamily: isMobile ? SectionTheme.fontFamily : null,
+                fontSize: isMobile ? 10 : 14 * scale,
+                color: isMobile
+                    ? SectionTheme.inkSoft.withValues(alpha: 0.65)
+                    : SectionTheme.inkSoft,
+                letterSpacing: isMobile ? 0.4 : 1 * scale,
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -432,6 +499,41 @@ class _PhotoGallerySectionState extends State<PhotoGallerySection>
   }
 }
 
+/// Small visible circles keep the reference layout, with a 44px touch target.
+class _GalleryNavigationButton extends StatelessWidget {
+  const _GalleryNavigationButton({
+    super.key,
+    required this.label,
+    required this.icon,
+    required this.onPressed,
+  });
+
+  final String label;
+  final IconData icon;
+  final VoidCallback? onPressed;
+
+  @override
+  Widget build(BuildContext context) => SizedBox.square(
+    dimension: 44,
+    child: IconButton(
+      tooltip: label,
+      onPressed: onPressed,
+      padding: EdgeInsets.zero,
+      icon: Container(
+        width: 24,
+        height: 24,
+        decoration: BoxDecoration(
+          color: onPressed == null
+              ? const Color(0xFFABA49D)
+              : const Color(0xFF716C67),
+          shape: BoxShape.circle,
+        ),
+        child: Icon(icon, color: Colors.white, size: 18),
+      ),
+    ),
+  );
+}
+
 /// Native paging keeps mobile scrolling on the viewport's scroll path instead
 /// of rebuilding five filtered image layers for every animation frame.
 class _MobileGalleryCarousel extends StatefulWidget {
@@ -470,7 +572,7 @@ class _MobileGalleryCarouselState extends State<_MobileGalleryCarousel> {
   void initState() {
     super.initState();
     _page = _count == 1 ? 0 : _count * 1000 + widget.selectedIndex;
-    _controller = PageController(initialPage: _page, viewportFraction: 0.66);
+    _controller = PageController(initialPage: _page);
   }
 
   @override
