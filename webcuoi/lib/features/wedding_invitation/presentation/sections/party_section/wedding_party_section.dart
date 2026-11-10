@@ -67,93 +67,35 @@ class _WeddingPartySectionState extends State<WeddingPartySection> {
           final availableWidth = constraints.maxWidth.isFinite
               ? constraints.maxWidth
               : screenWidth;
-          if (isCompact) {
-            return _buildMobileCard(availableWidth, scale);
-          }
-          final cardWidthFraction = 1 - _cardLeft - _cardRight;
-          final artworkWidth = math
-              .min(_artworkWidth * scale, availableWidth)
-              .toDouble();
-          final artworkHeight = artworkWidth * _artworkHeight / _artworkWidth;
-          final horizontalInset = 18 * scale;
-          final cardWidth = artworkWidth * cardWidthFraction;
-          final cardLeft = (availableWidth - cardWidth) / 2;
-          final artworkLeft = cardLeft - artworkWidth * _cardLeft;
-          final contentWidth = cardWidth - horizontalInset * 2;
-          final calendarWidth = math
-              .min(contentWidth * 0.45, contentWidth)
-              .toDouble();
-
-          return Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              SizedBox(
-                width: availableWidth,
-                height: artworkHeight,
-                child: Stack(
-                  clipBehavior: Clip.none,
-                  children: [
-                    if (_isVisible)
-                      Positioned(
-                        left: artworkLeft,
-                        top: 0,
-                        width: artworkWidth,
-                        height: artworkHeight,
-                        child: IgnorePointer(
-                          child: Image.asset(
-                            'assets/images/decorations/Group_5.png',
-                            fit: BoxFit.fill,
-                            excludeFromSemantics: true,
-                          ),
-                        ),
-                      ),
-                    Positioned(
-                      left: cardLeft + horizontalInset,
-                      right:
-                          availableWidth -
-                          cardLeft -
-                          cardWidth +
-                          horizontalInset,
-                      top: artworkHeight * _cardTop + 20 * scale,
-                      bottom: artworkHeight * _cardBottom + 18 * scale,
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          WeddingEventInformation(scale: scale),
-                          SizedBox(
-                            width: calendarWidth,
-                            child: WeddingCalendarCard(scale: scale),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              SizedBox(height: 18 * scale),
-              PartySectionActions(scale: scale),
-            ],
-          );
+          return _buildCard(availableWidth, scale, isCompact: isCompact);
         },
       ),
     );
   }
 
-  Widget _buildMobileCard(double availableWidth, double scale) {
+  Widget _buildCard(
+    double availableWidth,
+    double scale, {
+    required bool isCompact,
+  }) {
     final cardWidthFraction = 1 - _cardLeft - _cardRight;
     final artworkWidth = math.min(
       _artworkWidth * scale,
-      availableWidth * 0.88 / cardWidthFraction,
+      isCompact ? availableWidth * 0.88 / cardWidthFraction : availableWidth,
     );
     final naturalArtworkHeight = artworkWidth * _artworkHeight / _artworkWidth;
     final cardWidth = artworkWidth * cardWidthFraction;
     final cardLeft = (availableWidth - cardWidth) / 2;
-    final contentInset = (cardWidth * 0.05).clamp(14.0, 20.0);
+    final contentInset = isCompact
+        ? (cardWidth * 0.05).clamp(14.0, 20.0)
+        : 18 * scale;
     final contentWidth = cardWidth - contentInset * 2;
+    final calendarWidth = isCompact
+        ? math.min(280.0, contentWidth * 0.94)
+        : math.min(360 * scale, contentWidth * 0.8);
 
-    // Let text, calendar and actions determine the mobile card height. The
-    // artwork remains behind the content instead of distributing spare height
-    // between the event information and calendar.
+    // Content determines the card height on every screen. Keep the calendar
+    // and actions in the same flow so spare artwork height cannot separate them.
     return SizedBox(
       width: availableWidth,
       child: Stack(
@@ -176,20 +118,21 @@ class _WeddingPartySectionState extends State<WeddingPartySection> {
           Padding(
             padding: EdgeInsets.fromLTRB(
               cardLeft + contentInset,
-              naturalArtworkHeight * _cardTop + 20,
+              naturalArtworkHeight * _cardTop + (isCompact ? 20 : 20 * scale),
               cardLeft + contentInset,
-              naturalArtworkHeight * _cardBottom + 28,
+              naturalArtworkHeight * _cardBottom +
+                  (isCompact ? 28 : 28 * scale),
             ),
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
                 WeddingEventInformation(scale: scale),
-                const SizedBox(height: 20),
+                SizedBox(height: isCompact ? 20 : 24 * scale),
                 SizedBox(
-                  width: math.min(280.0, contentWidth * 0.94),
+                  width: calendarWidth,
                   child: WeddingCalendarCard(scale: scale),
                 ),
-                const SizedBox(height: 10),
+                SizedBox(height: isCompact ? 10 : 12 * scale),
                 PartySectionActions(scale: scale),
               ],
             ),

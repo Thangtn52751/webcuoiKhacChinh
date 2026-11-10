@@ -515,7 +515,7 @@ class _ToggleSegment extends StatelessWidget {
               ),
               const SizedBox(width: 6),
               Text(
-                label,
+                label,  
                 style: TextStyle(
                   color: selected ? Colors.white : SectionTheme.inkSoft,
                   fontFamily: SectionTheme.fontFamilyFor(context),
