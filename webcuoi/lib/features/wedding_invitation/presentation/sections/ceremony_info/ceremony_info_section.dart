@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 
 import '../section_theme.dart';
 
-/// Family and ceremony details placed over the supplied info card artwork.
+/// Wedding announcement and ceremony details over the supplied card artwork.
 class CeremonyInfoSection extends StatelessWidget {
   const CeremonyInfoSection({super.key, required this.scale});
 
@@ -29,24 +29,28 @@ class CeremonyInfoSection extends StatelessWidget {
       imageWidth / _artworkWidth,
       isCompact ? 0.62 : (scale * 0.9).clamp(0.65, 1.0),
     );
-    final familyGroupWidth = imageWidth * (isCompact ? 0.32 : 0.24);
-    final familyDividerGap = isCompact ? 8.0 : 12 * textScale;
     final cardWidth = imageWidth * _cardWidthFraction;
+    final nameStyle = TextStyle(
+      fontFamily: SectionTheme.nameFontFamily,
+      fontSize: (cardWidth * 0.11).clamp(32.0, 64.0),
+      fontWeight: FontWeight.w400,
+      color: SectionTheme.ink,
+      height: 1.3,
+    );
 
     return Padding(
       padding: EdgeInsets.symmetric(vertical: 24 * scale),
       child: Center(
         child: SizedBox(
           width: cardWidth,
-          height: imageHeight,
           child: Stack(
             clipBehavior: Clip.none,
             children: [
               Positioned(
                 left: -imageWidth * _cardLeftFraction,
                 top: 0,
+                bottom: 0,
                 width: imageWidth,
-                height: imageHeight,
                 child: Stack(
                   fit: StackFit.expand,
                   children: [
@@ -74,165 +78,176 @@ class CeremonyInfoSection extends StatelessWidget {
                       fit: BoxFit.fill,
                       excludeFromSemantics: true,
                     ),
-                    _positionedText(
-                      imageWidth: imageWidth,
-                      imageHeight: imageHeight,
-                      top: 0.06,
-                      text: 'THÔNG TIN LỄ CƯỚI',
-                      fontSize: 17,
-                      weight: FontWeight.w700,
-                      color: SectionTheme.ink,
-                      letterSpacing: 0.5,
-                      scale: textScale,
-                    ),
-                    Positioned(
-                      top: imageHeight * 0.105,
-                      left: imageWidth * _cardLeftFraction,
-                      right:
-                          imageWidth *
-                          (1 - _cardLeftFraction - _cardWidthFraction),
-                      child: Center(
-                        child: IntrinsicHeight(
-                          child: Row(
-                            mainAxisSize: MainAxisSize.min,
-                            crossAxisAlignment: CrossAxisAlignment.stretch,
-                            children: [
-                              SizedBox(
-                                width: familyGroupWidth,
-                                child: _familyText(
-                                  'Nhà trai',
-                                  'Nguyễn Khắc Phác\nNguyễn Thị Chung',
-                                  textScale,
-                                  nameAlignment: TextAlign.right,
+                  ],
+                ),
+              ),
+              ConstrainedBox(
+                constraints: BoxConstraints(minWidth: cardWidth),
+                child: Padding(
+                  padding: EdgeInsets.fromLTRB(
+                    isCompact ? 18 : 28 * textScale,
+                    isCompact ? 28 : 40 * textScale,
+                    isCompact ? 18 : 28 * textScale,
+                    isCompact ? 28 : 40 * textScale,
+                  ),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Semantics(
+                        header: true,
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Text(
+                              'TRÂN TRỌNG BÁO TIN',
+                              textAlign: TextAlign.center,
+                              style: TextStyle(
+                                fontFamily: SectionTheme.fontFamily,
+                                fontSize: isCompact ? 12 : 14 * textScale,
+                                fontWeight: FontWeight.w500,
+                                color: SectionTheme.inkSoft,
+                                height: 1.2,
+                                letterSpacing: isCompact ? 1 : 1.5 * textScale,
+                              ),
+                            ),
+                            SizedBox(height: isCompact ? 4 : 6 * textScale),
+                            FittedBox(
+                              fit: BoxFit.scaleDown,
+                              child: Text(
+                                isCompact
+                                    ? 'LỄ CƯỚI\nCỦA CHÚNG TÔI'
+                                    : 'LỄ CƯỚI CỦA CHÚNG TÔI',
+                                textAlign: TextAlign.center,
+                                style: TextStyle(
+                                  fontFamily: SectionTheme.fontFamily,
+                                  fontSize: isCompact ? 18 : 24 * textScale,
+                                  fontWeight: FontWeight.w600,
+                                  color: SectionTheme.ink,
+                                  height: 1.2,
+                                  letterSpacing: 0.5 * textScale,
                                 ),
                               ),
-                              SizedBox(width: familyDividerGap),
-                              VerticalDivider(
-                                width: 1.2 * textScale,
-                                thickness: 1.2 * textScale,
-                                color: SectionTheme.inkMuted.withValues(
-                                  alpha: 0.65,
-                                ),
-                              ),
-                              SizedBox(width: familyDividerGap),
-                              SizedBox(
-                                width: familyGroupWidth,
-                                child: _familyText(
-                                  'Nhà gái',
-                                  'Vũ Thị Khoa',
-                                  textScale,
-                                  nameAlignment: TextAlign.left,
-                                ),
-                              ),
-                            ],
-                          ),
+                            ),
+                          ],
                         ),
                       ),
-                    ),
-                    _positionedText(
-                      imageWidth: imageWidth,
-                      imageHeight: imageHeight,
-                      top: 0.24,
-                      text:
-                          'TRÂN TRỌNG BÁO TIN\nLỄ THÀNH HÔN CỦA CON CHÚNG TÔI',
-                      fontSize: 12,
-                      weight: FontWeight.w600,
-                      color: SectionTheme.ink,
-                      lineHeight: 1.35,
-                      letterSpacing: 0.2,
-                      scale: textScale,
-                    ),
-                    _positionedText(
-                      imageWidth: imageWidth,
-                      imageHeight: imageHeight,
-                      top: 0.35,
-                      text: 'Khắc Chính',
-                      fontSize: isCompact ? 27 : 24,
-                      weight: FontWeight.w700,
-                      color: SectionTheme.ink,
-                      scale: textScale,
-                    ),
-                    _positionedText(
-                      imageWidth: imageWidth,
-                      imageHeight: imageHeight,
-                      top: 0.414,
-                      text: '&',
-                      fontSize: 18,
-                      scale: textScale,
-                    ),
-                    _positionedText(
-                      imageWidth: imageWidth,
-                      imageHeight: imageHeight,
-                      top: 0.468,
-                      text: 'Nguyễn Trang',
-                      fontSize: isCompact ? 27 : 24,
-                      weight: FontWeight.w700,
-                      color: SectionTheme.ink,
-                      scale: textScale,
-                    ),
-                    Positioned(
-                      top: imageHeight * 0.53 + (isCompact ? 20 : 0),
-                      left: imageWidth * 0.157,
-                      right: imageWidth * 0.003,
-                      child: Column(
+                      Padding(
+                        padding: EdgeInsets.symmetric(
+                          vertical: isCompact ? 18 : 28 * textScale,
+                        ),
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            FittedBox(
+                              fit: BoxFit.scaleDown,
+                              child: Text('Khắc Chính', style: nameStyle),
+                            ),
+                            SizedBox(height: 4 * textScale),
+                            Text(
+                              '&',
+                              style: _smallStyle(
+                                18,
+                                textScale,
+                              ).copyWith(height: 1.2),
+                            ),
+                            SizedBox(height: 4 * textScale),
+                            FittedBox(
+                              fit: BoxFit.scaleDown,
+                              child: Text('Nguyễn Trang', style: nameStyle),
+                            ),
+                          ],
+                        ),
+                      ),
+                      Column(
                         mainAxisSize: MainAxisSize.min,
                         children: [
+                          Image.asset(
+                            'assets/icons/ic_split.png',
+                            width: isCompact ? 54 : 72 * textScale,
+                            height: isCompact ? 16 : 24 * textScale,
+                            fit: BoxFit.contain,
+                            excludeFromSemantics: true,
+                          ),
+                          SizedBox(height: isCompact ? 18 : 18 * textScale),
                           Text(
-                            'LỄ CƯỚI ĐƯỢC CỬ HÀNH TẠI TƯ GIA',
+                            'LỄ CƯỚI ĐƯỢC CỬ HÀNH\nTẠI TƯ GIA',
                             textAlign: TextAlign.center,
-                            style: _smallStyle(20, textScale).copyWith(
+                            style: _smallStyle(14, textScale).copyWith(
                               color: SectionTheme.ink,
-                              fontWeight: FontWeight.w600,
-                              height: 1.35,
+                              fontSize: isCompact ? 12 : 18 * textScale,
+                              fontWeight: FontWeight.w500,
+                              height: 1.4,
                               letterSpacing: 0.15 * textScale,
                             ),
                           ),
-                          SizedBox(height: (isCompact ? 8 : 18) * textScale),
-                          Text('VÀO LÚC', style: _smallStyle(12, textScale)),
-                          SizedBox(height: (isCompact ? 10 : 8) * textScale),
-                          Text('8:15', style: _smallStyle(20, textScale)),
-                          SizedBox(height: (isCompact ? 10 : 12) * textScale),
-                          Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Text(
-                                'CHỦ NHẬT',
-                                style: _smallStyle(11, textScale),
-                              ),
-                              SizedBox(width: 9 * textScale),
-                              Text('|', style: _smallStyle(11, textScale)),
-                              SizedBox(width: 9 * textScale),
-                              Text(
-                                '13',
-                                style: _smallStyle(
-                                  18,
-                                  textScale,
-                                ).copyWith(fontWeight: FontWeight.w700),
-                              ),
-                              SizedBox(width: 9 * textScale),
-                              Text('|', style: _smallStyle(11, textScale)),
-                              SizedBox(width: 9 * textScale),
-                              Text(
-                                'THÁNG 12',
-                                style: _smallStyle(11, textScale),
-                              ),
-                            ],
+                          SizedBox(height: isCompact ? 10 : 14 * textScale),
+                          Text('VÀO LÚC', style: _smallStyle(11, textScale)),
+                          SizedBox(height: isCompact ? 4 : 6 * textScale),
+                          Text(
+                            '8:15',
+                            style: TextStyle(
+                              fontFamily: SectionTheme.fontFamily,
+                              fontSize: isCompact ? 24 : 32 * textScale,
+                              fontWeight: FontWeight.w500,
+                              color: SectionTheme.ink,
+                              height: 1.1,
+                            ),
                           ),
-                          SizedBox(height: (isCompact ? 10 : 14) * textScale),
-                          Text('2026', style: _smallStyle(14, textScale)),
-                          SizedBox(height: (isCompact ? 10 : 14) * textScale),
+                          SizedBox(height: isCompact ? 12 : 14 * textScale),
+                          FittedBox(
+                            fit: BoxFit.scaleDown,
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Text(
+                                  'CHỦ NHẬT',
+                                  style: _smallStyle(11, textScale),
+                                ),
+                                SizedBox(width: 9 * textScale),
+                                Text('|', style: _smallStyle(11, textScale)),
+                                SizedBox(width: 9 * textScale),
+                                Text(
+                                  '13',
+                                  style: _smallStyle(18, textScale).copyWith(
+                                    fontFamily: SectionTheme.fontFamily,
+                                    fontSize: isCompact ? 22 : 32 * textScale,
+                                    fontWeight: FontWeight.w600,
+                                    height: 1.1,
+                                  ),
+                                ),
+                                SizedBox(width: 9 * textScale),
+                                Text('|', style: _smallStyle(11, textScale)),
+                                SizedBox(width: 9 * textScale),
+                                Text(
+                                  'THÁNG 12',
+                                  style: _smallStyle(11, textScale),
+                                ),
+                              ],
+                            ),
+                          ),
+                          SizedBox(height: isCompact ? 6 : 10 * textScale),
+                          Text(
+                            '2026',
+                            style: _smallStyle(14, textScale).copyWith(
+                              fontSize: isCompact ? 12 : 16 * textScale,
+                              height: 1.2,
+                            ),
+                          ),
+                          SizedBox(height: isCompact ? 6 : 8 * textScale),
                           Text(
                             '(TỨC NGÀY 5 THÁNG 11 NĂM BÍNH NGỌ)',
                             textAlign: TextAlign.center,
-                            style: _smallStyle(
-                              9,
-                              textScale,
-                            ).copyWith(letterSpacing: 0.9 * textScale),
+                            style: _smallStyle(9, textScale).copyWith(
+                              fontSize: isCompact ? 10 : 11 * textScale,
+                              letterSpacing: isCompact ? 0.3 : 0.8 * textScale,
+                              color: SectionTheme.inkSoft,
+                              height: 1.3,
+                            ),
                           ),
                         ],
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
               ),
             ],
@@ -241,70 +256,6 @@ class CeremonyInfoSection extends StatelessWidget {
       ),
     );
   }
-
-  Widget _familyText(
-    String heading,
-    String names,
-    double scale, {
-    required TextAlign nameAlignment,
-  }) => Align(
-    alignment: nameAlignment == TextAlign.right
-        ? Alignment.topRight
-        : Alignment.topLeft,
-    child: IntrinsicWidth(
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          Text(
-            heading,
-            textAlign: TextAlign.center,
-            style: _smallStyle(
-              10,
-              scale,
-            ).copyWith(color: SectionTheme.ink, fontWeight: FontWeight.w600),
-          ),
-          SizedBox(height: 3 * scale),
-          Text(
-            names,
-            textAlign: nameAlignment,
-            style: _smallStyle(10, scale).copyWith(
-              color: SectionTheme.ink,
-              fontWeight: FontWeight.w700,
-              height: 1.35,
-            ),
-          ),
-        ],
-      ),
-    ),
-  );
-
-  Positioned _positionedText({
-    required double imageWidth,
-    required double imageHeight,
-    required double top,
-    required String text,
-    required double fontSize,
-    required double scale,
-    FontWeight? weight,
-    Color? color,
-    double lineHeight = 1.2,
-    double letterSpacing = 0,
-  }) => Positioned(
-    top: imageHeight * top,
-    left: imageWidth * 0.197,
-    right: imageWidth * 0.043,
-    child: Text(
-      text,
-      textAlign: TextAlign.center,
-      style: _smallStyle(fontSize, scale).copyWith(
-        color: color,
-        fontWeight: weight,
-        height: lineHeight,
-        letterSpacing: letterSpacing * scale,
-      ),
-    ),
-  );
 
   TextStyle _smallStyle(double fontSize, double scale) {
     final isCompact = scale < 0.8;
@@ -328,7 +279,7 @@ class CeremonyInfoSection extends StatelessWidget {
       color: isCompact ? SectionTheme.ink : SectionTheme.inkSoft,
       fontFamily: isCompact ? SectionTheme.mobileFontFamily : null,
       fontSize: resolvedFontSize,
-      fontWeight: isCompact ? FontWeight.w600 : null,
+      fontWeight: isCompact ? FontWeight.w500 : null,
     );
   }
 }

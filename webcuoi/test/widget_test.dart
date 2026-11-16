@@ -118,7 +118,7 @@ void main() {
     },
   );
 
-  testWidgets('ceremony parents sit close to the centered divider', (
+  testWidgets('ceremony card focuses on the couple and wedding date', (
     tester,
   ) async {
     tester.view.devicePixelRatio = 1;
@@ -139,28 +139,29 @@ void main() {
       await tester.pumpAndSettle();
       expect(tester.takeException(), isNull, reason: '$width px');
 
-      final groom = tester.getRect(
-        find.text('Nguyễn Khắc Phác\nNguyễn Thị Chung'),
-      );
-      final bride = tester.getRect(find.text('Vũ Thị Khoa'));
-      final divider = tester.getRect(
-        find.descendant(
-          of: find.byType(CeremonyInfoSection),
-          matching: find.byType(VerticalDivider),
+      expect(find.text('THÔNG TIN LỄ CƯỚI'), findsNothing);
+      expect(find.text('Nhà trai'), findsNothing);
+      expect(find.text('Nhà gái'), findsNothing);
+      expect(find.textContaining('Nguyễn Khắc Phác'), findsNothing);
+      expect(find.textContaining('Nguyễn Thị Chung'), findsNothing);
+      expect(find.text('Vũ Thị Khoa'), findsNothing);
+      final artwork = tester.getRect(
+        find.byWidgetPredicate(
+          (widget) =>
+              widget is Image &&
+              widget.image is AssetImage &&
+              (widget.image as AssetImage).assetName.endsWith('info_Card1.png'),
         ),
       );
-      expect(divider.left - groom.right, closeTo(8, 0.1));
-      expect(bride.left - divider.right, closeTo(8, 0.1));
-
-      final groomHeading = tester.getRect(find.text('Nhà trai'));
-      final brideHeading = tester.getRect(find.text('Nhà gái'));
-      expect(groomHeading.center.dx, closeTo(groom.center.dx, 0.1));
-      expect(brideHeading.center.dx, closeTo(bride.center.dx, 0.1));
-      expect(groomHeading.top, closeTo(brideHeading.top, 0.1));
-
-      final artwork = tester.getRect(find.byType(Image));
       final cardCenter = artwork.left + artwork.width * 366 / 627;
-      expect(divider.center.dx, closeTo(cardCenter, 0.1));
+      for (final label in ['Khắc Chính', 'Nguyễn Trang', '8:15', '2026']) {
+        expect(find.text(label), findsOneWidget);
+        expect(
+          tester.getRect(find.text(label)).center.dx,
+          closeTo(cardCenter, 0.1),
+          reason: '$label at $width px',
+        );
+      }
     }
     await tester.pumpWidget(const SizedBox.shrink());
   });

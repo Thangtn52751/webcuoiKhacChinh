@@ -62,8 +62,12 @@ void main() {
         expect(find.byType(Dialog), findsOneWidget);
         expect(_imageAt('assets/images/gallery/qr_hus.jpeg'), findsOneWidget);
         expect(_imageAt('assets/images/gallery/qr_Wife.jpeg'), findsOneWidget);
-        expect(find.text('Nguyễn Khắc Chính'), findsOneWidget);
-        expect(find.text('Nguyễn Trang'), findsOneWidget);
+        final accounts = tester
+            .widget<GiftBoxSection>(find.byType(GiftBoxSection))
+            .accounts;
+        for (final account in accounts) {
+          expect(find.text(account.owner), findsOneWidget);
+        }
         expect(tester.binding.hasScheduledFrame, isFalse);
         final frozenPosition = tester.getRect(_imageAt(_mainGift));
         await tester.pump(const Duration(seconds: 2));

@@ -5,7 +5,7 @@ import 'package:webcuoi/features/wedding_invitation/presentation/widgets/embedde
 import 'package:webcuoi/features/wedding_invitation/presentation/widgets/invitation_scroll_view.dart';
 
 void main() {
-  testWidgets('mobile loads a map only on demand and releases it offscreen', (
+  testWidgets('mobile loads a map when visible and releases it offscreen', (
     tester,
   ) async {
     tester.view.devicePixelRatio = 1;
@@ -36,14 +36,14 @@ void main() {
 
     controller.jumpTo(900);
     await tester.pumpAndSettle();
-    expect(find.text('Chạm để xem bản đồ'), findsOneWidget);
-    expect(find.byType(EmbeddedMap), findsNothing);
-    await tester.drag(find.text('Chạm để xem bản đồ'), const Offset(0, -70));
+    expect(find.byType(EmbeddedMap), findsOneWidget);
+    expect(find.text('Chạm để xem bản đồ'), findsNothing);
+    expect(find.text('Đóng bản đồ để cuộn thiệp'), findsNothing);
+    // Use the Flutter address label to exercise vertical invitation scrolling.
+    await tester.drag(find.text('Địa chỉ nhà trai'), const Offset(0, -70));
     await tester.pumpAndSettle();
     expect(controller.offset, greaterThan(900));
     controller.jumpTo(900);
-    await tester.pumpAndSettle();
-    await tester.tap(find.text('Chạm để xem bản đồ'));
     await tester.pumpAndSettle();
     expect(find.byType(EmbeddedMap), findsOneWidget);
     expect(find.text('Chỉ đường'), findsOneWidget);
@@ -56,19 +56,17 @@ void main() {
       '21.256900289911776,106.05149489064672',
     );
     expect(find.text('Địa chỉ nhà gái'), findsOneWidget);
-    await tester.tap(find.text('Đóng bản đồ để cuộn thiệp'));
-    await tester.pumpAndSettle();
-    expect(find.byType(EmbeddedMap), findsNothing);
-
-    await tester.tap(find.text('Chạm để xem bản đồ'));
-    await tester.pumpAndSettle();
-    expect(find.byType(EmbeddedMap), findsOneWidget);
     controller.jumpTo(0);
     await tester.pumpAndSettle();
     expect(find.byType(EmbeddedMap), findsNothing);
     controller.jumpTo(900);
     await tester.pumpAndSettle();
-    expect(find.byType(EmbeddedMap), findsNothing);
+    expect(find.byType(EmbeddedMap), findsOneWidget);
+    expect(find.text('Địa chỉ nhà gái'), findsOneWidget);
+    expect(
+      tester.widget<EmbeddedMap>(find.byType(EmbeddedMap)).query,
+      '21.256900289911776,106.05149489064672',
+    );
     expect(tester.takeException(), isNull);
     await tester.pumpWidget(const SizedBox.shrink());
   });
@@ -97,12 +95,13 @@ void main() {
       ),
     );
     await tester.pumpAndSettle();
-    await tester.tap(find.text('Chạm để xem bản đồ'));
-    await tester.pumpAndSettle();
     expect(find.byType(EmbeddedMap), findsOneWidget);
     tester.view.physicalSize = const Size(390, 200);
     await tester.pumpAndSettle();
     expect(find.byType(EmbeddedMap), findsNothing);
+    tester.view.physicalSize = const Size(390, 1000);
+    await tester.pumpAndSettle();
+    expect(find.byType(EmbeddedMap), findsOneWidget);
     expect(tester.takeException(), isNull);
     await tester.pumpWidget(const SizedBox.shrink());
   });
@@ -112,6 +111,11 @@ void main() {
     tester.view.physicalSize = const Size(390, 700);
     addTearDown(tester.view.resetPhysicalSize);
     addTearDown(tester.view.resetDevicePixelRatio);
+    addTearDown(
+      () => tester.binding.handleAppLifecycleStateChanged(
+        AppLifecycleState.resumed,
+      ),
+    );
     await tester.pumpWidget(
       const MaterialApp(
         home: Scaffold(
@@ -122,8 +126,6 @@ void main() {
       ),
     );
     await tester.pumpAndSettle();
-    await tester.tap(find.text('Chạm để xem bản đồ'));
-    await tester.pumpAndSettle();
     expect(find.byType(EmbeddedMap), findsOneWidget);
     // Focusing the embedded document can make a web app inactive without
     // hiding it; the map must remain usable in that state.
@@ -133,12 +135,15 @@ void main() {
     tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.resumed);
     await tester.pumpAndSettle();
     tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.hidden);
-    // Flutter does not render while hidden. The web implementation stops its
-    // iframe document directly; after resuming the section must stay closed.
+    // Hidden apps do not schedule frames. Force a test frame to inspect the
+    // visibility gate, then check that returning restores the visible map.
+    tester.binding.scheduleForcedFrame();
+    await tester.pump();
+    expect(find.byType(EmbeddedMap), findsNothing);
     tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.resumed);
     await tester.pumpAndSettle();
-    expect(find.byType(EmbeddedMap), findsNothing);
-    expect(find.text('Chạm để xem bản đồ'), findsOneWidget);
+    expect(find.byType(EmbeddedMap), findsOneWidget);
+    expect(find.text('Chạm để xem bản đồ'), findsNothing);
     expect(tester.takeException(), isNull);
     await tester.pumpWidget(const SizedBox.shrink());
   });

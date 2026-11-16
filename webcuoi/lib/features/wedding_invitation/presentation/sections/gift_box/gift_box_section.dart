@@ -34,6 +34,8 @@ class GiftBoxSection extends StatefulWidget {
 
   final double scale;
   final List<GiftAccount> accounts;
+
+  /// Kept for constructor compatibility; the page uses separate footer artwork.
   final String thankYou;
 
   static const List<GiftAccount> _demoAccounts = [
@@ -45,7 +47,7 @@ class GiftBoxSection extends StatefulWidget {
     ),
     GiftAccount(
       side: 'C\u{00F4} D\u{00E2}u',
-      owner: 'Nguyễn Trang',
+      owner: 'Nguyễn Thị Trang',
       bankName: 'Vietcombank',
       accountNumber: '0731000806651',
     ),
@@ -236,20 +238,6 @@ class _GiftBoxSectionState extends State<GiftBoxSection>
                           letterSpacing: 0.4 * scale,
                         ),
                       ),
-                    ),
-                  ),
-                ),
-                SizedBox(height: 22 * scale),
-                Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 24 * scale),
-                  child: Text(
-                    widget.thankYou,
-                    textAlign: TextAlign.center,
-                    style: SectionTheme.body(scale).copyWith(
-                      fontStyle: FontStyle.italic,
-                      fontSize: 14 * scale,
-                      color: SectionTheme.inkSoft,
-                      height: 1.5,
                     ),
                   ),
                 ),

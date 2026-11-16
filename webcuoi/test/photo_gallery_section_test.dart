@@ -4,14 +4,14 @@ import 'package:webcuoi/features/wedding_invitation/presentation/sections/photo_
 import 'package:webcuoi/features/wedding_invitation/presentation/widgets/invitation_scroll_view.dart';
 
 const _fullImages = [
-  'assets/images/couple/full/couple.webp',
-  'assets/images/couple/full/couple2.webp',
-  'assets/images/couple/full/couple3.webp',
+  'assets/images/couple/full/couple-bc6a77e131ac.webp',
+  'assets/images/couple/full/couple2-b91ab1a267cb.webp',
+  'assets/images/couple/full/couple3-c61f042a6698.webp',
 ];
 const _thumbnails = [
-  'assets/images/couple/thumbnails/couple.webp',
-  'assets/images/couple/thumbnails/couple2.webp',
-  'assets/images/couple/thumbnails/couple3.webp',
+  'assets/images/couple/thumbnails/couple-6c256149f353.webp',
+  'assets/images/couple/thumbnails/couple2-4ca59968e0e1.webp',
+  'assets/images/couple/thumbnails/couple3-ea050bacfb78.webp',
 ];
 
 void main() {

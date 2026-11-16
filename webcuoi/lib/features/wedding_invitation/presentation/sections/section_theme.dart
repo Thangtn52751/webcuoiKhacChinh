@@ -4,6 +4,7 @@ class SectionTheme {
   SectionTheme._();
   static const String fontFamily = 'CormorantGaramond';
   static const String mobileFontFamily = 'Arial';
+  static const String nameFontFamily = 'Ephesis';
   static const Color ink = Color(0xFF6E5B4F);
   static const Color inkSoft = Color(0xFF8A7868);
   static const Color inkMuted = Color(0xFFA79686);
@@ -33,9 +34,10 @@ class SectionTheme {
 
   static TextStyle displayName(double scale) => TextStyle(
     color: inkSoft,
+    fontFamily: nameFontFamily,
     fontSize: 32 * scale,
-    fontStyle: FontStyle.italic,
-    fontWeight: FontWeight.w500,
+    fontStyle: FontStyle.normal,
+    fontWeight: FontWeight.w400,
     height: 1.2,
   );
 

@@ -68,7 +68,6 @@ flutter:
     - assets/images/decorations/dried_flower.png
     - assets/images/decorations/heart_badge.png
     - assets/images/decorations/divider_fleuron.png
-    - assets/images/decorations/hero_couple_photo.png
     - assets/images/couple/full/
     - assets/images/couple/thumbnails/
     - assets/images/decorations/info_Card1.png
@@ -78,6 +77,8 @@ flutter:
     - assets/images/backgrounds/mainBG.webp
     - assets/images/backgrounds/mainBG.mobile.webp
     - assets/images/decorations/intro_pic.png
+    - assets/images/decorations/footerMobile_PC.webp
+    - assets/images/decorations/footerPC_BG.webp
     - assets/icons/ic_heart.png
     - assets/icons/ic_split.png
     - assets/images/decorations/Group_5.png
@@ -92,6 +93,10 @@ flutter:
     - assets/images/gallery/qr_Wife.jpeg
 
   fonts:
+    - family: Ephesis
+      fonts:
+        - asset: assets/fonts/Ephesis-Regular.ttf
+          weight: 400
     - family: CormorantGaramond
       fonts:
         - asset: assets/fonts/CormorantGaramond-Variable.ttf

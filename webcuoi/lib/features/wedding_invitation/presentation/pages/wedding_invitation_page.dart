@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 
 import '../sections/ceremony_info/ceremony_info_section.dart';
 import '../sections/cover/cover_header_section.dart';
+import '../sections/footer/invitation_footer_section.dart';
 import '../sections/gift_box/gift_box_section.dart';
 import '../sections/guestbook/guestbook_section.dart';
 import '../sections/photo_gallery/photo_gallery_section.dart';
@@ -133,6 +134,7 @@ class _InvitationCanvas extends StatelessWidget {
             VenueSection(scale: scale, loadFromServer: false),
             GuestbookSection(scale: scale),
             GiftBoxSection(scale: scale),
+            const InvitationFooterSection(),
           ],
         ),
       ),

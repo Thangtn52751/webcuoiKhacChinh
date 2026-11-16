@@ -44,12 +44,7 @@ class CoverHeaderSection extends StatelessWidget {
             textAlign: TextAlign.center,
             style: SectionTheme.displayName(scale).copyWith(
               color: SectionTheme.inkSoft,
-              fontFamily: SectionTheme.fontFamilyFor(context),
               fontSize: 42 * scale,
-              fontStyle: FontStyle.italic,
-              fontWeight: SectionTheme.isCompact(context)
-                  ? FontWeight.w500
-                  : FontWeight.w600,
               letterSpacing: 0.15 * scale,
               height: 1.05,
             ),

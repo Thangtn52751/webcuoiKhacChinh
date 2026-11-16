@@ -126,7 +126,6 @@ class _VenueSectionState extends State<VenueSection>
   );
   ScrollPosition? get _scrollPosition => _viewportObserver.position;
   bool _isVisible = false;
-  bool _mapActivated = false;
   bool _isAppVisible = true;
 
   @override
@@ -161,20 +160,14 @@ class _VenueSectionState extends State<VenueSection>
     final visible = isInScrollViewport(context, _scrollPosition);
     if (visible == _isVisible) return;
 
-    setState(() {
-      _isVisible = visible;
-      if (!visible) _mapActivated = false;
-    });
+    setState(() => _isVisible = visible);
   }
 
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
     final isVisible = _isVisibleLifecycle(state);
     if (isVisible == _isAppVisible) return;
-    setState(() {
-      _isAppVisible = isVisible;
-      if (!isVisible) _mapActivated = false;
-    });
+    setState(() => _isAppVisible = isVisible);
   }
 
   bool _isVisibleLifecycle(AppLifecycleState state) =>
@@ -236,17 +229,13 @@ class _VenueSectionState extends State<VenueSection>
     final place = _selectedPlace;
     final textScale = math.max(widget.scale, 0.9).toDouble();
     final isMobile = MediaQuery.widthOf(context) <= 720;
-    final mapLoaded =
-        _isVisible && _isAppVisible && (!isMobile || _mapActivated);
+    final mapLoaded = _isVisible && _isAppVisible;
     final card = _VenueCard(
       key: ValueKey(place.side),
       place: place,
       scale: widget.scale,
       textScale: textScale,
       mapLoaded: mapLoaded,
-      isMobile: isMobile,
-      onActivateMap: () => setState(() => _mapActivated = true),
-      onCloseMap: () => setState(() => _mapActivated = false),
       onOpenDirections: () => _openDirections(place),
     );
 
@@ -299,9 +288,6 @@ class _VenueCard extends StatelessWidget {
     required this.scale,
     required this.textScale,
     required this.mapLoaded,
-    required this.isMobile,
-    required this.onActivateMap,
-    required this.onCloseMap,
     required this.onOpenDirections,
   });
 
@@ -309,9 +295,6 @@ class _VenueCard extends StatelessWidget {
   final double scale;
   final double textScale;
   final bool mapLoaded;
-  final bool isMobile;
-  final VoidCallback onActivateMap;
-  final VoidCallback onCloseMap;
   final VoidCallback onOpenDirections;
 
   @override
@@ -353,50 +336,15 @@ class _VenueCard extends StatelessWidget {
                       height: mapHeight,
                       borderRadius: 2 * scale,
                     )
-                  : Material(
-                      color: const Color(0xFFE9E0D2),
-                      borderRadius: BorderRadius.circular(2 * scale),
-                      child: InkWell(
-                        onTap: isMobile ? onActivateMap : null,
+                  : DecoratedBox(
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFE9E0D2),
                         borderRadius: BorderRadius.circular(2 * scale),
-                        child: Center(
-                          child: Column(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              const Icon(
-                                Icons.map_outlined,
-                                color: SectionTheme.inkSoft,
-                                size: 28,
-                              ),
-                              if (isMobile) ...[
-                                const SizedBox(height: 10),
-                                Text(
-                                  'Chạm để xem bản đồ',
-                                  textAlign: TextAlign.center,
-                                  style: SectionTheme.body(scale).copyWith(
-                                    fontSize: 14 * textScale,
-                                    fontWeight: FontWeight.w600,
-                                  ),
-                                ),
-                              ],
-                            ],
-                          ),
-                        ),
                       ),
                     ),
             );
           },
         ),
-        if (isMobile && mapLoaded)
-          TextButton.icon(
-            onPressed: onCloseMap,
-            style: TextButton.styleFrom(
-              foregroundColor: SectionTheme.ink,
-              minimumSize: const Size(44, 44),
-            ),
-            icon: const Icon(Icons.close_rounded, size: 17),
-            label: const Text('Đóng bản đồ để cuộn thiệp'),
-          ),
         SizedBox(height: 14 * scale),
         Material(
           color: Colors.transparent,
@@ -515,7 +463,7 @@ class _ToggleSegment extends StatelessWidget {
               ),
               const SizedBox(width: 6),
               Text(
-                label,  
+                label,
                 style: TextStyle(
                   color: selected ? Colors.white : SectionTheme.inkSoft,
                   fontFamily: SectionTheme.fontFamilyFor(context),
